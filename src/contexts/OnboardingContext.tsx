@@ -25,13 +25,27 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   useEffect(() => {
     try {
       const saved = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      
+      if (import.meta.env?.DEV) {
+        console.log('Onboarding: Checking localStorage for saved data:', saved);
+      }
+      
       if (saved) {
         const data = JSON.parse(saved) as OnboardingData;
+        if (import.meta.env?.DEV) {
+          console.log('Onboarding: Found saved data, setting as complete:', data);
+        }
         setOnboardingData(data);
         setIsOnboardingComplete(true);
+      } else {
+        if (import.meta.env?.DEV) {
+          console.log('Onboarding: No saved data found, should show onboarding');
+        }
+        setIsOnboardingComplete(false);
       }
     } catch (error) {
       console.warn('Failed to load onboarding data:', error);
+      setIsOnboardingComplete(false);
     } finally {
       setIsLoaded(true);
     }

@@ -43,9 +43,13 @@ src/
 │   │   └── index.tsx           # Component exports
 │   └── Layout.tsx
 ├── pages/            # Page components
-│   ├── Home.tsx
+│   ├── Dashboard.tsx           # Main dashboard with personalized content
+│   ├── Home.tsx               # Original home (moved to /old-home)
 │   ├── Meditation.tsx
 │   ├── History.tsx
+│   ├── Explore.tsx            # Exploration & discovery
+│   ├── Journal.tsx            # Mindfulness journal
+│   ├── Profile.tsx            # User profile & settings
 │   ├── ComponentsDemo.tsx      # UI components showcase
 │   └── onboarding/             # Onboarding flow
 │       ├── SplashScreen.tsx    # App intro with cairn animation
@@ -158,6 +162,37 @@ Visit `/demo` route to see all components in action!
 - **State Persistence**: Remember completion status in localStorage
 - **Gentle Transitions**: 300ms animations with cubic-bezier easing
 - **Indonesian Content**: Culturally appropriate language and imagery
+
+## Dashboard Experience
+
+### 🏠 **Main Dashboard Features**
+1. **Personal Greeting**: Dynamic time-based greetings (pagi/siang/sore/malam)
+2. **Daily Mood Check-in**: Integrated MoodSelector for emotional tracking
+3. **Jeda Hari Ini Card**: 
+   - Time-aware meditation recommendations
+   - Personalized based on onboarding goals
+   - Breathing animation hints on CTA button
+4. **Streak Counter**: Cairn visualization growing with consistency
+5. **Quick Access Cards**: Meditasi, Napas, Jelajah, Profil
+6. **Cultural Touches**: Indonesian quotes, warm language, peaceful imagery
+
+### 🎯 **Smart Recommendations**
+- **Morning**: Pernapasan Pagi (5 min breathing)
+- **Midday**: Jeda Siang (10 min mindfulness)  
+- **Evening**: Refleksi Sore (15 min reflection)
+- **Night**: Ketenangan Malam (20 min sleep prep)
+
+### 📊 **Progress Tracking**
+- **Streak visualization** with cairn stones
+- **Session statistics** (days, sessions, minutes)
+- **Achievement celebrations** for completed goals
+- **Motivational content** with Indonesian wisdom
+
+### 🗂️ **Navigation Structure**
+- **Home**: Main dashboard with personalized content
+- **Jelajah**: Exploration and discovery of techniques
+- **Jurnal**: Mindfulness journal and reflections
+- **Profil**: Settings, statistics, and preferences
 
 ## Design System
 

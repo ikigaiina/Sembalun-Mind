@@ -129,13 +129,6 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
   return (
     <div className="onboarding-flow">
       {renderCurrentStep()}
-      
-      {/* Step indicator for debugging - remove in production */}
-      {import.meta.env?.DEV && (
-        <div className="fixed top-4 left-4 bg-black bg-opacity-50 text-white text-xs px-2 py-1 rounded z-50">
-          Step: {currentStep}
-        </div>
-      )}
     </div>
   );
 };
