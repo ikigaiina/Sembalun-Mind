@@ -1,0 +1,108 @@
+import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { type OnboardingData } from '../pages/onboarding';
+
+interface OnboardingContextType {
+  isOnboardingComplete: boolean;
+  onboardingData: OnboardingData | null;
+  completeOnboarding: (data: OnboardingData) => void;
+  resetOnboarding: () => void;
+}
+
+const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+
+interface OnboardingProviderProps {
+  children: ReactNode;
+}
+
+const ONBOARDING_STORAGE_KEY = 'sembalun_onboarding';
+
+export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children }) => {
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
+  const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
+
+  // Load onboarding state from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem(ONBOARDING_STORAGE_KEY);
+      if (saved) {
+        const data = JSON.parse(saved) as OnboardingData;
+        setOnboardingData(data);
+        setIsOnboardingComplete(true);
+      }
+    } catch (error) {
+      console.warn('Failed to load onboarding data:', error);
+    } finally {
+      setIsLoaded(true);
+    }
+  }, []);
+
+  const completeOnboarding = (data: OnboardingData) => {
+    setOnboardingData(data);
+    setIsOnboardingComplete(true);
+    
+    // Save to localStorage
+    try {
+      localStorage.setItem(ONBOARDING_STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.warn('Failed to save onboarding data:', error);
+    }
+  };
+
+  const resetOnboarding = () => {
+    setOnboardingData(null);
+    setIsOnboardingComplete(false);
+    
+    // Clear from localStorage
+    try {
+      localStorage.removeItem(ONBOARDING_STORAGE_KEY);
+    } catch (error) {
+      console.warn('Failed to clear onboarding data:', error);
+    }
+  };
+
+  const value: OnboardingContextType = {
+    isOnboardingComplete,
+    onboardingData,
+    completeOnboarding,
+    resetOnboarding
+  };
+
+  // Show loading state while checking onboarding status
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
+        <div className="text-center">
+          <div className="flex justify-center space-x-1 mb-4">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="w-2 h-2 rounded-full animate-pulse"
+                style={{
+                  backgroundColor: 'var(--color-primary)',
+                  animationDelay: `${i * 0.2}s`,
+                  opacity: 0.6
+                }}
+              />
+            ))}
+          </div>
+          <p className="text-gray-600 font-body text-sm">Memuat Sembalun...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <OnboardingContext.Provider value={value}>
+      {children}
+    </OnboardingContext.Provider>
+  );
+};
+
+export const useOnboarding = (): OnboardingContextType => {
+  const context = useContext(OnboardingContext);
+  if (context === undefined) {
+    throw new Error('useOnboarding must be used within an OnboardingProvider');
+  }
+  return context;
+};

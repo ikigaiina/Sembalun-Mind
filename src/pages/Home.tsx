@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useOnboarding } from '../contexts/OnboardingContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Cairn } from '../components/ui/Cairn';
@@ -10,6 +11,7 @@ import { FloatingButton } from '../components/ui/FloatingButton';
 
 export const Home: React.FC = () => {
   const navigate = useNavigate();
+  const { resetOnboarding } = useOnboarding();
   const [selectedMood, setSelectedMood] = useState<MoodType | undefined>();
   const [breathingActive, setBreathingActive] = useState(false);
 
@@ -104,6 +106,21 @@ export const Home: React.FC = () => {
           </div>
         </div>
       </Card>
+
+      {/* Development: Reset onboarding button */}
+      {import.meta.env?.DEV && (
+        <Card padding="small">
+          <h4 className="font-heading text-gray-800 mb-3">Development Tools</h4>
+          <Button
+            variant="outline"
+            size="small"
+            onClick={resetOnboarding}
+            className="w-full"
+          >
+            Reset Onboarding
+          </Button>
+        </Card>
+      )}
 
       {/* Floating Action Button */}
       <FloatingButton

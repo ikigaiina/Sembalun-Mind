@@ -61,3 +61,7 @@ button:focus-visible,
 .border-primary {
   border-color: var(--color-primary);
 }
+
+.ring-primary {
+  --tw-ring-color: var(--color-primary);
+}
