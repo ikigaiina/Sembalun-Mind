@@ -23,19 +23,19 @@ export const ComponentsDemo: React.FC = () => {
           <h3 className="font-heading text-gray-800 mb-4">CairnIcon Component</h3>
           <div className="flex items-center justify-around">
             <div className="text-center">
-              <CairnIcon progress={20} size={32} className="text-primary mx-auto mb-2" />
+              <CairnIcon progress={20} size={40} variant="artistic" className="text-primary mx-auto mb-2 hover:scale-110 transition-transform duration-300" />
               <p className="text-xs text-gray-600">20%</p>
             </div>
             <div className="text-center">
-              <CairnIcon progress={50} size={32} className="text-primary mx-auto mb-2" />
+              <CairnIcon progress={50} size={40} variant="artistic" className="text-primary mx-auto mb-2 hover:scale-110 transition-transform duration-300" />
               <p className="text-xs text-gray-600">50%</p>
             </div>
             <div className="text-center">
-              <CairnIcon progress={80} size={32} className="text-primary mx-auto mb-2" />
+              <CairnIcon progress={80} size={40} variant="artistic" className="text-primary mx-auto mb-2 hover:scale-110 transition-transform duration-300" />
               <p className="text-xs text-gray-600">80%</p>
             </div>
             <div className="text-center">
-              <CairnIcon progress={100} size={32} className="text-primary mx-auto mb-2" />
+              <CairnIcon progress={100} size={40} variant="artistic" className="text-primary mx-auto mb-2 hover:scale-110 transition-transform duration-300" />
               <p className="text-xs text-gray-600">100%</p>
             </div>
           </div>
@@ -50,7 +50,7 @@ export const ComponentsDemo: React.FC = () => {
               className="w-full"
             />
             <div className="text-center mt-2">
-              <CairnIcon progress={cairnProgress} size={48} className="text-primary" />
+              <CairnIcon progress={cairnProgress} size={60} variant="artistic" className="text-primary animate-pulse" />
               <p className="text-sm text-gray-600 mt-2">Progress: {cairnProgress}%</p>
             </div>
           </div>
@@ -102,7 +102,7 @@ export const ComponentsDemo: React.FC = () => {
                 position="static"
                 onClick={() => alert('Primary button clicked!')}
               >
-                <CairnIcon size={20} />
+                <CairnIcon size={24} variant="artistic" className="animate-spin" />
               </FloatingButton>
               <p className="text-xs text-gray-600 mt-2">Primary</p>
             </div>

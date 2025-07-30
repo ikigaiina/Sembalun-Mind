@@ -26,7 +26,7 @@ export const Card: React.FC<CardProps> = ({
 
   return (
     <div 
-      className={`bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-gray-100 ${paddingClasses[padding]} ${className} ${onClick ? 'cursor-pointer' : ''}`}
+      className={`bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-gray-100 transition-all duration-300 transform-gpu ${paddingClasses[padding]} ${className} ${onClick ? 'cursor-pointer hover-lift hover-glow' : ''}`}
       onClick={onClick}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}

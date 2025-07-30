@@ -16,12 +16,12 @@ export const Button: React.FC<ButtonProps> = ({
   onClick,
   className = ''
 }) => {
-  const baseClasses = 'rounded-2xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
+  const baseClasses = 'rounded-2xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform-gpu will-change-transform hover:scale-105 active:scale-95';
   
   const variantClasses = {
-    primary: 'text-white shadow-lg',
-    secondary: 'text-gray-800 shadow-md',
-    outline: 'border-2 text-white'
+    primary: 'text-white shadow-lg hover:shadow-xl hover-glow animate-shimmer',
+    secondary: 'text-gray-800 shadow-md hover:shadow-lg animate-scale-pulse',
+    outline: 'border-2 text-white hover-lift'
   };
 
   const sizeClasses = {
