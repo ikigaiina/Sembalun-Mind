@@ -1,5 +1,6 @@
 import { type ReactNode } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 
 interface NavigationItem {
   id: string;
@@ -74,6 +75,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const location = useLocation();
 
   const handleNavigation = (path: string) => {
+    scrollToTop();
     navigate(path);
   };
 

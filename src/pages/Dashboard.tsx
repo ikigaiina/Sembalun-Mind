@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { CairnIcon } from '../components/ui/CairnIcon';
 import { MoodSelector, type MoodType } from '../components/ui/MoodSelector';
 import { BreathingCard } from '../components/ui/BreathingCard';
+import { scrollToTop } from '../hooks/useScrollToTop';
 
 interface MeditationSession {
   id: string;
@@ -244,7 +245,10 @@ export const Dashboard: React.FC = () => {
             </div>
 
             <Button 
-              onClick={() => navigate('/meditation', { state: { session: recommendedSession } })}
+              onClick={() => {
+                scrollToTop();
+                navigate('/meditation', { state: { session: recommendedSession } });
+              }}
               size="large"
               className="w-full relative overflow-hidden"
             >
@@ -281,7 +285,10 @@ export const Dashboard: React.FC = () => {
                 key={item.id}
                 className="cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
                 padding="medium"
-                onClick={() => navigate(item.route)}
+                onClick={() => {
+                  scrollToTop();
+                  navigate(item.route);
+                }}
               >
                 <div className="text-center space-y-3">
                   <div 

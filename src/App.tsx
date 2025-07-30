@@ -10,10 +10,14 @@ import { Explore } from './pages/Explore';
 import { Journal } from './pages/Journal';
 import { Profile } from './pages/Profile';
 import { ComponentsDemo } from './pages/ComponentsDemo';
+import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Main app content component
 const AppContent: React.FC = () => {
   const { isOnboardingComplete, completeOnboarding } = useOnboarding();
+  
+  // Auto-scroll to top on route changes
+  useScrollToTop();
 
   if (import.meta.env?.DEV) {
     console.log('App: isOnboardingComplete =', isOnboardingComplete);
