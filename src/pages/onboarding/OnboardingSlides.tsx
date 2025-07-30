@@ -1,5 +1,6 @@
 import { useState, useRef } from 'react';
 import { CairnIcon } from '../../components/ui/CairnIcon';
+import { SembalunBackground } from '../../components/ui/SembalunBackground';
 
 interface Slide {
   id: number;
@@ -103,7 +104,7 @@ const slides: Slide[] = [
         {/* Cairn visual with growth animation */}
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="relative">
-            <CairnIcon progress={100} size={80} className="text-primary animate-pulse" />
+            <CairnIcon progress={100} size={96} variant="artistic" className="text-primary animate-pulse" />
             
             {/* Growth rings */}
             <div className="absolute inset-0 flex items-center justify-center">
@@ -197,12 +198,21 @@ export const OnboardingSlides: React.FC<OnboardingSlidesProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-background)' }}>
-      {/* Skip button */}
-      <div className="flex justify-end p-4">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Sembalun Background */}
+      <SembalunBackground 
+        variant="mist" 
+        intensity="subtle" 
+        animated={true}
+        className="fixed inset-0 z-0"
+      />
+      
+      <div className="relative z-10 flex flex-col min-h-screen">
+      {/* Skip button - fixed position top-right */}
+      <div className="absolute top-4 right-4 z-10">
         <button
           onClick={onSkip}
-          className="text-gray-500 font-body text-sm hover:text-gray-700 transition-colors duration-200 px-4 py-2 rounded-lg"
+          className="text-gray-500 font-body text-sm hover:text-gray-700 transition-colors duration-200 px-4 py-2 rounded-lg bg-white/80 backdrop-blur-sm shadow-sm"
         >
           Lewati
         </button>
@@ -211,7 +221,7 @@ export const OnboardingSlides: React.FC<OnboardingSlidesProps> = ({
       {/* Slides container */}
       <div 
         ref={containerRef}
-        className="flex-1 overflow-hidden"
+        className="flex-1 overflow-hidden pt-16"
         onTouchStart={handleTouchStart}
         onTouchEnd={handleTouchEnd}
       >
@@ -288,6 +298,7 @@ export const OnboardingSlides: React.FC<OnboardingSlidesProps> = ({
             </button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import { Button } from '../components/ui/Button';
 import { MeditationTimer } from '../components/ui/MeditationTimer';
 import { AudioPlayer, type AmbientSound, type SessionType } from '../components/ui/AudioPlayer';
 import { SessionComplete } from '../components/ui/SessionComplete';
+import { SembalunBackground } from '../components/ui/SembalunBackground';
 import { scrollToTop } from '../hooks/useScrollToTop';
 
 interface MeditationSession {
@@ -140,7 +141,16 @@ export const Meditation: React.FC = () => {
   // Render setup screen
   if (meditationState === 'setup') {
     return (
-      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+      <div className="min-h-screen relative">
+        {/* Sembalun Background */}
+        <SembalunBackground 
+          variant="mist" 
+          intensity="subtle" 
+          animated={true}
+          className="fixed inset-0 z-0"
+        />
+        
+        <div className="relative z-10">
         <Header 
           title="Persiapan Sesi" 
           showBack={true} 
@@ -240,13 +250,23 @@ export const Meditation: React.FC = () => {
             </Button>
           </div>
         </div>
+        </div>
       </div>
     );
   }
 
   // Render active meditation session
   return (
-    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
+    <div className="min-h-screen relative">
+      {/* Sembalun Background */}
+      <SembalunBackground 
+        variant="default" 
+        intensity="subtle" 
+        animated={true}
+        className="fixed inset-0 z-0"
+      />
+      
+      <div className="relative z-10">
       <Header 
         title={session.title}
         showBack={false}
@@ -346,6 +366,7 @@ export const Meditation: React.FC = () => {
             />
           </div>
         )}
+      </div>
       </div>
     </div>
   );

@@ -5,6 +5,7 @@ import { DashboardLayout } from './components/ui/DashboardLayout';
 import { Dashboard } from './pages/Dashboard';
 import { Home } from './pages/Home';
 import { Meditation } from './pages/Meditation';
+import { BreathingSession } from './pages/BreathingSession';
 import { History } from './pages/History';
 import { Explore } from './pages/Explore';
 import { Journal } from './pages/Journal';
@@ -53,7 +54,14 @@ const AppContent: React.FC = () => {
         <Route path="/explore" element={<Explore />} />
         <Route path="/journal" element={<Journal />} />
         <Route path="/profile" element={<Profile />} />
-        <Route path="/breathing" element={<div className="p-4 text-center">Coming Soon: Latihan Napas</div>} />
+        <Route 
+          path="/breathing" 
+          element={
+            <DashboardLayout showBottomNav={false}>
+              <BreathingSession />
+            </DashboardLayout>
+          } 
+        />
         <Route 
           path="/demo" 
           element={

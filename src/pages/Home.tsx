@@ -26,7 +26,7 @@ export const Home: React.FC = () => {
         <div className="flex flex-col items-center space-y-4">
           <div className="flex items-center space-x-4">
             <Cairn progress={60} size="large" />
-            <CairnIcon progress={80} size={32} className="text-primary" />
+            <CairnIcon progress={80} size={40} variant="artistic" className="text-primary animate-pulse hover:scale-110 transition-transform duration-300" />
           </div>
           <div>
             <h3 className="text-lg font-heading text-gray-800">Progress Hari Ini</h3>
@@ -128,7 +128,7 @@ export const Home: React.FC = () => {
         variant="primary"
         size="large"
       >
-        <CairnIcon size={24} />
+        <CairnIcon size={28} variant="artistic" className="animate-bounce" />
       </FloatingButton>
     </div>
   );

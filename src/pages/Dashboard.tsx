@@ -7,6 +7,7 @@ import { CairnIcon } from '../components/ui/CairnIcon';
 import { MoodSelector, type MoodType } from '../components/ui/MoodSelector';
 import { BreathingCard } from '../components/ui/BreathingCard';
 import { scrollToTop } from '../hooks/useScrollToTop';
+import { SembalunBackground } from '../components/ui/SembalunBackground';
 
 interface MeditationSession {
   id: string;
@@ -143,9 +144,19 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen">
-      {/* Header with greeting */}
-      <div className="px-4 pt-6 pb-4">
+    <div className="min-h-screen relative">
+      {/* Sembalun Background */}
+      <SembalunBackground 
+        variant="default" 
+        intensity="subtle" 
+        animated={true}
+        className="fixed inset-0 z-0"
+      />
+      
+      {/* Content */}
+      <div className="relative z-10">
+        {/* Header with greeting */}
+        <div className="px-4 pt-6 pb-4">
         <div className="max-w-md mx-auto">
           <h1 className="text-2xl font-heading text-gray-800 mb-1">
             Selamat {getGreeting()}, {userName} 🌅
@@ -159,7 +170,7 @@ export const Dashboard: React.FC = () => {
       <div className="px-4 space-y-6 max-w-md mx-auto">
         
         {/* Daily mood check-in */}
-        <Card>
+        <Card className="card-appear hover-lift">
           <MoodSelector 
             selectedMood={selectedMood}
             onMoodSelect={setSelectedMood}
@@ -168,17 +179,18 @@ export const Dashboard: React.FC = () => {
         </Card>
 
         {/* Streak counter with cairn */}
-        <Card className="text-center">
+        <Card className="text-center card-appear hover-glow">
           <div className="flex items-center justify-between mb-4">
             <div className="text-left">
               <h3 className="font-heading text-gray-800 text-lg">Perjalanan Mindful</h3>
               <p className="text-gray-600 text-sm font-body">Konsistensimu membangun kedamaian</p>
             </div>
-            <div className="flex flex-col items-center">
+            <div className="flex flex-col items-center animate-float">
               <CairnIcon 
                 progress={Math.min((userStats.currentStreak / 30) * 100, 100)} 
-                size={40} 
-                className="text-primary mb-1" 
+                size={48} 
+                variant="artistic"
+                className="text-primary mb-1 animate-color-shift" 
               />
               <span className="text-xs text-gray-500 font-body">
                 {userStats.currentStreak} hari
@@ -213,7 +225,7 @@ export const Dashboard: React.FC = () => {
           title="Jeda Hari Ini"
           description={`${recommendedSession.title} • ${recommendedSession.duration} menit`}
           isActive={false}
-          className="relative overflow-hidden"
+          className="relative overflow-hidden card-appear hover-lift animate-shimmer"
         >
           <div className="space-y-4">
             <p className="text-gray-600 font-body text-sm leading-relaxed">
@@ -278,24 +290,28 @@ export const Dashboard: React.FC = () => {
 
         {/* Quick access cards */}
         <div>
-          <h3 className="font-heading text-gray-800 mb-4 px-1">Jelajahi Ketenangan</h3>
+          <h3 className="font-heading text-gray-800 mb-4 px-1 animate-fade-in">Jelajahi Ketenangan</h3>
           <div className="grid grid-cols-2 gap-4">
-            {quickAccessItems.map((item) => (
+            {quickAccessItems.map((item, index) => (
               <Card
                 key={item.id}
-                className="cursor-pointer transition-all duration-200 hover:scale-105 active:scale-95"
+                className="cursor-pointer transition-all duration-300 hover:scale-105 active:scale-95 card-appear hover-lift hover-glow"
                 padding="medium"
                 onClick={() => {
                   scrollToTop();
                   navigate(item.route);
                 }}
+                style={{ animationDelay: `${0.6 + index * 0.1}s` }}
               >
                 <div className="text-center space-y-3">
                   <div 
-                    className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center"
-                    style={{ backgroundColor: `${item.color}15` }}
+                    className="w-12 h-12 rounded-2xl mx-auto flex items-center justify-center animate-gentle-bounce"
+                    style={{ 
+                      backgroundColor: `${item.color}15`,
+                      animationDelay: `${index * 0.5}s` 
+                    }}
                   >
-                    <span className="text-2xl">{item.icon}</span>
+                    <span className="text-2xl animate-scale-pulse">{item.icon}</span>
                   </div>
                   <div>
                     <h4 className="font-heading text-gray-800 text-sm mb-1">
@@ -312,13 +328,13 @@ export const Dashboard: React.FC = () => {
         </div>
 
         {/* Inspirational quote */}
-        <Card className="text-center bg-gradient-to-br from-white/80 to-white/60">
+        <Card className="text-center bg-gradient-to-br from-white/80 to-white/60 card-appear hover-lift">
           <div className="space-y-3">
-            <div className="text-2xl">🌸</div>
-            <blockquote className="font-body text-gray-700 text-sm leading-relaxed italic">
+            <div className="text-2xl animate-float">🌸</div>
+            <blockquote className="font-body text-gray-700 text-sm leading-relaxed italic animate-fade-in">
               "Dalam ketenangan, kita menemukan kekuatan. Dalam kesabaran, kita menemukan kebijaksanaan."
             </blockquote>
-            <p className="text-xs text-gray-500 font-body">
+            <p className="text-xs text-gray-500 font-body animate-fade-in" style={{ animationDelay: '0.5s' }}>
               — Pepatah Jawa
             </p>
           </div>
@@ -371,6 +387,7 @@ export const Dashboard: React.FC = () => {
 
         {/* Bottom spacing to prevent overlap with navigation */}
         <div className="h-4"></div>
+      </div>
       </div>
     </div>
   );

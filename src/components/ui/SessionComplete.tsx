@@ -137,7 +137,8 @@ export const SessionComplete: React.FC<SessionCompleteProps> = ({
             <div className={`transition-all duration-1500 ${isAnimating ? 'scale-50 opacity-0' : 'scale-100 opacity-100'}`}>
               <CairnIcon 
                 progress={100} 
-                size={80} 
+                size={100} 
+                variant="artistic"
                 className="text-primary mx-auto mb-4" 
               />
               
