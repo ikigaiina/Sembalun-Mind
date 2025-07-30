@@ -1,4 +1,6 @@
 
+import { scrollToTop } from '../../hooks/useScrollToTop';
+
 interface HeaderProps {
   title: string;
   showBack?: boolean;
@@ -11,7 +13,10 @@ export const Header: React.FC<HeaderProps> = ({ title, showBack = false, onBack 
       <div className="flex items-center justify-between px-4 py-3">
         {showBack && (
           <button
-            onClick={onBack}
+            onClick={() => {
+              scrollToTop();
+              onBack?.();
+            }}
             className="p-2 -ml-2 text-gray-600 hover:text-gray-800 transition-colors"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
