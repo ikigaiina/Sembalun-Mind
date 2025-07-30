@@ -3,12 +3,20 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   padding?: 'small' | 'medium' | 'large';
+  onClick?: () => void;
+  onMouseEnter?: () => void;
+  onMouseLeave?: () => void;
+  style?: React.CSSProperties;
 }
 
 export const Card: React.FC<CardProps> = ({ 
   children, 
   className = '', 
-  padding = 'medium' 
+  padding = 'medium',
+  onClick,
+  onMouseEnter,
+  onMouseLeave,
+  style
 }) => {
   const paddingClasses = {
     small: 'p-4',
@@ -17,7 +25,13 @@ export const Card: React.FC<CardProps> = ({
   };
 
   return (
-    <div className={`bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-gray-100 ${paddingClasses[padding]} ${className}`}>
+    <div 
+      className={`bg-white/80 backdrop-blur-sm rounded-3xl shadow-lg border border-gray-100 ${paddingClasses[padding]} ${className} ${onClick ? 'cursor-pointer' : ''}`}
+      onClick={onClick}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+      style={style}
+    >
       {children}
     </div>
   );

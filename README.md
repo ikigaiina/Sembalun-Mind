@@ -46,7 +46,13 @@ src/
 │   ├── Home.tsx
 │   ├── Meditation.tsx
 │   ├── History.tsx
-│   └── ComponentsDemo.tsx      # UI components showcase
+│   ├── ComponentsDemo.tsx      # UI components showcase
+│   └── onboarding/             # Onboarding flow
+│       ├── SplashScreen.tsx    # App intro with cairn animation
+│       ├── OnboardingSlides.tsx # 3-slide intro with swipe gestures
+│       ├── PersonalizationScreen.tsx # Goal selection
+│       ├── WelcomeScreen.tsx   # Completion screen
+│       └── OnboardingFlow.tsx  # Flow orchestrator
 ├── contexts/         # React contexts (for future state management)
 ├── hooks/           # Custom React hooks
 └── utils/           # Utility functions
@@ -133,6 +139,25 @@ Main app layout with bottom navigation:
 - Active state indicators
 
 Visit `/demo` route to see all components in action!
+
+## Onboarding Experience
+
+### 🌟 **Complete User Journey**
+1. **SplashScreen**: Animated cairn building with tagline "Perjalanan ke Dalam Diri"
+2. **Three Swipeable Slides**:
+   - "Temukan Jeda di Dunia yang Riuh" with misty hills illustration
+   - "Pahami Emosi, Kenali Diri" with heart/journal imagery  
+   - "Tumbuh Setiap Hari, Selangkah Demi Selangkah" with cairn visual
+3. **Personalization**: Goal selection (Stress, Focus, Sleep, Curiosity)
+4. **Welcome Screen**: Personalized completion with tailored suggestions
+
+### 🎯 **Features**
+- **Touch Gestures**: Swipe navigation for mobile optimization
+- **Progress Indicators**: Dots showing current slide position
+- **Skip Options**: Allow users to bypass steps
+- **State Persistence**: Remember completion status in localStorage
+- **Gentle Transitions**: 300ms animations with cubic-bezier easing
+- **Indonesian Content**: Culturally appropriate language and imagery
 
 ## Design System
 
