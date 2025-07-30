@@ -2,25 +2,41 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { OnboardingProvider, useOnboarding } from './contexts/OnboardingContext';
 import { OnboardingFlow } from './pages/onboarding';
 import { DashboardLayout } from './components/ui/DashboardLayout';
+import { Dashboard } from './pages/Dashboard';
 import { Home } from './pages/Home';
 import { Meditation } from './pages/Meditation';
 import { History } from './pages/History';
+import { Explore } from './pages/Explore';
+import { Journal } from './pages/Journal';
+import { Profile } from './pages/Profile';
 import { ComponentsDemo } from './pages/ComponentsDemo';
 
 // Main app content component
 const AppContent: React.FC = () => {
   const { isOnboardingComplete, completeOnboarding } = useOnboarding();
 
+  if (import.meta.env?.DEV) {
+    console.log('App: isOnboardingComplete =', isOnboardingComplete);
+  }
+
   // Show onboarding flow if not completed
   if (!isOnboardingComplete) {
+    if (import.meta.env?.DEV) {
+      console.log('App: Showing onboarding flow');
+    }
     return <OnboardingFlow onComplete={completeOnboarding} />;
+  }
+
+  if (import.meta.env?.DEV) {
+    console.log('App: Showing main dashboard');
   }
 
   // Show main app if onboarding is completed
   return (
     <DashboardLayout>
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Dashboard />} />
+        <Route path="/old-home" element={<Home />} />
         <Route 
           path="/meditation" 
           element={
@@ -30,6 +46,10 @@ const AppContent: React.FC = () => {
           } 
         />
         <Route path="/history" element={<History />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/journal" element={<Journal />} />
+        <Route path="/profile" element={<Profile />} />
+        <Route path="/breathing" element={<div className="p-4 text-center">Coming Soon: Latihan Napas</div>} />
         <Route 
           path="/demo" 
           element={

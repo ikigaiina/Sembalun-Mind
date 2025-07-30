@@ -37,6 +37,37 @@ h1, h2, h3, h4, h5, h6 {
   animation: fade-in 0.2s ease-out forwards;
 }
 
+/* Epic breathing animation for meditation button */
+@keyframes epic-breathe {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.02);
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.1;
+    transform: scale(0.95);
+  }
+  50% {
+    opacity: 0.3;
+    transform: scale(1.05);
+  }
+}
+
+.animate-epic-breathe {
+  animation: epic-breathe 3s ease-in-out infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 2s ease-in-out infinite;
+}
+
 /* Smooth scrolling for better UX */
 html {
   scroll-behavior: smooth;
