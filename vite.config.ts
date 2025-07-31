@@ -8,13 +8,30 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
+      devOptions: {
+        enabled: false
+      },
       workbox: {
-        globPatterns: ['**/*.{js,css,html,ico,png,svg}']
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2}'],
+        maximumFileSizeToCacheInBytes: 3000000,
+        runtimeCaching: [
+          {
+            urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'google-fonts-cache',
+              expiration: {
+                maxEntries: 10,
+                maxAgeSeconds: 60 * 60 * 24 * 365
+              }
+            }
+          }
+        ]
       },
       manifest: {
         name: 'Sembalun - Indonesian Meditation App',
         short_name: 'Sembalun',
-        description: 'A calm, mindful Indonesian meditation experience with cairn progress tracking',
+        description: 'Pengalaman meditasi Indonesia yang tenang dengan pelacakan kemajuan cairn',
         theme_color: '#6A8F6F',
         background_color: '#E1E8F0',
         display: 'standalone',
@@ -56,4 +73,26 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    target: 'esnext',
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom']
+        }
+      }
+    },
+    reportCompressedSize: false,
+    chunkSizeWarningLimit: 1600
+  },
+  server: {
+    host: true,
+    port: 3000
+  },
+  preview: {
+    host: true,
+    port: 4173
+  }
 })
