@@ -6,6 +6,7 @@ interface ButtonProps {
   disabled?: boolean;
   onClick?: (e?: React.MouseEvent) => void;
   className?: string;
+  style?: React.CSSProperties;
 }
 
 export const Button: React.FC<ButtonProps> = ({
@@ -14,14 +15,15 @@ export const Button: React.FC<ButtonProps> = ({
   size = 'medium',
   disabled = false,
   onClick,
-  className = ''
+  className = '',
+  style = {}
 }) => {
-  const baseClasses = 'rounded-2xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed transform-gpu will-change-transform hover:scale-105 active:scale-95';
+  const baseClasses = 'rounded-2xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed';
   
   const variantClasses = {
-    primary: 'text-white shadow-lg hover:shadow-xl hover-glow animate-shimmer',
-    secondary: 'text-gray-800 shadow-md hover:shadow-lg animate-scale-pulse',
-    outline: 'border-2 text-white hover-lift'
+    primary: 'text-white shadow-lg',
+    secondary: 'text-gray-800 shadow-md',
+    outline: 'border-2 text-white'
   };
 
   const sizeClasses = {
@@ -46,7 +48,7 @@ export const Button: React.FC<ButtonProps> = ({
   return (
     <button
       className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${className}`}
-      style={getVariantStyle()}
+      style={{ ...getVariantStyle(), ...style }}
       disabled={disabled}
       onClick={(e) => onClick?.(e)}
     >

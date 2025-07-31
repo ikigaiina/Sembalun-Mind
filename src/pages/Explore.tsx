@@ -11,7 +11,7 @@ export const Explore: React.FC = () => {
 
       <Card className="text-center">
         <div className="py-12">
-          <CairnIcon size={100} progress={50} variant="artistic" className="text-primary mx-auto mb-4 animate-pulse hover:scale-105 transition-all duration-500" />
+          <CairnIcon size={80} progress={50} className="text-primary mx-auto mb-4" />
           <h3 className="font-heading text-gray-800 mb-2">Segera Hadir</h3>
           <p className="text-gray-600 font-body text-sm">
             Kami sedang menyiapkan berbagai teknik meditasi menarik untukmu

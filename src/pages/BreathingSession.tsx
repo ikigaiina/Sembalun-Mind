@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/ui/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { BreathingGuide, breathingPatterns, type BreathingPattern } from '../components/ui/BreathingGuide';
+import { BreathingGuide } from '../components/ui/BreathingGuide';
+import { breathingPatterns, type BreathingPattern } from '../utils/breathingPatterns';
 import { SembalunBackground } from '../components/ui/SembalunBackground';
 import { scrollToTop } from '../hooks/useScrollToTop';
 
@@ -35,9 +36,20 @@ export const BreathingSession: React.FC = () => {
     pattern: 'box'
   });
 
+  const handleSessionComplete = useCallback(() => {
+    setSessionState('completed');
+    setIsActive(false);
+    setStats({
+      completedCycles: Math.floor(sessionTime / 20), // Rough estimate
+      totalMinutes: Math.floor(sessionTime / 60),
+      pattern: selectedPattern
+    });
+    scrollToTop();
+  }, [sessionTime, selectedPattern]);
+
   // Session timer
   useEffect(() => {
-    let interval: NodeJS.Timeout | null = null;
+    let interval: number | null = null;
     
     if (isActive && sessionState === 'active') {
       interval = setInterval(() => {
@@ -60,7 +72,7 @@ export const BreathingSession: React.FC = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isActive, sessionState, selectedDuration]);
+  }, [isActive, sessionState, selectedDuration, handleSessionComplete]);
 
   const handleStartSession = () => {
     setSessionState('active');
@@ -85,17 +97,6 @@ export const BreathingSession: React.FC = () => {
     setSessionState('setup');
     setIsActive(false);
     setSessionTime(0);
-    scrollToTop();
-  };
-
-  const handleSessionComplete = () => {
-    setSessionState('completed');
-    setIsActive(false);
-    setStats({
-      completedCycles: Math.floor(sessionTime / 20), // Rough estimate
-      totalMinutes: Math.floor(sessionTime / 60),
-      pattern: selectedPattern
-    });
     scrollToTop();
   };
 
@@ -298,8 +299,8 @@ export const BreathingSession: React.FC = () => {
                     </div>
                     <div className="text-xs text-purple-600 mt-1">
                       {Object.entries(pattern.phases)
-                        .filter(([_, duration]) => duration > 0)
-                        .map(([phase, duration]) => `${duration}s`)
+                        .filter(([, duration]) => duration > 0)
+                        .map(([, duration]) => `${duration}s`)
                         .join(' - ')}
                     </div>
                   </div>

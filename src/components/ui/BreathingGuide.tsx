@@ -1,19 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
-
-export type BreathingPattern = 'box' | 'triangle' | '478';
-
-interface BreathingPatternConfig {
-  id: BreathingPattern;
-  name: string;
-  description: string;
-  phases: {
-    inhale: number;
-    hold?: number;
-    exhale: number;
-    pause?: number;
-  };
-  icon: string;
-}
+import { 
+  breathingPatterns, 
+  phaseLabels, 
+  type BreathingPattern, 
+  type BreathingPhase 
+} from '../../utils/breathingPatterns';
 
 interface BreathingGuideProps {
   pattern: BreathingPattern;
@@ -22,50 +13,16 @@ interface BreathingGuideProps {
   className?: string;
 }
 
-export const breathingPatterns: BreathingPatternConfig[] = [
-  {
-    id: 'box',
-    name: 'Pernapasan Kotak',
-    description: 'Teknik pernapasan 4-4-4-4 untuk ketenangan dan fokus',
-    phases: { inhale: 4, hold: 4, exhale: 4, pause: 4 },
-    icon: '⬜'
-  },
-  {
-    id: 'triangle', 
-    name: 'Pernapasan Segitiga',
-    description: 'Teknik pernapasan 4-4-4 yang menenangkan',
-    phases: { inhale: 4, hold: 4, exhale: 4 },
-    icon: '🔺'
-  },
-  {
-    id: '478',
-    name: 'Teknik 4-7-8',
-    description: 'Teknik Dr. Andrew Weil untuk relaksasi mendalam',
-    phases: { inhale: 4, hold: 7, exhale: 8 },
-    icon: '🌙'
-  }
-];
-
-type BreathingPhase = 'inhale' | 'hold' | 'exhale' | 'pause';
-
-const phaseLabels: Record<BreathingPhase, string> = {
-  inhale: 'Tarik napas',
-  hold: 'Tahan',
-  exhale: 'Buang napas',
-  pause: 'Istirahat'
-};
-
 export const BreathingGuide: React.FC<BreathingGuideProps> = ({
   pattern,
   isActive,
-  onComplete,
   className = ''
 }) => {
   const [currentPhase, setCurrentPhase] = useState<BreathingPhase>('inhale');
   const [countdown, setCountdown] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
   const [animationKey, setAnimationKey] = useState(0); // Force animation restart
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const config = breathingPatterns.find(p => p.id === pattern) || breathingPatterns[0];
@@ -287,7 +244,7 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
 
       {/* Phase progress indicators */}
       <div className="flex items-center space-x-3">
-        {phases.map(([phase, duration], index) => (
+        {phases.map(([phase, duration]) => (
           <div key={phase} className="flex flex-col items-center space-y-1">
             <div 
               className={`w-3 h-3 rounded-full transition-all duration-300 ${

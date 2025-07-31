@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { CairnIcon } from '../../components/ui/CairnIcon';
 import { Button } from '../../components/ui/Button';
-import { SembalunBackground } from '../../components/ui/SembalunBackground';
 import { type PersonalizationGoal } from './PersonalizationScreen';
 
 interface WelcomeScreenProps {
@@ -64,15 +63,21 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col justify-center relative">
-      {/* Sembalun Background */}
-      <SembalunBackground 
-        variant="default" 
-        intensity="medium" 
-        animated={true}
-        className="fixed inset-0 z-0"
-      />
-      {/* Enhanced floating elements with Sembalun theme */}
+    <div className="min-h-screen flex flex-col justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
+      {/* Background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div 
+          className="absolute top-16 right-8 w-32 h-32 rounded-full opacity-5 animate-pulse"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+        />
+        <div 
+          className="absolute bottom-20 left-12 w-24 h-24 rounded-full opacity-5 animate-pulse"
+          style={{ 
+            backgroundColor: 'var(--color-accent)',
+            animationDelay: '1s'
+          }}
+        />
+      </div>
 
       <div className="relative z-10 px-6 py-12">
         <div className="max-w-sm mx-auto text-center">
@@ -93,9 +98,8 @@ export const WelcomeScreen: React.FC<WelcomeScreenProps> = ({
               <div className="relative z-10 mb-4">
                 <CairnIcon 
                   progress={cairnProgress} 
-                  size={100} 
-                  variant="artistic"
-                  className="text-primary mx-auto animate-pulse hover:scale-105 transition-all duration-500"
+                  size={80} 
+                  className="text-primary mx-auto"
                 />
               </div>
               

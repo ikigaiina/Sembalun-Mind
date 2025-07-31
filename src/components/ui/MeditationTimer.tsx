@@ -21,7 +21,7 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
   onComplete
 }) => {
   const [timeLeft, setTimeLeft] = useState(duration);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<number | null>(null);
 
   // Reset timer when duration changes
   useEffect(() => {
