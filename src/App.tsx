@@ -11,6 +11,7 @@ import { Explore } from './pages/Explore';
 import { Journal } from './pages/Journal';
 import { Profile } from './pages/Profile';
 import { ComponentsDemo } from './pages/ComponentsDemo';
+import { EmotionalAwareness } from './pages/EmotionalAwareness';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Main app content component
@@ -74,6 +75,7 @@ const AppContent: React.FC = () => {
           path="/onboarding" 
           element={<OnboardingFlow onComplete={completeOnboarding} />} 
         />
+        <Route path="/emotional-awareness" element={<EmotionalAwareness />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </DashboardLayout>
