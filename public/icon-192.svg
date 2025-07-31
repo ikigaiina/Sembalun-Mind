@@ -1,0 +1,37 @@
+<svg width="192" height="192" viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E1E8F0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F7F9FC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8F0E1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="192" height="192" fill="url(#bg)" rx="24"/>
+  
+  <!-- Cairn Stack (Stone Meditation Symbol) -->
+  <!-- Bottom stone -->
+  <ellipse cx="96" cy="140" rx="32" ry="12" fill="#6A8F6F" opacity="0.8"/>
+  <ellipse cx="96" cy="138" rx="32" ry="12" fill="#6A8F6F"/>
+  
+  <!-- Middle stone -->
+  <ellipse cx="96" cy="115" rx="24" ry="10" fill="#7A9F7F" opacity="0.8"/>
+  <ellipse cx="96" cy="113" rx="24" ry="10" fill="#7A9F7F"/>
+  
+  <!-- Top stone -->
+  <ellipse cx="96" cy="95" rx="18" ry="8" fill="#8AAF8F" opacity="0.8"/>
+  <ellipse cx="96" cy="93" rx="18" ry="8" fill="#8AAF8F"/>
+  
+  <!-- Small top stone -->
+  <ellipse cx="96" cy="78" rx="12" ry="6" fill="#9ABF9F" opacity="0.8"/>
+  <ellipse cx="96" cy="76" rx="12" ry="6" fill="#9ABF9F"/>
+  
+  <!-- Tiny top stone -->
+  <ellipse cx="96" cy="66" rx="8" ry="4" fill="#AACFAF" opacity="0.8"/>
+  <ellipse cx="96" cy="64" rx="8" ry="4" fill="#AACFAF"/>
+  
+  <!-- App name -->
+  <text x="96" y="170" font-family="serif" font-size="16" font-weight="600" 
+        text-anchor="middle" fill="#6A8F6F">Sembalun</text>
+</svg>
