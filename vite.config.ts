@@ -21,16 +21,36 @@ export default defineConfig({
         orientation: 'portrait',
         scope: '/',
         start_url: '/',
+        lang: 'id-ID',
+        categories: ['health', 'lifestyle', 'wellness', 'meditation'],
         icons: [
           {
             src: '/icon-192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
           },
           {
             src: '/icon-512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
+            purpose: 'any maskable'
+          }
+        ],
+        shortcuts: [
+          {
+            name: 'Meditasi Cepat',
+            short_name: 'Meditasi',
+            description: 'Mulai sesi meditasi 5 menit',
+            url: '/meditation?quick=true',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
+          },
+          {
+            name: 'Latihan Pernapasan',
+            short_name: 'Pernapasan',
+            description: 'Latihan pernapasan 3 menit',
+            url: '/breathing?quick=true',
+            icons: [{ src: '/icon-192.png', sizes: '192x192' }]
           }
         ]
       }

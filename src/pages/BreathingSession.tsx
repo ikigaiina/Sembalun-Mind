@@ -5,7 +5,6 @@ import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { BreathingGuide } from '../components/ui/BreathingGuide';
 import { breathingPatterns, type BreathingPattern } from '../utils/breathingPatterns';
-import { SembalunBackground } from '../components/ui/SembalunBackground';
 import { scrollToTop } from '../hooks/useScrollToTop';
 
 type SessionState = 'setup' | 'active' | 'paused' | 'completed';
@@ -125,13 +124,6 @@ export const BreathingSession: React.FC = () => {
   if (sessionState === 'completed') {
     return (
       <div className="min-h-screen relative">
-        {/* Sembalun Background */}
-        <SembalunBackground 
-          variant="sunset" 
-          intensity="medium" 
-          animated={true}
-          className="fixed inset-0 z-0"
-        />
         
         <div className="relative z-10">
         <Header 
@@ -241,13 +233,6 @@ export const BreathingSession: React.FC = () => {
   if (sessionState === 'setup') {
     return (
       <div className="min-h-screen relative">
-        {/* Sembalun Background */}
-        <SembalunBackground 
-          variant="mist" 
-          intensity="subtle" 
-          animated={true}
-          className="fixed inset-0 z-0"
-        />
         
         <div className="relative z-10">
         <Header 
@@ -379,13 +364,6 @@ export const BreathingSession: React.FC = () => {
   // Active/Paused session screen
   return (
     <div className="min-h-screen relative">
-      {/* Sembalun Background */}
-      <SembalunBackground 
-        variant="default" 
-        intensity="subtle" 
-        animated={true}
-        className="fixed inset-0 z-0"
-      />
       
       <div className="relative z-10">
       <Header 

@@ -46,8 +46,6 @@ export const Meditation: React.FC = () => {
   const [session, setSession] = useState<MeditationSession>(initialSession);
   const [meditationState, setMeditationState] = useState<MeditationState>('setup');
   const [selectedDuration, setSelectedDuration] = useState(session.duration);
-  const [isTimerActive, setIsTimerActive] = useState(false);
-  const [isTimerPaused, setIsTimerPaused] = useState(false);
 
   // Update session duration when selection changes
   useEffect(() => {
@@ -68,37 +66,11 @@ export const Meditation: React.FC = () => {
 
   const handleStartSession = () => {
     setMeditationState('active');
-    setIsTimerActive(true);
-    setIsTimerPaused(false);
     // Scroll to top for focused meditation view
-    setTimeout(scrollToTop, 100);
-  };
-
-  const handlePauseSession = () => {
-    setIsTimerPaused(true);
-    setMeditationState('paused');
-    // Scroll to top to show all pause controls
-    setTimeout(scrollToTop, 100);
-  };
-
-  const handleResumeSession = () => {
-    setIsTimerPaused(false);
-    setMeditationState('active');
-    // Scroll to top for focused meditation view
-    setTimeout(scrollToTop, 100);
-  };
-
-  const handleStopSession = () => {
-    setIsTimerActive(false);
-    setIsTimerPaused(false);
-    setMeditationState('setup');
-    // Scroll to top to show setup screen
     setTimeout(scrollToTop, 100);
   };
 
   const handleSessionComplete = () => {
-    setIsTimerActive(false);
-    setIsTimerPaused(false);
     setMeditationState('completed');
     // Scroll to top for completion screen
     setTimeout(scrollToTop, 100);
@@ -106,8 +78,6 @@ export const Meditation: React.FC = () => {
 
   const handleNewSession = () => {
     setMeditationState('setup');
-    setIsTimerActive(false);
-    setIsTimerPaused(false);
     // Scroll to top for new setup
     setTimeout(scrollToTop, 100);
   };
@@ -257,94 +227,50 @@ export const Meditation: React.FC = () => {
         <div className="flex justify-center">
           <MeditationTimer
             duration={session.duration * 60} // convert to seconds
-            isActive={isTimerActive}
-            isPaused={isTimerPaused}
-            onPlay={handleResumeSession}
-            onPause={handlePauseSession}
-            onStop={handleStopSession}
             onComplete={handleSessionComplete}
           />
         </div>
 
-        {/* Session guidance - only show when paused or minimal when active */}
-        {meditationState === 'paused' ? (
-          <Card className="text-center">
-            <div className="space-y-3">
-              <div className="w-12 h-12 mx-auto rounded-full bg-gradient-to-br from-blue-100 to-green-100 flex items-center justify-center">
-                <span className="text-xl">⏸️</span>
-              </div>
-              
-              <div>
-                <h3 className="font-heading text-gray-800 mb-2">
-                  Sesi Dijeda
-                </h3>
-                <p className="text-gray-600 font-body text-sm leading-relaxed">
-                  Ambil waktu sejenak jika diperlukan. Lanjutkan saat kamu siap.
-                </p>
-              </div>
-            </div>
-          </Card>
-        ) : (
-          /* Minimal guidance during active session */
-          <div className="text-center">
-            <p className="text-gray-500 font-body text-sm leading-relaxed opacity-60">
-              {session.category === 'breathing' 
-                ? 'Rasakan napas masuk dan keluar dengan perlahan'
-                : 'Biarkan pikiran mengalir, kembali ke momen ini'
-              }
-            </p>
-          </div>
-        )}
+        {/* Meditation guidance */}
+        <div className="text-center">
+          <p className="text-gray-500 font-body text-sm leading-relaxed opacity-60">
+            {session.category === 'breathing' 
+              ? 'Rasakan napas masuk dan keluar dengan perlahan'
+              : 'Biarkan pikiran mengalir, kembali ke momen ini'
+            }
+          </p>
+        </div>
 
-        {/* Audio player - completely hidden during active session, only show when paused */}
-        {meditationState === 'paused' && (
-          <div className="transition-all duration-500 ease-in-out">
-            <AudioPlayer
-              sessionType={getSessionType(session.category)}
-              isActive={isTimerActive}
-              onSoundChange={() => {}}
-            />
-          </div>
-        )}
+        {/* Audio player */}
+        <div className="transition-all duration-500 ease-in-out">
+          <AudioPlayer
+            sessionType={getSessionType(session.category)}
+            isActive={true}
+            onSoundChange={() => {}}
+          />
+        </div>
 
-        {/* Progress indicator - minimal during active session */}
-        {meditationState === 'paused' ? (
-          <Card padding="small">
-            <div className="text-center">
-              <p className="text-xs text-gray-500 font-body">
-                Sesi {session.difficulty === 'beginner' ? 'Pemula' :
-                      session.difficulty === 'intermediate' ? 'Menengah' : 'Lanjutan'} • 
-                {session.category === 'breathing' ? ' Pernapasan' :
-                 session.category === 'sleep' ? ' Tidur Nyenyak' :
-                 session.category === 'focus' ? ' Fokus' : ' Mindfulness'}
-              </p>
-            </div>
-          </Card>
-        ) : (
-          /* Minimal session info during active meditation */
-          <div className="text-center">
-            <p className="text-xs text-gray-400 font-body opacity-50">
-              {session.category === 'breathing' ? 'Pernapasan' :
-               session.category === 'sleep' ? 'Tidur Nyenyak' :
-               session.category === 'focus' ? 'Fokus' : 'Mindfulness'} • 
-              {session.difficulty === 'beginner' ? 'Pemula' :
-               session.difficulty === 'intermediate' ? 'Menengah' : 'Lanjutan'}
-            </p>
-          </div>
-        )}
+        {/* Session info */}
+        <div className="text-center">
+          <p className="text-xs text-gray-400 font-body opacity-50">
+            {session.category === 'breathing' ? 'Pernapasan' :
+             session.category === 'sleep' ? 'Tidur Nyenyak' :
+             session.category === 'focus' ? 'Fokus' : 'Mindfulness'} • 
+            {session.difficulty === 'beginner' ? 'Pemula' :
+             session.difficulty === 'intermediate' ? 'Menengah' : 'Lanjutan'}
+          </p>
+        </div>
 
-        {/* Breathing visual cue during active session */}
-        {meditationState === 'active' && (
-          <div className="flex justify-center">
-            <div 
-              className="w-4 h-4 rounded-full opacity-20 animate-pulse"
-              style={{ 
-                backgroundColor: 'var(--color-primary)',
-                animationDuration: '4s' 
-              }}
-            />
-          </div>
-        )}
+        {/* Breathing visual cue */}
+        <div className="flex justify-center">
+          <div 
+            className="w-4 h-4 rounded-full opacity-20 animate-pulse"
+            style={{ 
+              backgroundColor: 'var(--color-primary)',
+              animationDuration: '4s' 
+            }}
+          />
+        </div>
       </div>
     </div>
   );
