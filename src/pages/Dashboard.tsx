@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useOnboarding } from '../contexts/OnboardingContext';
+import { useOnboarding } from '../hooks/useOnboarding';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { CairnIcon } from '../components/ui/CairnIcon';

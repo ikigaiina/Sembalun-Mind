@@ -20,3 +20,7 @@ export { SessionComplete } from './SessionComplete';
 export { EmotionWheel, type EmotionType } from './EmotionWheel';
 export { StopTechnique } from './StopTechnique';
 export { EmotionTracker } from './EmotionTracker';
+
+// Content Exploration Components
+export { CourseCard, type Course } from './CourseCard';
+export { SessionLibrary, type Session } from './SessionLibrary';

@@ -1,22 +1,13 @@
-import { createContext, useContext, useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import { type OnboardingData } from '../pages/onboarding';
-
-interface OnboardingContextType {
-  isOnboardingComplete: boolean;
-  onboardingData: OnboardingData | null;
-  completeOnboarding: (data: OnboardingData) => void;
-  resetOnboarding: () => void;
-}
-
-const OnboardingContext = createContext<OnboardingContextType | undefined>(undefined);
+import { OnboardingContext, type OnboardingContextType } from './OnboardingContextTypes';
 
 interface OnboardingProviderProps {
   children: ReactNode;
 }
 
-const ONBOARDING_STORAGE_KEY = 'sembalun_onboarding';
-
 export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children }) => {
+  const ONBOARDING_STORAGE_KEY = 'sembalun_onboarding';
   const [isOnboardingComplete, setIsOnboardingComplete] = useState(false);
   const [onboardingData, setOnboardingData] = useState<OnboardingData | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -113,10 +104,3 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   );
 };
 
-export const useOnboarding = (): OnboardingContextType => {
-  const context = useContext(OnboardingContext);
-  if (context === undefined) {
-    throw new Error('useOnboarding must be used within an OnboardingProvider');
-  }
-  return context;
-};
