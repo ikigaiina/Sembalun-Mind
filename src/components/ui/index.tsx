@@ -15,3 +15,8 @@ export { DashboardLayout } from './DashboardLayout';
 export { MeditationTimer } from './MeditationTimer';
 export { AudioPlayer, type AmbientSound, type SessionType } from './AudioPlayer';
 export { SessionComplete } from './SessionComplete';
+
+// Emotional Intelligence Components
+export { EmotionWheel, type EmotionType } from './EmotionWheel';
+export { StopTechnique } from './StopTechnique';
+export { EmotionTracker } from './EmotionTracker';
