@@ -1,0 +1,45 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <defs>
+    <linearGradient id="bg512" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#E1E8F0;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#F7F9FC;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#E8F0E1;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <rect width="512" height="512" fill="url(#bg512)" rx="64"/>
+  
+  <!-- Cairn Stack (Stone Meditation Symbol) - Larger Version -->
+  <!-- Bottom stone -->
+  <ellipse cx="256" cy="380" rx="85" ry="32" fill="#6A8F6F" opacity="0.8"/>
+  <ellipse cx="256" cy="375" rx="85" ry="32" fill="#6A8F6F"/>
+  
+  <!-- Second stone -->
+  <ellipse cx="256" cy="315" rx="65" ry="26" fill="#7A9F7F" opacity="0.8"/>
+  <ellipse cx="256" cy="310" rx="65" ry="26" fill="#7A9F7F"/>
+  
+  <!-- Third stone -->
+  <ellipse cx="256" cy="260" rx="50" ry="22" fill="#8AAF8F" opacity="0.8"/>
+  <ellipse cx="256" cy="255" rx="50" ry="22" fill="#8AAF8F"/>
+  
+  <!-- Fourth stone -->
+  <ellipse cx="256" cy="210" rx="38" ry="18" fill="#9ABF9F" opacity="0.8"/>
+  <ellipse cx="256" cy="205" rx="38" ry="18" fill="#9ABF9F"/>
+  
+  <!-- Top stone -->
+  <ellipse cx="256" cy="170" rx="28" ry="14" fill="#AACFAF" opacity="0.8"/>
+  <ellipse cx="256" cy="165" rx="28" ry="14" fill="#AACFAF"/>
+  
+  <!-- Tiny top stone -->
+  <ellipse cx="256" cy="140" rx="20" ry="10" fill="#BACFBF" opacity="0.8"/>
+  <ellipse cx="256" cy="135" rx="20" ry="10" fill="#BACFBF"/>
+  
+  <!-- App name -->
+  <text x="256" y="450" font-family="serif" font-size="42" font-weight="600" 
+        text-anchor="middle" fill="#6A8F6F">Sembalun</text>
+  
+  <!-- Subtitle -->
+  <text x="256" y="480" font-family="sans-serif" font-size="20" font-weight="400" 
+        text-anchor="middle" fill="#A9C1D9" opacity="0.8">Perjalanan Kedamaian</text>
+</svg>
