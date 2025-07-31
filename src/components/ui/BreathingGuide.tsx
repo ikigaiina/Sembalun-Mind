@@ -26,7 +26,7 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const config = breathingPatterns.find(p => p.id === pattern) || breathingPatterns[0];
-  const phases = Object.entries(config.phases).filter(([_, duration]) => duration > 0);
+  const phases = Object.entries(config.phases).filter(([, duration]) => duration > 0);
   
   // Initialize countdown for current phase
   useEffect(() => {

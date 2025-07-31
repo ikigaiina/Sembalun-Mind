@@ -1,6 +1,6 @@
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { useOnboarding } from '../contexts/OnboardingContext';
+import { useOnboarding } from '../hooks/useOnboarding';
 
 export const Profile: React.FC = () => {
   const { resetOnboarding } = useOnboarding();

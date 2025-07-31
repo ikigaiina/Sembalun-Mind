@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { OnboardingProvider, useOnboarding } from './contexts/OnboardingContext';
+import { OnboardingProvider } from './contexts/OnboardingContext';
+import { useOnboarding } from './hooks/useOnboarding';
 import { OnboardingFlow } from './pages/onboarding';
 import { DashboardLayout } from './components/ui/DashboardLayout';
 import { Dashboard } from './pages/Dashboard';
