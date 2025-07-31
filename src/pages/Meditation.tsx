@@ -4,9 +4,8 @@ import { Header } from '../components/ui/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { MeditationTimer } from '../components/ui/MeditationTimer';
-import { AudioPlayer, type AmbientSound, type SessionType } from '../components/ui/AudioPlayer';
+import { AudioPlayer, type SessionType } from '../components/ui/AudioPlayer';
 import { SessionComplete } from '../components/ui/SessionComplete';
-import { SembalunBackground } from '../components/ui/SembalunBackground';
 import { scrollToTop } from '../hooks/useScrollToTop';
 
 interface MeditationSession {
@@ -47,7 +46,6 @@ export const Meditation: React.FC = () => {
   const [session, setSession] = useState<MeditationSession>(initialSession);
   const [meditationState, setMeditationState] = useState<MeditationState>('setup');
   const [selectedDuration, setSelectedDuration] = useState(session.duration);
-  const [selectedSound, setSelectedSound] = useState<AmbientSound>('silence');
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [isTimerPaused, setIsTimerPaused] = useState(false);
 
@@ -141,16 +139,7 @@ export const Meditation: React.FC = () => {
   // Render setup screen
   if (meditationState === 'setup') {
     return (
-      <div className="min-h-screen relative">
-        {/* Sembalun Background */}
-        <SembalunBackground 
-          variant="mist" 
-          intensity="subtle" 
-          animated={true}
-          className="fixed inset-0 z-0"
-        />
-        
-        <div className="relative z-10">
+      <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
         <Header 
           title="Persiapan Sesi" 
           showBack={true} 
@@ -231,7 +220,7 @@ export const Meditation: React.FC = () => {
           <AudioPlayer
             sessionType={getSessionType(session.category)}
             isActive={false}
-            onSoundChange={setSelectedSound}
+            onSoundChange={() => {}}
           />
 
           {/* Start button */}
@@ -250,23 +239,13 @@ export const Meditation: React.FC = () => {
             </Button>
           </div>
         </div>
-        </div>
       </div>
     );
   }
 
   // Render active meditation session
   return (
-    <div className="min-h-screen relative">
-      {/* Sembalun Background */}
-      <SembalunBackground 
-        variant="default" 
-        intensity="subtle" 
-        animated={true}
-        className="fixed inset-0 z-0"
-      />
-      
-      <div className="relative z-10">
+    <div className="min-h-screen" style={{ backgroundColor: 'var(--color-background)' }}>
       <Header 
         title={session.title}
         showBack={false}
@@ -323,7 +302,7 @@ export const Meditation: React.FC = () => {
             <AudioPlayer
               sessionType={getSessionType(session.category)}
               isActive={isTimerActive}
-              onSoundChange={setSelectedSound}
+              onSoundChange={() => {}}
             />
           </div>
         )}
@@ -366,7 +345,6 @@ export const Meditation: React.FC = () => {
             />
           </div>
         )}
-      </div>
       </div>
     </div>
   );

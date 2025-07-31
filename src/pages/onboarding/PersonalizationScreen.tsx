@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Card } from '../../components/ui/Card';
-import { SembalunBackground } from '../../components/ui/SembalunBackground';
 
 export type PersonalizationGoal = 'stress' | 'focus' | 'sleep' | 'curious';
 
@@ -64,28 +63,9 @@ export const PersonalizationScreen: React.FC<PersonalizationScreenProps> = ({
   };
 
   return (
-    <div className="min-h-screen flex flex-col relative">
-      {/* Sembalun Background */}
-      <SembalunBackground 
-        variant="default" 
-        intensity="subtle" 
-        animated={true}
-        className="fixed inset-0 z-0"
-      />
-      
-      <div className="relative z-10 flex flex-col min-h-screen">
-      {/* Skip button - fixed position top-right */}
-      <div className="absolute top-4 right-4 z-10">
-        <button
-          onClick={onSkip}
-          className="text-gray-500 font-body text-sm hover:text-gray-700 transition-colors duration-200 px-4 py-2 rounded-lg bg-white/80 backdrop-blur-sm shadow-sm"
-        >
-          Lewati
-        </button>
-      </div>
-
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: 'var(--color-background)' }}>
       {/* Header */}
-      <div className="p-6 pt-16">
+      <div className="p-6 pt-12">
         <div className="max-w-sm mx-auto text-center">
           <h1 className="text-2xl font-heading text-gray-800 mb-4">
             Apa yang membawamu ke Sembalun?
@@ -94,6 +74,16 @@ export const PersonalizationScreen: React.FC<PersonalizationScreenProps> = ({
             Pilih tujuan utamamu agar kami dapat memberikan pengalaman yang lebih personal
           </p>
         </div>
+      </div>
+
+      {/* Skip button */}
+      <div className="flex justify-end px-6 -mt-4">
+        <button
+          onClick={onSkip}
+          className="text-gray-500 font-body text-sm hover:text-gray-700 transition-colors duration-200 px-4 py-2 rounded-lg"
+        >
+          Lewati
+        </button>
       </div>
 
       {/* Goals */}
@@ -237,7 +227,6 @@ export const PersonalizationScreen: React.FC<PersonalizationScreenProps> = ({
           </div>
         </div>
       )}
-      </div>
     </div>
   );
 };

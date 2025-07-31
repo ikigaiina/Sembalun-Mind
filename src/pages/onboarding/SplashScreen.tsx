@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { CairnIcon } from '../../components/ui/CairnIcon';
-import { SembalunBackground } from '../../components/ui/SembalunBackground';
 
 interface SplashScreenProps {
   onComplete: () => void;
@@ -45,62 +44,50 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         transition-opacity duration-500 ease-out
         ${isVisible ? 'opacity-100' : 'opacity-0'}
       `}
+      style={{
+        background: `linear-gradient(135deg, 
+          var(--color-background) 0%, 
+          rgba(169, 193, 217, 0.3) 50%, 
+          var(--color-background) 100%)`
+      }}
     >
-      {/* Sembalun Background */}
-      <SembalunBackground 
-        variant="sunrise" 
-        intensity="medium" 
-        animated={true}
-        className="absolute inset-0"
-      />
-      
-      {/* Overlay for better text readability */}
-      <div 
-        className="absolute inset-0"
-        style={{
-          background: `linear-gradient(135deg, 
-            rgba(225, 232, 240, 0.8) 0%, 
-            rgba(169, 193, 217, 0.6) 50%, 
-            rgba(225, 232, 240, 0.8) 100%)`
-        }}
-      />
+      {/* Animated background elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div 
+          className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-10 animate-pulse"
+          style={{ backgroundColor: 'var(--color-primary)' }}
+        />
+        <div 
+          className="absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-10 animate-pulse"
+          style={{ 
+            backgroundColor: 'var(--color-accent)',
+            animationDelay: '1s'
+          }}
+        />
+      </div>
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center text-center px-8 max-w-sm">
         
         {/* Logo and icon */}
-        <div className="mb-8 animate-fade-in">
-          <div className="relative flex items-center justify-center">
+        <div className="mb-8 transform scale-110 animate-fade-in">
+          <div className="relative">
             <CairnIcon 
               progress={cairnProgress} 
-              size={120} 
-              variant="artistic"
-              className="text-primary"
+              size={80} 
+              className="text-primary mx-auto mb-4"
             />
             
-            {/* Ambient glow effect */}
+            {/* Glow effect */}
             <div 
               className={`
-                absolute inset-0 transition-opacity duration-1000 ease-out
-                ${cairnProgress >= 100 ? 'opacity-40' : 'opacity-0'}
+                absolute inset-0 rounded-full transition-opacity duration-300
+                ${cairnProgress >= 100 ? 'opacity-30' : 'opacity-0'}
               `}
               style={{
-                background: `radial-gradient(circle, var(--color-primary) 0%, var(--color-accent) 30%, transparent 70%)`,
-                filter: 'blur(30px)',
-                transform: 'scale(1.8)',
-                borderRadius: '50%'
-              }}
-            />
-            
-            {/* Subtle pulsing ring */}
-            <div 
-              className={`
-                absolute inset-0 rounded-full border-2 transition-all duration-2000 ease-out
-                ${cairnProgress >= 100 ? 'opacity-30 scale-150' : 'opacity-0 scale-100'}
-              `}
-              style={{
-                borderColor: 'var(--color-primary)',
-                animation: cairnProgress >= 100 ? 'pulse 3s ease-in-out infinite' : 'none'
+                background: `radial-gradient(circle, var(--color-primary) 0%, transparent 70%)`,
+                filter: 'blur(20px)',
+                transform: 'scale(1.5)'
               }}
             />
           </div>
