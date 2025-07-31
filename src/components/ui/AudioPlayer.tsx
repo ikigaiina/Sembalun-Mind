@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from './Button';
+import { useBackgroundAudio } from '../../hooks/useBackgroundAudio';
 
-export type AmbientSound = 'rain' | 'forest' | 'silence';
+export type AmbientSound = 'rain' | 'forest' | 'silence' | 'ocean' | 'wind';
 export type SessionType = 'mindfulness' | 'breathing' | 'sleep' | 'focus';
 
 interface AudioPlayerProps {
@@ -10,27 +11,6 @@ interface AudioPlayerProps {
   onSoundChange?: (sound: AmbientSound) => void;
   className?: string;
 }
-
-const ambientSounds = [
-  {
-    id: 'silence' as AmbientSound,
-    name: 'Keheningan',
-    icon: '🤫',
-    description: 'Suasana tenang tanpa suara latar'
-  },
-  {
-    id: 'rain' as AmbientSound,
-    name: 'Hujan',
-    icon: '🌧️',
-    description: 'Suara rintik hujan yang menenangkan'
-  },
-  {
-    id: 'forest' as AmbientSound,
-    name: 'Hutan',
-    icon: '🌲',
-    description: 'Suara alam dan burung berkicau'
-  }
-];
 
 const sessionTypeLabels = {
   mindfulness: 'Mindfulness',
@@ -45,35 +25,45 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   onSoundChange,
   className = ''
 }) => {
-  const [selectedSound, setSelectedSound] = useState<AmbientSound>('silence');
-  const [volume, setVolume] = useState(0.6);
   const [isExpanded, setIsExpanded] = useState(false);
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  
+  const {
+    selectedSound,
+    volume,
+    isPlaying,
+    isLoading,
+    error,
+    audioSources,
+    play,
+    stop,
+    changeSound,
+    setVolume,
+    getCurrentSound
+  } = useBackgroundAudio();
+
+  // Auto-play/stop based on session state
+  useEffect(() => {
+    if (isActive && selectedSound !== 'silence') {
+      play();
+    } else {
+      stop();
+    }
+  }, [isActive, selectedSound, play, stop]);
 
   // Handle sound selection
   const handleSoundSelect = (sound: AmbientSound) => {
-    setSelectedSound(sound);
+    changeSound(sound);
     onSoundChange?.(sound);
-    
-    // TODO: In a real app, you would load actual audio files here
-    // For now, we'll just simulate the audio playback
-    if (sound !== 'silence') {
-      console.log(`Playing ${sound} sounds at volume ${volume}`);
-    }
   };
 
   // Handle volume change
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value);
     setVolume(newVolume);
-    
-    if (audioRef.current) {
-      audioRef.current.volume = newVolume;
-    }
   };
 
   // Get current sound info
-  const currentSound = ambientSounds.find(sound => sound.id === selectedSound);
+  const currentSound = getCurrentSound();
 
   return (
     <div className={`bg-white rounded-xl shadow-sm border border-gray-100 ${className}`}>
@@ -130,7 +120,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 {currentSound?.description}
               </p>
             </div>
-            {selectedSound !== 'silence' && isActive && (
+            {isPlaying && (
               <div className="flex items-center space-x-1">
                 <div 
                   className="w-1 h-1 rounded-full animate-pulse"
@@ -152,6 +142,16 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 />
               </div>
             )}
+            
+            {isLoading && (
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            )}
+            
+            {error && (
+              <div className="text-xs text-red-500">
+                {error}
+              </div>
+            )}
           </div>
 
           {/* Ambient sound selection */}
@@ -160,7 +160,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               Pilih Suara Latar
             </h4>
             <div className="grid grid-cols-1 gap-2">
-              {ambientSounds.map((sound) => (
+              {audioSources.map((sound) => (
                 <button
                   key={sound.id}
                   onClick={() => handleSoundSelect(sound.id)}
@@ -262,9 +262,13 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                 }}
               />
               <p className="text-xs text-gray-700 font-body">
-                {isActive 
-                  ? `Audio ${selectedSound === 'silence' ? 'tidak aktif' : 'sedang diputar'}`
-                  : 'Audio akan diputar saat sesi dimulai'
+                {error 
+                  ? error
+                  : isLoading 
+                    ? 'Memuat audio...'
+                    : isActive 
+                      ? `Audio ${selectedSound === 'silence' ? 'tidak aktif' : isPlaying ? 'sedang diputar' : 'disiap'}`
+                      : 'Audio akan diputar saat sesi dimulai'
                 }
               </p>
             </div>
@@ -290,7 +294,7 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
               </div>
             </div>
             
-            {selectedSound !== 'silence' && isActive && (
+            {isPlaying && (
               <div className="flex items-center space-x-1">
                 <div 
                   className="w-1 h-1 rounded-full animate-pulse"
@@ -310,6 +314,16 @@ export const AudioPlayer: React.FC<AudioPlayerProps> = ({
                     animationDelay: '0.4s'
                   }}
                 />
+              </div>
+            )}
+            
+            {isLoading && (
+              <div className="w-4 h-4 border-2 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            )}
+            
+            {error && (
+              <div className="text-xs text-red-500">
+                {error}
               </div>
             )}
           </div>
