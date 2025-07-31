@@ -202,6 +202,72 @@ All components follow the Sembalun design principles:
 - **Mobile-first**: Optimized for touch interactions
 - **Accessibility**: Proper focus states and ARIA support
 
+## Deployment
+
+### Production Build
+```bash
+# Build optimized production version
+npm run build:prod
+
+# Analyze bundle size
+npm run build:analyze
+
+# Preview production build locally
+npm run serve
+```
+
+### Hosting Options
+
+#### Netlify (Recommended)
+```bash
+# Install Netlify CLI
+npm install -g netlify-cli
+
+# Deploy to Netlify
+npm run deploy:netlify
+```
+
+#### Vercel
+```bash
+# Install Vercel CLI
+npm install -g vercel
+
+# Deploy to Vercel
+npm run deploy:vercel
+```
+
+### Environment Variables
+Copy `.env.example` to `.env.production` and configure:
+- `VITE_ENABLE_ANALYTICS`: Enable Google Analytics tracking
+- `VITE_GTM_ID`: Google Tag Manager ID for analytics
+- `VITE_APP_VERSION`: App version for PWA manifest
+
+### Domain & SSL
+Both Netlify and Vercel provide:
+- Free SSL certificates
+- Custom domain support
+- CDN distribution
+- Automatic deployments from Git
+
+### PWA Features
+The app includes complete PWA functionality:
+- Service worker for offline access
+- App manifest for mobile installation
+- Optimized icons for all platforms
+- Background sync capabilities
+
+## Performance Optimizations
+
+- **Code splitting**: Vendor and router chunks separated
+- **Bundle optimization**: Terser minification enabled
+- **Cache strategies**: Long-term caching for static assets
+- **Image optimization**: SVG icons for scalability
+- **Font loading**: Google Fonts with display swap
+
 ## Contributing
 
 This meditation app embodies the peaceful, mindful spirit of Indonesian culture. When contributing, please maintain the calm, centered aesthetic and ensure all new features align with the meditation and mindfulness theme.
+
+## License
+
+MIT License - Feel free to use this for your own meditation app projects.
