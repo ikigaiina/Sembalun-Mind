@@ -1,11 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useOnboarding } from '../hooks/useOnboarding';
+// import { useAuth } from '../contexts/AuthContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { CairnIcon } from '../components/ui/CairnIcon';
 import { MoodSelector, type MoodType } from '../components/ui/MoodSelector';
 import { BreathingCard } from '../components/ui/BreathingCard';
+import { WelcomeMessage } from '../components/auth/WelcomeMessage';
 import { scrollToTop } from '../hooks/useScrollToTop';
 
 interface MeditationSession {
@@ -105,7 +107,7 @@ export const Dashboard: React.FC = () => {
   };
 
   const recommendedSession = getRecommendedSession();
-  const userName = 'Sahabat'; // Default, could be from user profile
+  // const userName = 'Sahabat'; // Default, could be from user profile
 
   const quickAccessItems = [
     {
@@ -144,12 +146,10 @@ export const Dashboard: React.FC = () => {
 
   return (
     <div className="min-h-screen">
-      {/* Header with greeting */}
+      {/* Header with welcome message */}
       <div className="px-4 pt-6 pb-4">
         <div className="max-w-md mx-auto">
-          <h1 className="text-2xl font-heading text-gray-800 mb-1">
-            Selamat {getGreeting()}, {userName} 🌅
-          </h1>
+          <WelcomeMessage className="mb-4" />
           <p className="text-gray-600 font-body text-sm">
             Bagaimana kabar hatimu hari ini?
           </p>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { OnboardingProvider } from './contexts/OnboardingContext';
 import { OfflineProvider } from './contexts/OfflineContext';
+import { AuthProvider } from './contexts/AuthContext';
 import { useOnboarding } from './hooks/useOnboarding';
 import { OnboardingFlow } from './pages/onboarding';
 import { DashboardLayout } from './components/ui/DashboardLayout';
@@ -13,11 +14,13 @@ import { History } from './pages/History';
 import { Explore } from './pages/Explore';
 import { Journal } from './pages/Journal';
 import { Profile } from './pages/Profile';
+import { Settings } from './pages/Settings';
 import { ComponentsDemo } from './pages/ComponentsDemo';
 import { EmotionalAwareness } from './pages/EmotionalAwareness';
 import { OfflineToast } from './components/ui/OfflineToast';
 import { InstallPrompt } from './components/ui/InstallPrompt';
 import { SplashScreen } from './components/ui/SplashScreen';
+// import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Main app content component
@@ -70,6 +73,7 @@ const AppContent: React.FC = () => {
           <Route path="/explore" element={<Explore />} />
           <Route path="/journal" element={<Journal />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/settings" element={<Settings />} />
           <Route 
             path="/breathing" 
             element={
@@ -101,11 +105,13 @@ const AppContent: React.FC = () => {
 function App() {
   return (
     <OfflineProvider>
-      <OnboardingProvider>
-        <Router>
-          <AppContent />
-        </Router>
-      </OnboardingProvider>
+      <AuthProvider>
+        <OnboardingProvider>
+          <Router>
+            <AppContent />
+          </Router>
+        </OnboardingProvider>
+      </AuthProvider>
     </OfflineProvider>
   );
 }
