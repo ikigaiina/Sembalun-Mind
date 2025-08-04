@@ -1,13 +1,26 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useOnboarding } from '../hooks/useOnboarding';
+import { ProfilePictureUpload } from '../components/account/ProfilePictureUpload';
+import { AccountSummary } from '../components/account/AccountSummary';
+import { DefaultProfilePicture } from '../components/ui/DefaultProfilePicture';
+import { ProfileSyncStatus } from '../components/ui/ProfileSyncStatus';
+import { getUserDisplayName } from '../utils/user-display';
 
 export const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const { user, userProfile, isGuest } = useAuth();
+  const { user, userProfile, isGuest, updateUserProfile } = useAuth();
   const { resetOnboarding } = useOnboarding();
+
+  const handleProfilePictureSuccess = async (url: string) => {
+    try {
+      await updateUserProfile({ photoURL: url });
+    } catch (error) {
+      console.error('Error updating profile picture:', error);
+    }
+  };
 
   return (
     <div className="px-4 py-6 space-y-6 max-w-md mx-auto">
@@ -19,22 +32,19 @@ export const Profile: React.FC = () => {
       {/* Profile Summary */}
       <Card className="text-center">
         <div className="py-8">
-          {!isGuest && userProfile?.photoURL ? (
-            <img
-              src={userProfile.photoURL}
-              alt="Profile"
-              className="w-20 h-20 rounded-full object-cover mx-auto mb-4 border-4 border-primary"
-            />
-          ) : (
-            <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
-          )}
+          <div className="flex justify-center mb-4">
+            {!isGuest ? (
+              <ProfilePictureUpload
+                onSuccess={handleProfilePictureSuccess}
+                onError={(error) => console.error('Profile picture error:', error)}
+              />
+            ) : (
+              <DefaultProfilePicture size={96} />
+            )}
+          </div>
           
           <h3 className="font-heading text-gray-800 text-xl mb-2">
-            {isGuest ? 'Guest User' : userProfile?.displayName || user?.displayName || 'Sahabat'}
+            {getUserDisplayName(user, userProfile, isGuest)}
           </h3>
           
           <p className="text-gray-600 font-body text-sm mb-6">
@@ -76,6 +86,12 @@ export const Profile: React.FC = () => {
           )}
         </div>
       </Card>
+
+      {/* Profile Sync Status */}
+      {!isGuest && <ProfileSyncStatus />}
+
+      {/* Account Summary */}
+      {!isGuest && <AccountSummary />}
 
       {/* Quick Actions */}
       <Card>

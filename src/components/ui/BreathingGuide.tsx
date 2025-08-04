@@ -22,7 +22,7 @@ export const BreathingGuide: React.FC<BreathingGuideProps> = ({
   const [countdown, setCountdown] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
   const [animationKey, setAnimationKey] = useState(0); // Force animation restart
-  const intervalRef = useRef<number | null>(null);
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   
   const config = breathingPatterns.find(p => p.id === pattern) || breathingPatterns[0];

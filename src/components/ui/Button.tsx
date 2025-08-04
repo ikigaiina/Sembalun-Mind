@@ -1,7 +1,9 @@
 
-interface ButtonProps {
+import React from 'react';
+
+export interface ButtonProps {
   children: React.ReactNode;
-  variant?: 'primary' | 'secondary' | 'outline';
+  variant?: 'primary' | 'secondary' | 'outline' | 'destructive';
   size?: 'small' | 'medium' | 'large';
   disabled?: boolean;
   onClick?: (e?: React.MouseEvent) => void;
@@ -23,7 +25,8 @@ export const Button: React.FC<ButtonProps> = ({
   const variantClasses = {
     primary: 'text-white shadow-lg',
     secondary: 'text-gray-800 shadow-md',
-    outline: 'border-2 text-white'
+    outline: 'border-2 text-white',
+    destructive: 'text-white shadow-lg'
   };
 
   const sizeClasses = {
@@ -40,6 +43,8 @@ export const Button: React.FC<ButtonProps> = ({
         return { backgroundColor: 'var(--color-accent)' };
       case 'outline':
         return { borderColor: 'var(--color-primary)', color: 'var(--color-primary)' };
+      case 'destructive':
+        return { backgroundColor: '#dc2626' }; // red-600
       default:
         return {};
     }

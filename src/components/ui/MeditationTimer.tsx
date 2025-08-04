@@ -1,21 +1,31 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, memo } from 'react';
 import { Button } from './Button';
 import { useOfflineTimer } from '../../hooks/useOfflineTimer';
-import { useOffline } from '../../hooks/useOfflineHook';
+import { useOffline } from '../../hooks/useOfflineContext';
 import { useAccessibility } from '../../hooks/useAccessibility';
+import { usePerformanceTracking, useAnimationOptimization } from '../../hooks/usePerformanceOptimization';
 
 interface MeditationTimerProps {
   duration: number; // in seconds
   onComplete: () => void;
 }
 
-export const MeditationTimer: React.FC<MeditationTimerProps> = ({
+export const MeditationTimer: React.FC<MeditationTimerProps> = memo(({
   duration,
   onComplete
 }) => {
   const { isOnline } = useOffline();
   const { announce, settings } = useAccessibility();
   const lastAnnouncedMinute = useRef<number>(-1);
+  
+  // Performance monitoring
+  const { trackRender } = usePerformanceTracking('MeditationTimer');
+  const { isReducedMotion, getAnimationDuration } = useAnimationOptimization();
+  
+  // Track render performance
+  useEffect(() => {
+    trackRender();
+  });
   
   const handleComplete = useCallback(() => {
     announce('Sesi meditasi selesai. Terima kasih telah berlatih.', 'assertive');
@@ -126,21 +136,25 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
             strokeLinecap="round"
             strokeDasharray={circumference}
             strokeDashoffset={strokeDashoffset}
-            className={`transition-all ease-out ${settings.reducedMotion ? 'duration-75' : 'duration-1000'}`}
+            className={`transition-all ease-out`}
+            style={{
+              transitionDuration: `${getAnimationDuration(1000)}ms`
+            }}
           />
         </svg>
 
         {/* Breathing animation circle */}
-        {!settings.reducedMotion && (
+        {!isReducedMotion && !settings.reducedMotion && (
           <div
-            className="absolute inset-4 rounded-full transition-all duration-4000 ease-in-out"
+            className="absolute inset-4 rounded-full transition-all ease-in-out"
             style={{
               background: `radial-gradient(circle, 
                 rgba(106, 143, 111, 0.1) 0%, 
                 rgba(169, 193, 217, 0.05) 50%, 
                 transparent 100%)`,
               transform: getBreathingScale(),
-              animation: isActive && !isPaused ? 'breathe 4s ease-in-out infinite' : 'none'
+              transitionDuration: `${getAnimationDuration(4000)}ms`,
+              animation: isActive && !isPaused ? `breathe ${getAnimationDuration(4000)}ms ease-in-out infinite` : 'none'
             }}
             aria-hidden="true"
           />
@@ -234,4 +248,4 @@ export const MeditationTimer: React.FC<MeditationTimerProps> = ({
       </div>
     </div>
   );
-};
+});

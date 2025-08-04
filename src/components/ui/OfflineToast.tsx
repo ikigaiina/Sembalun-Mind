@@ -1,4 +1,5 @@
-import { useOffline } from '../../hooks/useOfflineHook';
+import React from 'react';
+import { useOffline } from '../../hooks/useOfflineContext';
 
 export const OfflineToast: React.FC = () => {
   const { showOfflineToast, hideOfflineToast } = useOffline();

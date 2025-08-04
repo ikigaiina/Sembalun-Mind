@@ -1,5 +1,7 @@
 
-interface CardProps {
+import React from 'react';
+
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   padding?: 'small' | 'medium' | 'large';
@@ -16,7 +18,8 @@ export const Card: React.FC<CardProps> = ({
   onClick,
   onMouseEnter,
   onMouseLeave,
-  style
+  style,
+  ...rest
 }) => {
   const paddingClasses = {
     small: 'p-4',
@@ -31,6 +34,7 @@ export const Card: React.FC<CardProps> = ({
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
       style={style}
+      {...rest}
     >
       {children}
     </div>

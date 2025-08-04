@@ -1,5 +1,7 @@
-import React from 'react';
-import { useAuth } from '../../contexts/AuthContext';
+import React, { useState } from 'react';
+import { useAuth } from '../../hooks/useAuth';
+import { getPersonalizedGreeting, getContextualWelcomeMessage, getUserPreferredLanguage } from '../../utils/user-display';
+import { AuthModal } from './AuthModal';
 
 interface WelcomeMessageProps {
   className?: string;
@@ -7,38 +9,17 @@ interface WelcomeMessageProps {
 
 export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ className = '' }) => {
   const { user, userProfile, isGuest } = useAuth();
+  const [showAuthModal, setShowAuthModal] = useState(false);
 
   if (!user && !isGuest) return null;
 
   const getGreeting = () => {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 18) return 'Good afternoon';
-    return 'Good evening';
-  };
-
-  const getDisplayName = () => {
-    if (isGuest) return 'Guest';
-    return userProfile?.displayName || user?.displayName || 'there';
+    const language = getUserPreferredLanguage(userProfile);
+    return getPersonalizedGreeting(user, userProfile, isGuest, language === 'en');
   };
 
   const getWelcomeMessage = () => {
-    if (isGuest) {
-      return 'Explore Sembalun as a guest. Sign up to save your progress!';
-    }
-    
-    const totalSessions = userProfile?.progress?.totalSessions || 0;
-    const streak = userProfile?.progress?.streak || 0;
-    
-    if (totalSessions === 0) {
-      return 'Welcome to your mindfulness journey!';
-    }
-    
-    if (streak > 0) {
-      return `${streak} day streak! Keep up the great work.`;
-    }
-    
-    return 'Ready for your next session?';
+    return getContextualWelcomeMessage(user, userProfile, isGuest);
   };
 
   return (
@@ -60,7 +41,7 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ className = '' }
         
         <div>
           <h2 className="text-xl font-semibold text-gray-900 font-heading">
-            {getGreeting()}, {getDisplayName()}!
+            {getGreeting()}!
           </h2>
           <p className="text-gray-600 text-sm">
             {getWelcomeMessage()}
@@ -76,13 +57,22 @@ export const WelcomeMessage: React.FC<WelcomeMessageProps> = ({ className = '' }
             </svg>
             <p className="text-sm text-blue-700">
               <strong>Guest mode:</strong> Your progress won't be saved. 
-              <button className="ml-1 underline hover:no-underline">
+              <button 
+                className="ml-1 underline hover:no-underline"
+                onClick={() => setShowAuthModal(true)}
+              >
                 Create account
               </button> to keep your data.
             </p>
           </div>
         </div>
       )}
+      
+      <AuthModal
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
+        defaultMode="signup"
+      />
     </div>
   );
 };

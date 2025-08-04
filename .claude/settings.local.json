@@ -1,8 +1,29 @@
 {
   "permissions": {
     "allow": [
+      "mcp__ruv-swarm",
+      "mcp__claude-flow",
+      "Bash(npx claude-flow@alpha swarm init:*)",
+      "Bash(npx:*)",
+      "Bash(npm run build:analyze:*)",
+      "Bash(npm run build:fast:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(npm install:*)",
       "Bash(npm run build:*)",
-      "Bash(touch:*)"
+      "Bash(npm test:*)",
+      "Bash(mv:*)",
+      "Bash(npm run lint:*)",
+      "Bash(claude mcp list)",
+      "Bash(claude mcp:*)",
+      "Bash(rm:*)",
+      "Bash(node:*)",
+      "Bash(del:*)",
+      "Bash(chmod:*)",
+      "Bash(ls:*)",
+      "Bash(npm run clean:*)",
+      "Bash(timeout 60 npm run build:fast)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)"
     ],
     "deny": []
   }

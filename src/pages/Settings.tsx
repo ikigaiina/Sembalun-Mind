@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { AuthModal } from '../components/auth/AuthModal';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
+import { PasswordChange } from '../components/account/PasswordChange';
+import { AccountSecurity } from '../components/account/AccountSecurity';
 
 export const Settings: React.FC = () => {
-  const { user, userProfile, isGuest, signOut, updateUserProfile, deleteAccount, exportUserData } = useAuth();
+  const { user, userProfile, isGuest, signOut, updateUserProfile, deleteAccount, exportUserData, reauthenticateUser } = useAuth();
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showReauthenticate, setShowReauthenticate] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [reauthPassword, setReauthPassword] = useState('');
 
   const [formData, setFormData] = useState({
     displayName: userProfile?.displayName || '',
@@ -18,15 +22,31 @@ export const Settings: React.FC = () => {
       daily: true,
       reminders: true,
       achievements: true,
+      weeklyProgress: true,
+      socialUpdates: false,
+      push: true,
+      email: false,
+      sound: true,
+      vibration: true,
     },
     privacy: userProfile?.preferences?.privacy || {
       analytics: false,
       dataSharing: false,
+      profileVisibility: 'private' as const,
+      shareProgress: false,
+      locationTracking: false,
     },
     meditation: userProfile?.preferences?.meditation || {
       defaultDuration: 10,
       preferredVoice: 'default',
       backgroundSounds: true,
+      guidanceLevel: 'moderate' as const,
+      musicVolume: 70,
+      voiceVolume: 80,
+      autoAdvance: false,
+      showTimer: true,
+      preparationTime: 30,
+      endingBell: true,
     },
   });
 
@@ -47,11 +67,30 @@ export const Settings: React.FC = () => {
           notifications: formData.notifications,
           privacy: formData.privacy,
           meditation: formData.meditation,
+          accessibility: userProfile?.preferences?.accessibility || {
+            reducedMotion: false,
+            highContrast: false,
+            fontSize: 'medium' as const,
+            screenReader: false,
+            keyboardNavigation: false,
+          },
+          display: userProfile?.preferences?.display || {
+            dateFormat: 'DD/MM/YYYY' as const,
+            timeFormat: '24h' as const,
+            weekStartsOn: 'monday' as const,
+            showStreaks: true,
+            showStatistics: true,
+          },
+          downloadPreferences: userProfile?.preferences?.downloadPreferences || {
+            autoDownload: false,
+            wifiOnly: true,
+            storageLimit: 2,
+          },
         },
       });
       setSuccess('Settings updated successfully!');
-    } catch (err: any) {
-      setError(err.message || 'Failed to update settings');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to update settings');
     } finally {
       setLoading(false);
     }
@@ -68,8 +107,8 @@ export const Settings: React.FC = () => {
       a.click();
       URL.revokeObjectURL(url);
       setSuccess('Data exported successfully!');
-    } catch (err: any) {
-      setError(err.message || 'Failed to export data');
+    } catch (err: unknown) {
+      setError((err as Error).message || 'Failed to export data');
     }
   };
 
@@ -82,11 +121,41 @@ export const Settings: React.FC = () => {
     try {
       await deleteAccount();
       setSuccess('Account deleted successfully');
-    } catch (err: any) {
-      setError(err.message || 'Failed to delete account');
+    } catch (err: unknown) {
+      const error = err as Error;
+      if (error.message.includes('Please sign in again before deleting')) {
+        setShowDeleteConfirm(false);
+        setShowReauthenticate(true);
+        setError('');
+      } else {
+        setError(error.message || 'Failed to delete account');
+      }
     } finally {
       setLoading(false);
-      setShowDeleteConfirm(false);
+    }
+  };
+
+  const handleReauthenticate = async () => {
+    if (!reauthPassword.trim()) {
+      setError('Please enter your password');
+      return;
+    }
+
+    setLoading(true);
+    setError('');
+
+    try {
+      await reauthenticateUser(reauthPassword);
+      setShowReauthenticate(false);
+      setReauthPassword('');
+      // Now try to delete account again
+      await deleteAccount();
+      setSuccess('Account deleted successfully');
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message || 'Failed to authenticate');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -180,7 +249,7 @@ export const Settings: React.FC = () => {
                   <label key={key} className="flex items-center gap-3">
                     <input
                       type="checkbox"
-                      checked={value}
+                      checked={typeof value === 'boolean' ? value : false}
                       onChange={(e) => setFormData(prev => ({
                         ...prev,
                         notifications: { ...prev.notifications, [key]: e.target.checked }
@@ -191,6 +260,12 @@ export const Settings: React.FC = () => {
                       {key === 'daily' && 'Daily meditation reminders'}
                       {key === 'reminders' && 'Session reminders'}
                       {key === 'achievements' && 'Achievement notifications'}
+                      {key === 'weeklyProgress' && 'Weekly progress reports'}
+                      {key === 'socialUpdates' && 'Social updates'}
+                      {key === 'push' && 'Push notifications'}
+                      {key === 'email' && 'Email notifications'}
+                      {key === 'sound' && 'Sound notifications'}
+                      {key === 'vibration' && 'Vibration notifications'}
                     </span>
                   </label>
                 ))}
@@ -200,24 +275,47 @@ export const Settings: React.FC = () => {
             {/* Privacy Settings */}
             <div>
               <h3 className="text-xl font-semibold text-gray-900 mb-4">Privacy</h3>
-              <div className="space-y-3">
-                {Object.entries(formData.privacy).map(([key, value]) => (
-                  <label key={key} className="flex items-center gap-3">
-                    <input
-                      type="checkbox"
-                      checked={value}
-                      onChange={(e) => setFormData(prev => ({
-                        ...prev,
-                        privacy: { ...prev.privacy, [key]: e.target.checked }
-                      }))}
-                      className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
-                    />
-                    <span className="text-gray-700 capitalize">
-                      {key === 'analytics' && 'Allow analytics data collection'}
-                      {key === 'dataSharing' && 'Share anonymous usage data'}
-                    </span>
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Profile Visibility
                   </label>
-                ))}
+                  <select
+                    value={formData.privacy.profileVisibility}
+                    onChange={(e) => setFormData(prev => ({
+                      ...prev,
+                      privacy: { ...prev.privacy, profileVisibility: e.target.value as 'public' | 'friends' | 'private' }
+                    }))}
+                    className="block w-full rounded-2xl border-2 border-gray-200 px-4 py-3 focus:border-primary focus:ring-2 focus:ring-primary focus:ring-opacity-20"
+                  >
+                    <option value="public">Public</option>
+                    <option value="friends">Friends Only</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+                
+                {Object.entries(formData.privacy).map(([key, value]) => {
+                  if (key === 'profileVisibility') return null;
+                  return (
+                    <label key={key} className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        checked={typeof value === 'boolean' ? value : false}
+                        onChange={(e) => setFormData(prev => ({
+                          ...prev,
+                          privacy: { ...prev.privacy, [key]: e.target.checked }
+                        }))}
+                        className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
+                      />
+                      <span className="text-gray-700 capitalize">
+                        {key === 'analytics' && 'Allow analytics data collection'}
+                        {key === 'dataSharing' && 'Share anonymous usage data'}
+                        {key === 'shareProgress' && 'Share progress with community'}
+                        {key === 'locationTracking' && 'Allow location tracking'}
+                      </span>
+                    </label>
+                  );
+                })}
               </div>
             </div>
 
@@ -269,6 +367,15 @@ export const Settings: React.FC = () => {
             </button>
           </form>
         </div>
+
+        {/* Password Change Component */}
+        <PasswordChange
+          onSuccess={() => setSuccess('Password updated successfully!')}
+          onError={(error) => setError(error)}
+        />
+
+        {/* Account Security Component */}
+        <AccountSecurity />
 
         {/* Account Actions */}
         <div className="bg-white rounded-3xl p-8 shadow-lg space-y-6">
@@ -336,6 +443,59 @@ export const Settings: React.FC = () => {
                   className="flex-1 bg-red-600 hover:bg-red-700"
                 >
                   {loading ? 'Deleting...' : 'Delete Account'}
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Re-authentication Modal */}
+      {showReauthenticate && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-3xl max-w-md w-full p-8">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+              <h3 className="text-xl font-semibold text-gray-900 mb-2">Confirm Your Identity</h3>
+              <p className="text-gray-600 mb-6">
+                For security reasons, please enter your password to confirm account deletion.
+              </p>
+              <div className="mb-6">
+                <Input
+                  type="password"
+                  placeholder="Enter your password"
+                  value={reauthPassword}
+                  onChange={(e) => setReauthPassword(e.target.value)}
+                  className="text-center"
+                />
+              </div>
+              {error && (
+                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-600 text-sm">{error}</p>
+                </div>
+              )}
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowReauthenticate(false);
+                    setReauthPassword('');
+                    setError('');
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleReauthenticate}
+                  disabled={loading || !reauthPassword.trim()}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                >
+                  {loading ? 'Confirming...' : 'Confirm'}
                 </Button>
               </div>
             </div>
