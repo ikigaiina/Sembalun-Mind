@@ -1,26 +1,20 @@
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
+import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useOnboarding } from '../hooks/useOnboarding';
-import { ProfilePictureUpload } from '../components/account/ProfilePictureUpload';
-import { AccountSummary } from '../components/account/AccountSummary';
-import { DefaultProfilePicture } from '../components/ui/DefaultProfilePicture';
-import { ProfileSyncStatus } from '../components/ui/ProfileSyncStatus';
-import { getUserDisplayName } from '../utils/user-display';
+// Simple helper function to get display name
+const getUserDisplayName = (user: any) => {
+  if (user?.user_metadata?.display_name) return user.user_metadata.display_name;
+  if (user?.email) return user.email.split('@')[0];
+  return 'Pengguna';
+};
 
 export const Profile: React.FC = () => {
   const navigate = useNavigate();
-  const { user, userProfile, isGuest, updateUserProfile } = useAuth();
+  const { user, signOut } = useSupabaseAuth();
   const { resetOnboarding } = useOnboarding();
-
-  const handleProfilePictureSuccess = async (url: string) => {
-    try {
-      await updateUserProfile({ photoURL: url });
-    } catch (error) {
-      console.error('Error updating profile picture:', error);
-    }
-  };
+  const isGuest = !user;
 
   return (
     <div className="px-4 py-6 space-y-6 max-w-md mx-auto">
@@ -33,18 +27,13 @@ export const Profile: React.FC = () => {
       <Card className="text-center">
         <div className="py-8">
           <div className="flex justify-center mb-4">
-            {!isGuest ? (
-              <ProfilePictureUpload
-                onSuccess={handleProfilePictureSuccess}
-                onError={(error) => console.error('Profile picture error:', error)}
-              />
-            ) : (
-              <DefaultProfilePicture size={96} />
-            )}
+            <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center">
+              <span className="text-2xl">👤</span>
+            </div>
           </div>
           
           <h3 className="font-heading text-gray-800 text-xl mb-2">
-            {getUserDisplayName(user, userProfile, isGuest)}
+            {getUserDisplayName(user)}
           </h3>
           
           <p className="text-gray-600 font-body text-sm mb-6">
@@ -53,22 +42,20 @@ export const Profile: React.FC = () => {
               : user?.email || 'Welcome to your mindfulness journey'}
           </p>
 
-          {!isGuest && userProfile && (
-            <div className="grid grid-cols-3 gap-4 mb-6">
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{userProfile.progress.totalSessions}</div>
-                <div className="text-xs text-gray-600">Sessions</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{userProfile.progress.totalMinutes}</div>
-                <div className="text-xs text-gray-600">Minutes</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-bold text-primary">{userProfile.progress.streak}</div>
-                <div className="text-xs text-gray-600">Day Streak</div>
-              </div>
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">12</div>
+              <div className="text-xs text-gray-600">Sessions</div>
             </div>
-          )}
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">180</div>
+              <div className="text-xs text-gray-600">Minutes</div>
+            </div>
+            <div className="text-center">
+              <div className="text-2xl font-bold text-primary">7</div>
+              <div className="text-xs text-gray-600">Day Streak</div>
+            </div>
+          </div>
           
           <Button onClick={() => navigate('/settings')}>
             Account Settings
@@ -86,12 +73,6 @@ export const Profile: React.FC = () => {
           )}
         </div>
       </Card>
-
-      {/* Profile Sync Status */}
-      {!isGuest && <ProfileSyncStatus />}
-
-      {/* Account Summary */}
-      {!isGuest && <AccountSummary />}
 
       {/* Quick Actions */}
       <Card>

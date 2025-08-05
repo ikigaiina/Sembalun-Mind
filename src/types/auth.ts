@@ -1,4 +1,4 @@
-import type { User as FirebaseUser } from 'firebase/auth';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
 
 export interface UserProfile {
   uid: string;
@@ -204,7 +204,7 @@ export interface UserProgress {
 }
 
 export interface AuthContextType {
-  user: FirebaseUser | null;
+  user: SupabaseUser | null;
   userProfile: UserProfile | null;
   loading: boolean;
   isGuest: boolean;
@@ -274,14 +274,14 @@ export interface EnhancedAuthContextType extends AuthContextType {
 /**
  * Type guard to check if user is authenticated
  */
-export const isAuthenticated = (user: FirebaseUser | null, isGuest: boolean): boolean => {
+export const isAuthenticated = (user: SupabaseUser | null, isGuest: boolean): boolean => {
   return Boolean(user || isGuest);
 };
 
 /**
  * Type guard to check if user is a registered user (not guest)
  */
-export const isRegisteredUser = (user: FirebaseUser | null, isGuest: boolean): boolean => {
+export const isRegisteredUser = (user: SupabaseUser | null, isGuest: boolean): boolean => {
   return Boolean(user && !isGuest);
 };
 

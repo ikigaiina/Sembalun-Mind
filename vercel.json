@@ -8,12 +8,12 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp3|wav|ogg))$",
-      "destination": "/$1"
+      "source": "/auth/callback",
+      "destination": "/index.html"
     },
     {
-      "source": "/(manifest\\.json|manifest\\.webmanifest|sw\\.js|registerSW\\.js)$",
-      "destination": "/$1"
+      "source": "/auth/reset-password",
+      "destination": "/index.html"
     },
     {
       "source": "/(.*)",
@@ -22,7 +22,20 @@
   ],
   "headers": [
     {
-      "source": "/(manifest\\.json|manifest\\.webmanifest)$",
+      "source": "/",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy", 
+          "value": "unsafe-none"
+        }
+      ]
+    },
+    {
+      "source": "/(manifest\\.json|manifest\\.webmanifest)",
       "headers": [
         {
           "key": "Content-Type",
@@ -55,7 +68,7 @@
       ]
     },
     {
-      "source": "/(sw|registerSW)\\.js$",
+      "source": "/(sw|registerSW)\\.js",
       "headers": [
         {
           "key": "Content-Type", 
@@ -138,6 +151,14 @@
         {
           "key": "Permissions-Policy",
           "value": "geolocation=(), microphone=(), camera=()"
+        },
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        },
+        {
+          "key": "Cross-Origin-Embedder-Policy",
+          "value": "unsafe-none"
         }
       ]
     }

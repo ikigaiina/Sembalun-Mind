@@ -83,7 +83,7 @@ export default defineConfig({
         // Simplified chunking strategy
         manualChunks: {
           'react-vendor': ['react', 'react-dom'],
-          'firebase-vendor': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'supabase-vendor': ['@supabase/supabase-js'],
           'ui-vendor': ['lucide-react', 'react-router-dom']
         },
         chunkFileNames: 'js/[name]-[hash].js',

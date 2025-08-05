@@ -35,12 +35,11 @@
     "reset-achievements": "tsx src/scripts/resetAchievements.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.53.0",
     "@types/recharts": "^1.8.29",
-    "firebase": "^12.0.0",
     "lucide-react": "^0.536.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-firebase-hooks": "^5.1.1",
     "react-router-dom": "^7.7.1",
     "recharts": "^3.1.0"
   },
@@ -70,5 +69,18 @@
     "vite": "^7.0.4",
     "vite-plugin-pwa": "^1.0.2",
     "vitest": "^3.2.4"
-  }
+  },
+  "description": "A modern meditation and mindfulness application built with React, TypeScript, Vite, and Supabase.",
+  "main": "deploy.js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ikigaiina/sembalun.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ikigaiina/sembalun/issues"
+  },
+  "homepage": "https://github.com/ikigaiina/sembalun#readme"
 }

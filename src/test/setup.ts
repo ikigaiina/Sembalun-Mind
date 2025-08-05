@@ -1,26 +1,36 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock Firebase
-vi.mock('../config/firebase', () => ({
-  auth: {
-    currentUser: null,
-    onAuthStateChanged: vi.fn(),
-    signOut: vi.fn(),
+// Mock Supabase
+vi.mock('../config/supabase', () => ({
+  supabase: {
+    auth: {
+      getSession: vi.fn(() => Promise.resolve({ data: { session: null } })),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+      signOut: vi.fn(() => Promise.resolve({ error: null })),
+      signInWithPassword: vi.fn(() => Promise.resolve({ error: null })),
+      signUp: vi.fn(() => Promise.resolve({ error: null })),
+      signInWithOAuth: vi.fn(() => Promise.resolve({ error: null })),
+    },
+    from: vi.fn(() => ({
+      select: vi.fn(() => ({ data: [], error: null })),
+      insert: vi.fn(() => ({ data: null, error: null })),
+      update: vi.fn(() => ({ data: null, error: null })),
+      delete: vi.fn(() => ({ data: null, error: null })),
+    })),
+    storage: {
+      from: vi.fn(() => ({
+        upload: vi.fn(() => ({ data: null, error: null })),
+        download: vi.fn(() => ({ data: null, error: null })),
+        remove: vi.fn(() => ({ data: null, error: null })),
+      })),
+    },
   },
-  db: {},
-  storage: {},
-  googleProvider: {},
-  appleProvider: {},
 }))
 
-// Mock environment variables
-vi.stubEnv('VITE_FIREBASE_API_KEY', 'test-api-key')
-vi.stubEnv('VITE_FIREBASE_AUTH_DOMAIN', 'test.firebaseapp.com')
-vi.stubEnv('VITE_FIREBASE_PROJECT_ID', 'test-project')
-vi.stubEnv('VITE_FIREBASE_STORAGE_BUCKET', 'test.appspot.com')
-vi.stubEnv('VITE_FIREBASE_MESSAGING_SENDER_ID', '123456789')
-vi.stubEnv('VITE_FIREBASE_APP_ID', 'test-app-id')
+// Mock Supabase environment variables
+vi.stubEnv('VITE_SUPABASE_URL', 'https://test.supabase.co')
+vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'test-anon-key')
 
 // Mock navigator.onLine for offline tests
 Object.defineProperty(navigator, 'onLine', {
