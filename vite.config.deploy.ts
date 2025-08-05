@@ -2,7 +2,7 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import { VitePWA } from 'vite-plugin-pwa'
 
-// Simplified production configuration for faster builds
+// Fast deployment configuration optimized for Vercel
 export default defineConfig({
   plugins: [
     react(),
@@ -14,12 +14,10 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
-        maximumFileSizeToCacheInBytes: 3000000, // Reduced for faster builds
+        maximumFileSizeToCacheInBytes: 2000000,
         skipWaiting: true,
         clientsClaim: true,
-        cleanupOutdatedCaches: true,
-        navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//, /^\/manifest\.(json|webmanifest)$/, /^\/sw\.js$/, /^\/registerSW\.js$/]
+        cleanupOutdatedCaches: true
       },
       manifest: {
         name: 'Sembalun - Indonesian Meditation App',
@@ -32,12 +30,7 @@ export default defineConfig({
         scope: '/',
         start_url: '/',
         lang: 'id-ID',
-        dir: 'ltr',
         categories: ['health', 'lifestyle', 'wellness', 'meditation'],
-        prefer_related_applications: false,
-        edge_side_panel: {
-          preferred_width: 480
-        },
         icons: [
           {
             src: '/icon-192.svg',
@@ -51,22 +44,6 @@ export default defineConfig({
             type: 'image/svg+xml',
             purpose: 'any maskable'
           }
-        ],
-        shortcuts: [
-          {
-            name: 'Meditasi Cepat',
-            short_name: 'Meditasi',
-            description: 'Mulai sesi meditasi 5 menit',
-            url: '/meditation?quick=true',
-            icons: [{ src: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' }]
-          },
-          {
-            name: 'Latihan Pernapasan',
-            short_name: 'Pernapasan',
-            description: 'Latihan pernapasan 3 menit',
-            url: '/breathing?quick=true',
-            icons: [{ src: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' }]
-          }
         ]
       }
     })
@@ -75,23 +52,23 @@ export default defineConfig({
     target: 'es2020',
     minify: 'esbuild', // Faster than terser
     sourcemap: false,
-    cssCodeSplit: false, // Disable CSS splitting for faster builds
-    assetsInlineLimit: 8192,
+    cssCodeSplit: false,
+    assetsInlineLimit: 4096,
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
-        // Simplified chunking strategy
+        // Simplified chunking - only essential splits
         manualChunks: {
-          'react-vendor': ['react', 'react-dom'],
-          'firebase-vendor': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
-          'ui-vendor': ['lucide-react', 'react-router-dom']
+          'react-core': ['react', 'react-dom'],
+          'firebase-core': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          'vendor': ['react-router-dom', 'lucide-react']
         },
         chunkFileNames: 'js/[name]-[hash].js',
         entryFileNames: 'js/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash][extname]'
       }
     },
-    reportCompressedSize: false // Disable to speed up builds
+    reportCompressedSize: false
   },
   server: {
     host: true,

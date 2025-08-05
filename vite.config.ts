@@ -34,7 +34,7 @@ export default defineConfig(({ mode }) => {
         clientsClaim: true,
         cleanupOutdatedCaches: true,
         navigateFallback: '/index.html',
-        navigateFallbackDenylist: [/^\/api\//],
+        navigateFallbackDenylist: [/^\/api\//, /^\/manifest\.(json|webmanifest)$/, /^\/sw\.js$/, /^\/registerSW\.js$/],
         runtimeCaching: [
           // Google Fonts
           {
@@ -111,7 +111,12 @@ export default defineConfig(({ mode }) => {
         scope: '/',
         start_url: '/',
         lang: 'id-ID',
+        dir: 'ltr',
         categories: ['health', 'lifestyle', 'wellness', 'meditation'],
+        prefer_related_applications: false,
+        edge_side_panel: {
+          preferred_width: 480
+        },
         icons: [
           {
             src: '/icon-192.svg',
@@ -170,21 +175,26 @@ export default defineConfig(({ mode }) => {
             return 'react-router'
           }
 
-          // Firebase chunks - granular separation for better caching
-          if (id.includes('firebase/app') || id.includes('firebase/util')) {
+          // Firebase chunks - optimized to prevent initialization errors
+          if (id.includes('firebase/app') || id.includes('@firebase/app')) {
             return 'firebase-core'
           }
-          if (id.includes('firebase/auth')) {
+          if (id.includes('firebase/auth') || id.includes('@firebase/auth')) {
             return 'firebase-auth'
           }
-          if (id.includes('firebase/firestore')) {
+          if (id.includes('firebase/firestore') || id.includes('@firebase/firestore')) {
             return 'firebase-firestore'
           }
-          if (id.includes('firebase/storage') || id.includes('firebase/analytics') || id.includes('firebase/performance')) {
+          if (id.includes('firebase/storage') || id.includes('firebase/analytics') || id.includes('firebase/performance') || 
+              id.includes('@firebase/storage') || id.includes('@firebase/analytics') || id.includes('@firebase/performance')) {
             return 'firebase-optional'
           }
           if (id.includes('react-firebase-hooks')) {
             return 'firebase-hooks'
+          }
+          // Keep Firebase utilities together to prevent hoisting issues
+          if (id.includes('@firebase/util') || id.includes('firebase/util')) {
+            return 'firebase-core'
           }
 
           // Feature-based chunking for better code splitting

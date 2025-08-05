@@ -24,6 +24,7 @@ import {
   serverTimestamp 
 } from 'firebase/firestore';
 import { useAuthState } from 'react-firebase-hooks/auth';
+// Import Firebase services with defensive null checks
 import { auth, db, googleProvider, appleProvider } from '../config/firebase';
 import type { AuthContextType, UserProfile } from '../types/auth';
 import { AuthError } from '../utils/auth-error';
