@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { CourseCard, type Course } from '../components/ui/CourseCard';
@@ -6,9 +7,10 @@ import { SessionLibrary, type Session } from '../components/ui/SessionLibrary';
 import { 
   getPersonalizedRecommendations, 
   getTimeBasedGreeting, 
-  getTimeBasedRecommendation,
-  MOCK_USER 
+  getTimeBasedRecommendation
 } from '../utils/recommendations';
+import { useAuth } from '../hooks/useAuth';
+import { getUserDisplayName } from '../utils/user-display';
 
 interface FilterOptions {
   duration: 'all' | 'short' | 'medium' | 'long';
@@ -68,7 +70,7 @@ const SAMPLE_SESSIONS: Session[] = [
     isCompleted: false,
     isFavorite: true,
     thumbnail: '🌅',
-    instructor: 'Maya Sari'
+    instructor: 'Ibu Sari Dewi'
   },
   {
     id: '2',
@@ -263,6 +265,8 @@ const FilterModal: React.FC<{
 };
 
 export const Explore: React.FC = () => {
+  const { user, userProfile, isGuest } = useAuth();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'courses' | 'sessions'>('courses');
   const [showFilterModal, setShowFilterModal] = useState(false);
@@ -365,11 +369,74 @@ export const Explore: React.FC = () => {
 
   // Get personalized recommendations
   const recommendations = useMemo(() => {
-    return getPersonalizedRecommendations(SAMPLE_COURSES, SAMPLE_SESSIONS, MOCK_USER);
-  }, []);
+    // Create a user profile object for recommendations if user is logged in
+    if (userProfile) {
+      return getPersonalizedRecommendations(SAMPLE_COURSES, SAMPLE_SESSIONS, userProfile);
+    }
+    // For guests, return empty recommendations
+    return { recommendedCourses: [], recommendedSessions: [], dailyRecommendation: null };
+  }, [userProfile]);
 
   const handleSessionClick = (session: Session) => {
-    console.log('Session clicked:', session.title);
+    // Navigate to appropriate page based on session type
+    switch (session.type) {
+      case 'breathing':
+        navigate('/breathing', { 
+          state: { 
+            sessionId: session.id,
+            sessionTitle: session.title,
+            sessionDuration: session.duration,
+            sessionDescription: session.description
+          } 
+        });
+        break;
+      case 'meditation':
+      case 'visualization':
+      case 'body-scan':
+        navigate('/meditation', { 
+          state: { 
+            session: {
+              id: session.id,
+              title: session.title,
+              description: session.description,
+              duration: parseInt(session.duration) || 10, // Parse duration string to number
+              category: session.type as 'breathing' | 'mindfulness' | 'sleep' | 'focus',
+              difficulty: session.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
+            }
+          } 
+        });
+        break;
+      default:
+        // Fallback to meditation page
+        navigate('/meditation', { 
+          state: { 
+            session: {
+              id: session.id,
+              title: session.title,
+              description: session.description,
+              duration: parseInt(session.duration) || 10, // Parse duration string to number
+              category: session.type as 'breathing' | 'mindfulness' | 'sleep' | 'focus',
+              difficulty: session.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
+            }
+          } 
+        });
+    }
+  };
+
+  const handleCourseClick = (course: Course) => {
+    // Navigate to meditation page for courses
+    navigate('/meditation', { 
+      state: { 
+        session: {
+          id: course.id,
+          title: course.title,
+          description: course.description,
+          duration: parseInt(course.duration) || 15, // Parse duration string to number
+          category: 'mindfulness' as const, // Default category for courses
+          difficulty: course.difficulty.toLowerCase() as 'beginner' | 'intermediate' | 'advanced'
+        }
+      } 
+    });
   };
 
   return (
@@ -377,7 +444,7 @@ export const Explore: React.FC = () => {
       {/* Personalized Header */}
       <div className="text-center mb-6">
         <h1 className="text-2xl font-heading text-gray-800 mb-2">
-          {getTimeBasedGreeting()}, {MOCK_USER.name}! 👋
+          {getTimeBasedGreeting()}, {getUserDisplayName(user, userProfile, isGuest)}! 👋
         </h1>
         <p className="text-gray-600 font-body text-sm">
           {getTimeBasedRecommendation()}
@@ -387,11 +454,15 @@ export const Explore: React.FC = () => {
         <div className="flex items-center justify-center space-x-6 mt-4 text-xs">
           <div className="flex items-center space-x-1">
             <span>🔥</span>
-            <span className="text-primary font-medium">{MOCK_USER.currentStreak} hari berturut</span>
+            <span className="text-primary font-medium">
+              {userProfile?.progress?.streak || userProfile?.currentStreak || 0} hari berturut
+            </span>
           </div>
           <div className="flex items-center space-x-1">
             <span>⏱️</span>
-            <span className="text-primary font-medium">{MOCK_USER.totalMeditationMinutes} menit total</span>
+            <span className="text-primary font-medium">
+              {userProfile?.progress?.totalMinutes || userProfile?.totalMeditationMinutes || 0} menit total
+            </span>
           </div>
         </div>
       </div>
@@ -475,11 +546,14 @@ export const Explore: React.FC = () => {
             {'sessionCount' in recommendations.dailyRecommendation ? (
               <CourseCard 
                 course={recommendations.dailyRecommendation as Course}
-                onClick={() => console.log('Daily recommendation clicked:', recommendations.dailyRecommendation?.title)}
+                onClick={() => handleCourseClick(recommendations.dailyRecommendation as Course)}
                 variant="compact"
               />
             ) : (
-              <Card className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white/50">
+              <Card 
+                className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white/50"
+                onClick={() => handleSessionClick(recommendations.dailyRecommendation as Session)}
+              >
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center text-2xl">
                     {(recommendations.dailyRecommendation as Session).thumbnail}
@@ -520,7 +594,7 @@ export const Explore: React.FC = () => {
                   <CourseCard 
                     key={course.id} 
                     course={course} 
-                    onClick={() => console.log('Recommended course clicked:', course.title)}
+                    onClick={() => handleCourseClick(course)}
                     variant="compact"
                   />
                 ))}
@@ -537,7 +611,7 @@ export const Explore: React.FC = () => {
                   <CourseCard 
                     key={course.id} 
                     course={course} 
-                    onClick={() => console.log('Course clicked:', course.title)}
+                    onClick={() => handleCourseClick(course)}
                     variant="compact"
                   />
                 ))}
@@ -556,7 +630,7 @@ export const Explore: React.FC = () => {
                   <CourseCard 
                     key={course.id} 
                     course={course} 
-                    onClick={() => console.log('Course clicked:', course.title)}
+                    onClick={() => handleCourseClick(course)}
                   />
                 ))
               ) : (
@@ -583,7 +657,10 @@ export const Explore: React.FC = () => {
                     key={category.name}
                     className="cursor-pointer hover:shadow-lg transition-all duration-200 text-center"
                     padding="small"
-                    onClick={() => console.log('Category clicked:', category.name)}
+                    onClick={() => {
+                      setFilters(prev => ({ ...prev, category: category.name }));
+                      setActiveTab('sessions');
+                    }}
                   >
                     <div className="text-2xl mb-2">{category.icon}</div>
                     <span className={`text-sm font-medium px-2 py-1 rounded-full ${category.color}`}>

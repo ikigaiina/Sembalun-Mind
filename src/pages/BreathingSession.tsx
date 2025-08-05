@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Header } from '../components/ui/Header';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -24,6 +24,7 @@ const durationOptions = [
 
 export const BreathingSession: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [sessionState, setSessionState] = useState<SessionState>('setup');
   const [selectedPattern, setSelectedPattern] = useState<BreathingPattern>('box');
   const [selectedDuration, setSelectedDuration] = useState(5); // in minutes, 0 = continuous
@@ -48,7 +49,7 @@ export const BreathingSession: React.FC = () => {
 
   // Session timer
   useEffect(() => {
-    let interval: number | null = null;
+    let interval: ReturnType<typeof setInterval> | null = null;
     
     if (isActive && sessionState === 'active') {
       interval = setInterval(() => {
@@ -72,6 +73,25 @@ export const BreathingSession: React.FC = () => {
       if (interval) clearInterval(interval);
     };
   }, [isActive, sessionState, selectedDuration, handleSessionComplete]);
+
+  // Handle session data from navigation state
+  useEffect(() => {
+    const sessionData = location.state as {
+      sessionId?: string;
+      sessionTitle?: string;
+      sessionDuration?: string;
+      sessionDescription?: string;
+    } | null;
+
+    if (sessionData?.sessionDuration) {
+      // Parse duration from string (e.g., "5 menit" -> 5)
+      const durationMatch = sessionData.sessionDuration.match(/(\d+)/);
+      if (durationMatch) {
+        const duration = parseInt(durationMatch[1]);
+        setSelectedDuration(duration);
+      }
+    }
+  }, [location.state]);
 
   const handleStartSession = () => {
     setSessionState('active');

@@ -1,21 +1,8 @@
 import type { Course } from '../components/ui/CourseCard';
 import type { Session } from '../components/ui/SessionLibrary';
+import type { UserProfile } from '../types/auth';
 
 // Mock user data - in a real app this would come from a user context or API
-export interface UserProfile {
-  id: string;
-  name: string;
-  preferences: {
-    favoriteCategories: string[];
-    difficulty: 'Pemula' | 'Menengah' | 'Lanjutan';
-    sessionDuration: 'short' | 'medium' | 'long';
-    timeOfDay: 'morning' | 'afternoon' | 'evening';
-  };
-  completedSessions: string[];
-  completedCourses: string[];
-  currentStreak: number;
-  totalMeditationMinutes: number;
-}
 
 export interface RecommendationScore {
   id: string;
@@ -23,15 +10,81 @@ export interface RecommendationScore {
   reasons: string[];
 }
 
-// Mock user profile
+// Mock user profile - using generic placeholder
 export const MOCK_USER: UserProfile = {
-  id: 'user-1',
-  name: 'Maya',
+  uid: 'user-1',
+  email: 'user@example.com',
+  displayName: 'User',
+  photoURL: null,
+  createdAt: new Date(),
+  lastLoginAt: new Date(),
+  isGuest: false,
   preferences: {
+    theme: 'auto',
+    language: 'id',
+    notifications: {
+      daily: true,
+      reminders: true,
+      achievements: true,
+      weeklyProgress: true,
+      socialUpdates: false,
+      push: true,
+      email: false,
+      sound: true,
+      vibration: true,
+    },
+    privacy: {
+      analytics: false,
+      dataSharing: false,
+      profileVisibility: 'private',
+      shareProgress: false,
+      locationTracking: false,
+    },
+    meditation: {
+      defaultDuration: 10,
+      preferredVoice: 'default',
+      backgroundSounds: false,
+      guidanceLevel: 'moderate',
+      musicVolume: 50,
+      voiceVolume: 70,
+      autoAdvance: false,
+      showTimer: true,
+      preparationTime: 0,
+      endingBell: true,
+    },
+    accessibility: {
+      reducedMotion: false,
+      highContrast: false,
+      fontSize: 'medium',
+      screenReader: false,
+      keyboardNavigation: false,
+    },
+    display: {
+      dateFormat: 'DD/MM/YYYY',
+      timeFormat: '24h',
+      weekStartsOn: 'monday',
+      showStreaks: true,
+      showStatistics: true,
+    },
+    downloadPreferences: {
+      autoDownload: false,
+      wifiOnly: true,
+      storageLimit: 1,
+    },
     favoriteCategories: ['Stres', 'Tidur'],
-    difficulty: 'Pemula',
+    difficulty: 'beginner',
     sessionDuration: 'short',
     timeOfDay: 'evening'
+  },
+  progress: {
+    totalSessions: 10,
+    totalMinutes: 45,
+    streak: 3,
+    longestStreak: 5,
+    achievements: [],
+    lastSessionDate: new Date(),
+    favoriteCategories: ['Stres', 'Tidur'],
+    completedPrograms: []
   },
   completedSessions: ['2', '5'],
   completedCourses: [],
@@ -54,15 +107,21 @@ export const getPersonalizedRecommendations = (
     const reasons: string[] = [];
 
     // Category preference match
-    if (user.preferences.favoriteCategories.includes(course.category)) {
+    if (user.preferences.favoriteCategories?.includes(course.category)) {
       score += 30;
       reasons.push(`Cocok dengan minat ${course.category.toLowerCase()}`);
     }
 
-    // Difficulty match
-    if (course.difficulty === user.preferences.difficulty) {
+    // Difficulty match (convert between Indonesian and English)
+    const difficultyMap: { [key: string]: string } = {
+      'Pemula': 'beginner',
+      'Menengah': 'intermediate', 
+      'Lanjutan': 'advanced'
+    };
+    const userDifficulty = difficultyMap[course.difficulty] || course.difficulty;
+    if (userDifficulty === user.preferences.difficulty) {
       score += 20;
-      reasons.push(`Sesuai tingkat ${course.difficulty.toLowerCase()}`);
+      reasons.push(`Sesuai tingkat ${course.difficulty}`);
     }
 
     // Progress-based scoring
@@ -72,7 +131,7 @@ export const getPersonalizedRecommendations = (
     }
 
     // Beginner boost for new users
-    if (user.totalMeditationMinutes < 60 && course.difficulty === 'Pemula') {
+    if ((user.totalMeditationMinutes || 0) < 60 && course.difficulty === 'Pemula') {
       score += 15;
       reasons.push('Cocok untuk pemula');
     }
@@ -115,17 +174,23 @@ export const getPersonalizedRecommendations = (
 
     // User preference category matching
     const sessionCategoryKeywords = session.category.toLowerCase();
-    user.preferences.favoriteCategories.forEach(category => {
+    user.preferences.favoriteCategories?.forEach(category => {
       if (sessionCategoryKeywords.includes(category.toLowerCase())) {
         score += 20;
         reasons.push(`Sesuai minat ${category.toLowerCase()}`);
       }
     });
 
-    // Difficulty match
-    if (session.difficulty === user.preferences.difficulty) {
+    // Difficulty match (convert between Indonesian and English)
+    const sessionDifficultyMap: { [key: string]: string } = {
+      'Pemula': 'beginner',
+      'Menengah': 'intermediate', 
+      'Lanjutan': 'advanced'
+    };
+    const sessionDifficulty = sessionDifficultyMap[session.difficulty] || session.difficulty;
+    if (sessionDifficulty === user.preferences.difficulty) {
       score += 15;
-      reasons.push(`Tingkat ${session.difficulty.toLowerCase()}`);
+      reasons.push(`Tingkat ${session.difficulty}`);
     }
 
     // Favorite sessions boost
@@ -135,7 +200,7 @@ export const getPersonalizedRecommendations = (
     }
 
     // Avoid completed sessions (unless it's been a while)
-    if (user.completedSessions.includes(session.id)) {
+    if (user.completedSessions?.includes(session.id)) {
       score -= 15;
     } else {
       score += 5;

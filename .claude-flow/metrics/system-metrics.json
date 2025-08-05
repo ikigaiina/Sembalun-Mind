@@ -1,0 +1,86 @@
+[
+  {
+    "timestamp": 1754293147565,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3397373952,
+    "memoryFree": 711892992,
+    "memoryUsagePercent": 82.67591271870411,
+    "memoryEfficiency": 17.32408728129589,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5695.468
+  },
+  {
+    "timestamp": 1754293177584,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3387641856,
+    "memoryFree": 721625088,
+    "memoryUsagePercent": 82.43907982046153,
+    "memoryEfficiency": 17.56092017953847,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5725.484
+  },
+  {
+    "timestamp": 1754293207591,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3454164992,
+    "memoryFree": 655101952,
+    "memoryUsagePercent": 84.0579363441812,
+    "memoryEfficiency": 15.9420636558188,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5755.484
+  },
+  {
+    "timestamp": 1754293237601,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3333050368,
+    "memoryFree": 776216576,
+    "memoryUsagePercent": 81.11058282223877,
+    "memoryEfficiency": 18.88941717776123,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5785.5
+  },
+  {
+    "timestamp": 1754293267613,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3365679104,
+    "memoryFree": 743587840,
+    "memoryUsagePercent": 81.90461096508409,
+    "memoryEfficiency": 18.09538903491591,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5815.515
+  },
+  {
+    "timestamp": 1754293297614,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3357945856,
+    "memoryFree": 751321088,
+    "memoryUsagePercent": 81.7164205139553,
+    "memoryEfficiency": 18.2835794860447,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5845.515
+  },
+  {
+    "timestamp": 1754293327627,
+    "memoryTotal": 4109266944,
+    "memoryUsed": 3379400704,
+    "memoryFree": 729866240,
+    "memoryUsagePercent": 82.23852940326283,
+    "memoryEfficiency": 17.76147059673717,
+    "cpuCount": 2,
+    "cpuLoad": 0,
+    "platform": "win32",
+    "uptime": 5875.531
+  }
+]

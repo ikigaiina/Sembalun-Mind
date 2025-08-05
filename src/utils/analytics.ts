@@ -1,6 +1,7 @@
 declare global {
   interface Window {
-    gtag?: (...args: any[]) => void;
+    gtag?: (...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
 }
 
@@ -29,11 +30,9 @@ class Analytics {
     script.src = `https://www.googletagmanager.com/gtag/js?id=${this.gtmId}`;
     document.head.appendChild(script);
 
-    window.gtag = function() {
-      // @ts-ignore
+    window.gtag = function(...args: unknown[]) {
       window.dataLayer = window.dataLayer || [];
-      // @ts-ignore
-      window.dataLayer.push(arguments);
+      window.dataLayer.push(args);
     };
 
     window.gtag('js', new Date());

@@ -1,6 +1,46 @@
-# Sembalun Vercel Deployment Guide
+# Sembalun Production Deployment Guide
 
-## 🚀 Quick Deployment Steps
+## 🔐 IMPORTANT: Firebase Setup Required First
+
+**⚠️ Authentication will not work without Firebase setup!**
+
+### Pre-Deployment: Firebase Project Setup
+
+1. **Create Firebase Project**
+   ```bash
+   # Install Firebase CLI
+   npm install -g firebase-tools
+   
+   # Login to Firebase
+   firebase login
+   ```
+
+2. **Create New Project**
+   - Go to [Firebase Console](https://console.firebase.google.com)
+   - Click "Create a project"
+   - Name: `sembalun-production`
+   - Enable Google Analytics (optional)
+
+3. **Enable Authentication**
+   - Go to Authentication → Sign-in method
+   - Enable **Email/Password**
+   - Enable **Google** provider
+   - Add authorized domains (will add Vercel domain later)
+
+4. **Setup Firestore Database**
+   - Go to Firestore Database
+   - Create database in **production mode**
+   - Deploy security rules:
+   ```bash
+   firebase deploy --only firestore:rules
+   ```
+
+5. **Get Firebase Config**
+   - Project Settings → General → Your apps
+   - Add web app, copy config values
+   - Save for Vercel environment variables
+
+## 🚀 Vercel Deployment Steps
 
 ### Option 1: Vercel Web Interface (Recommended)
 
@@ -19,7 +59,20 @@
    - **Output Directory**: `dist`
    - **Install Command**: `npm install`
 
-4. **Deploy**
+4. **Add Environment Variables** (CRITICAL)
+   Go to Project Settings → Environment Variables and add:
+   ```
+   VITE_FIREBASE_API_KEY=your_api_key_here
+   VITE_FIREBASE_AUTH_DOMAIN=your-project-id.firebaseapp.com
+   VITE_FIREBASE_PROJECT_ID=your-project-id
+   VITE_FIREBASE_STORAGE_BUCKET=your-project-id.appspot.com
+   VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   VITE_FIREBASE_APP_ID=your_app_id
+   VITE_ENABLE_AUTH=true
+   NODE_ENV=production
+   ```
+
+5. **Deploy**
    - Click "Deploy"
    - Wait for build completion (~2-3 minutes)
    - Get your live URL!
