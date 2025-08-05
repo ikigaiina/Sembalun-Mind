@@ -117,7 +117,7 @@
       ]
     },
     {
-      "source": "/.*\\.html$",
+      "source": "/(.*).html",
       "headers": [
         {
           "key": "X-Frame-Options",
