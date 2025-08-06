@@ -9,16 +9,8 @@ import {
   getTimeBasedGreeting, 
   getTimeBasedRecommendation
 } from '../utils/recommendations';
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
-
-// Simple helper function to get display name
-const getUserDisplayName = (user: any, userProfile: any, isGuest: boolean) => {
-  if (isGuest) return 'Tamu';
-  if (userProfile?.display_name) return userProfile.display_name;
-  if (user?.user_metadata?.display_name) return user.user_metadata.display_name;
-  if (user?.email) return user.email.split('@')[0];
-  return 'Pengguna';
-};
+import { useAuth } from '../hooks/useAuth';
+import { getUserDisplayName } from '../utils/user-display';
 
 interface FilterOptions {
   duration: 'all' | 'short' | 'medium' | 'long';
@@ -273,15 +265,7 @@ const FilterModal: React.FC<{
 };
 
 export const Explore: React.FC = () => {
-  const { user, session } = useSupabaseAuth();
-  const isGuest = !user;
-  // For now, we'll use a simplified user profile structure
-  const userProfile = user ? {
-    display_name: user.user_metadata?.display_name,
-    progress: { streak: 0, totalMinutes: 0 },
-    currentStreak: 0,
-    totalMeditationMinutes: 0
-  } : null;
+  const { user, userProfile, isGuest } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'courses' | 'sessions'>('courses');

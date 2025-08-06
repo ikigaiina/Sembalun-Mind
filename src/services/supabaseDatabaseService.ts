@@ -1,499 +1,624 @@
-import { supabase } from '../config/supabase'
+import { supabase, handleSupabaseError } from '../config/supabaseClient';
+import type {
+  User,
+  UserInsert,
+  UserUpdate,
+  MeditationSession,
+  MeditationSessionInsert,
+  MeditationSessionUpdate,
+  JournalEntry,
+  JournalEntryInsert,
+  JournalEntryUpdate,
+  Achievement,
+  AchievementInsert,
+  Course,
+  UserCourseProgress,
+  UserCourseProgressInsert,
+  UserCourseProgressUpdate,
+  Bookmark,
+  BookmarkInsert,
+  UserSetting,
+  UserSettingInsert,
+  UserSettingUpdate,
+  Mood,
+  MoodInsert,
+  MoodUpdate,
+  UserProgress
+} from '../types/supabase';
 
-export interface MeditationSession {
-  id: string
-  user_id: string
-  type: 'breathing' | 'guided' | 'silent' | 'walking'
-  duration_minutes: number
-  completed_at: string
-  mood_before?: string
-  mood_after?: string
-  notes?: string
-  created_at: string
-  updated_at: string
-}
-
-export interface JournalEntry {
-  id: string
-  user_id: string
-  title?: string
-  content: string
-  mood?: string
-  tags?: string[]
-  created_at: string
-  updated_at: string
-}
-
-export interface Achievement {
-  id: string
-  user_id: string
-  achievement_type: string
-  title: string
-  description: string
-  icon: string
-  unlocked_at: string
-  created_at: string
-}
-
-export interface Course {
-  id: string
-  title: string
-  description: string
-  category: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  duration_minutes: number
-  instructor?: string
-  image_url?: string
-  audio_url?: string
-  is_premium: boolean
-  order_index: number
-  created_at: string
-  updated_at: string
-}
-
-export interface UserCourseProgress {
-  id: string
-  user_id: string
-  course_id: string
-  progress_percentage: number
-  last_accessed_at: string
-  completed_at?: string
-  created_at: string
-  updated_at: string
-}
-
+/**
+ * Supabase Database Service
+ * Handles all database operations with proper error handling and type safety
+ */
 export class SupabaseDatabaseService {
-  // Meditation Sessions
-  static async createMeditationSession(session: Omit<MeditationSession, 'id' | 'created_at' | 'updated_at'>): Promise<{ data: MeditationSession | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
+  // ========== USER OPERATIONS ==========
 
-    const { data, error } = await supabase
-      .from('meditation_sessions')
-      .insert([session])
-      .select()
-      .single()
-
-    return { data, error }
-  }
-
-  static async getUserMeditationSessions(userId: string, limit?: number): Promise<{ data: MeditationSession[] | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    let query = supabase
-      .from('meditation_sessions')
-      .select('*')
-      .eq('user_id', userId)
-      .order('completed_at', { ascending: false })
-
-    if (limit) {
-      query = query.limit(limit)
-    }
-
-    const { data, error } = await query
-
-    return { data, error }
-  }
-
-  static async updateMeditationSession(id: string, updates: Partial<MeditationSession>): Promise<{ data: MeditationSession | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('meditation_sessions')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single()
-
-    return { data, error }
-  }
-
-  static async deleteMeditationSession(id: string): Promise<{ error: any }> {
-    if (!supabase) {
-      return { error: new Error('Supabase not available') }
-    }
-
-    const { error } = await supabase
-      .from('meditation_sessions')
-      .delete()
-      .eq('id', id)
-
-    return { error }
-  }
-
-  // Journal Entries
-  static async createJournalEntry(entry: Omit<JournalEntry, 'id' | 'created_at' | 'updated_at'>): Promise<{ data: JournalEntry | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('journal_entries')
-      .insert([entry])
-      .select()
-      .single()
-
-    return { data, error }
-  }
-
-  static async getUserJournalEntries(userId: string, limit?: number): Promise<{ data: JournalEntry[] | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    let query = supabase
-      .from('journal_entries')
-      .select('*')
-      .eq('user_id', userId)
-      .order('created_at', { ascending: false })
-
-    if (limit) {
-      query = query.limit(limit)
-    }
-
-    const { data, error } = await query
-
-    return { data, error }
-  }
-
-  static async updateJournalEntry(id: string, updates: Partial<JournalEntry>): Promise<{ data: JournalEntry | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('journal_entries')
-      .update({
-        ...updates,
-        updated_at: new Date().toISOString()
-      })
-      .eq('id', id)
-      .select()
-      .single()
-
-    return { data, error }
-  }
-
-  static async deleteJournalEntry(id: string): Promise<{ error: any }> {
-    if (!supabase) {
-      return { error: new Error('Supabase not available') }
-    }
-
-    const { error } = await supabase
-      .from('journal_entries')
-      .delete()
-      .eq('id', id)
-
-    return { error }
-  }
-
-  // Achievements
-  static async createAchievement(achievement: Omit<Achievement, 'id' | 'created_at'>): Promise<{ data: Achievement | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('achievements')
-      .insert([achievement])
-      .select()
-      .single()
-
-    return { data, error }
-  }
-
-  static async getUserAchievements(userId: string): Promise<{ data: Achievement[] | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('achievements')
-      .select('*')
-      .eq('user_id', userId)
-      .order('unlocked_at', { ascending: false })
-
-    return { data, error }
-  }
-
-  // Courses
-  static async getAllCourses(): Promise<{ data: Course[] | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('courses')
-      .select('*')
-      .order('order_index', { ascending: true })
-
-    return { data, error }
-  }
-
-  static async getCourseById(id: string): Promise<{ data: Course | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('courses')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    return { data, error }
-  }
-
-  static async getCoursesByCategory(category: string): Promise<{ data: Course[] | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('courses')
-      .select('*')
-      .eq('category', category)
-      .order('order_index', { ascending: true })
-
-    return { data, error }
-  }
-
-  // User Course Progress
-  static async getUserCourseProgress(userId: string, courseId: string): Promise<{ data: UserCourseProgress | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('user_course_progress')
-      .select('*')
-      .eq('user_id', userId)
-      .eq('course_id', courseId)
-      .single()
-
-    return { data, error }
-  }
-
-  static async updateCourseProgress(
-    userId: string, 
-    courseId: string, 
-    progressPercentage: number
-  ): Promise<{ data: UserCourseProgress | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('user_course_progress')
-      .upsert({
-        user_id: userId,
-        course_id: courseId,
-        progress_percentage: progressPercentage,
-        last_accessed_at: new Date().toISOString(),
-        completed_at: progressPercentage >= 100 ? new Date().toISOString() : null,
-        updated_at: new Date().toISOString()
-      })
-      .select()
-      .single()
-
-    return { data, error }
-  }
-
-  static async getAllUserCourseProgress(userId: string): Promise<{ data: UserCourseProgress[] | null; error: any }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
-    const { data, error } = await supabase
-      .from('user_course_progress')
-      .select('*')
-      .eq('user_id', userId)
-      .order('last_accessed_at', { ascending: false })
-
-    return { data, error }
-  }
-
-  // Analytics and Statistics
-  static async getUserStats(userId: string): Promise<{ 
-    data: {
-      totalSessions: number
-      totalMinutes: number
-      averageSessionLength: number
-      currentStreak: number
-      longestStreak: number
-      totalAchievements: number
-      coursesCompleted: number
-      journalEntries: number
-    } | null
-    error: any 
-  }> {
-    if (!supabase) {
-      return { data: null, error: new Error('Supabase not available') }
-    }
-
+  /**
+   * Get user profile by ID
+   */
+  static async getUserProfile(userId: string): Promise<User | null> {
     try {
-      // Get meditation sessions stats
-      const { data: sessions, error: sessionsError } = await supabase
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Update user profile
+   */
+  static async updateUserProfile(userId: string, updates: UserUpdate): Promise<User | null> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .update(updates)
+        .eq('id', userId)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Update user progress
+   */
+  static async updateUserProgress(userId: string, progress: Partial<UserProgress>): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({ progress })
+        .eq('id', userId);
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return true;
+    } catch (error) {
+      handleSupabaseError(error);
+      return false;
+    }
+  }
+
+  // ========== MEDITATION SESSIONS ==========
+
+  /**
+   * Create new meditation session
+   */
+  static async createMeditationSession(session: MeditationSessionInsert): Promise<MeditationSession | null> {
+    try {
+      const { data, error } = await supabase
         .from('meditation_sessions')
-        .select('duration_minutes, completed_at')
+        .insert(session)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's meditation sessions
+   */
+  static async getUserMeditationSessions(
+    userId: string,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<MeditationSession[]> {
+    try {
+      const { data, error } = await supabase
+        .from('meditation_sessions')
+        .select('*')
         .eq('user_id', userId)
+        .order('completed_at', { ascending: false })
+        .range(offset, offset + limit - 1);
 
-      if (sessionsError) throw sessionsError
+      if (error) {
+        handleSupabaseError(error);
+      }
 
-      // Get achievements count
-      const { count: achievementsCount, error: achievementsError } = await supabase
-        .from('achievements')
-        .select('*', { count: 'exact', head: true })
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
+    }
+  }
+
+  /**
+   * Update meditation session
+   */
+  static async updateMeditationSession(
+    sessionId: string,
+    updates: MeditationSessionUpdate
+  ): Promise<MeditationSession | null> {
+    try {
+      const { data, error } = await supabase
+        .from('meditation_sessions')
+        .update(updates)
+        .eq('id', sessionId)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get meditation statistics for user
+   */
+  static async getMeditationStats(userId: string): Promise<{
+    totalSessions: number;
+    totalMinutes: number;
+    averageSession: number;
+    thisWeekSessions: number;
+  }> {
+    try {
+      // Get total stats
+      const { data: totalData, error: totalError } = await supabase
+        .from('meditation_sessions')
+        .select('duration_minutes')
+        .eq('user_id', userId);
+
+      if (totalError) {
+        handleSupabaseError(totalError);
+      }
+
+      // Get this week's sessions
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      weekStart.setHours(0, 0, 0, 0);
+
+      const { data: weekData, error: weekError } = await supabase
+        .from('meditation_sessions')
+        .select('id')
         .eq('user_id', userId)
+        .gte('completed_at', weekStart.toISOString());
 
-      if (achievementsError) throw achievementsError
+      if (weekError) {
+        handleSupabaseError(weekError);
+      }
 
-      // Get completed courses count
-      const { count: coursesCount, error: coursesError } = await supabase
-        .from('user_course_progress')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-        .not('completed_at', 'is', null)
-
-      if (coursesError) throw coursesError
-
-      // Get journal entries count
-      const { count: journalCount, error: journalError } = await supabase
-        .from('journal_entries')
-        .select('*', { count: 'exact', head: true })
-        .eq('user_id', userId)
-
-      if (journalError) throw journalError
-
-      // Calculate stats
-      const totalSessions = sessions?.length || 0
-      const totalMinutes = sessions?.reduce((sum, session) => sum + session.duration_minutes, 0) || 0
-      const averageSessionLength = totalSessions > 0 ? totalMinutes / totalSessions : 0
-
-      // Calculate streaks (simplified - you might want to implement more complex logic)
-      const currentStreak = this.calculateCurrentStreak(sessions || [])
-      const longestStreak = this.calculateLongestStreak(sessions || [])
+      const totalSessions = totalData?.length || 0;
+      const totalMinutes = totalData?.reduce((sum, session) => sum + session.duration_minutes, 0) || 0;
+      const averageSession = totalSessions > 0 ? Math.round(totalMinutes / totalSessions) : 0;
+      const thisWeekSessions = weekData?.length || 0;
 
       return {
-        data: {
-          totalSessions,
-          totalMinutes,
-          averageSessionLength: Math.round(averageSessionLength * 100) / 100,
-          currentStreak,
-          longestStreak,
-          totalAchievements: achievementsCount || 0,
-          coursesCompleted: coursesCount || 0,
-          journalEntries: journalCount || 0
-        },
-        error: null
-      }
+        totalSessions,
+        totalMinutes,
+        averageSession,
+        thisWeekSessions
+      };
     } catch (error) {
-      return { data: null, error }
+      handleSupabaseError(error);
+      return {
+        totalSessions: 0,
+        totalMinutes: 0,
+        averageSession: 0,
+        thisWeekSessions: 0
+      };
     }
   }
 
-  // Helper functions for streak calculation
-  private static calculateCurrentStreak(sessions: { completed_at: string }[]): number {
-    if (!sessions.length) return 0
+  // ========== COURSES ==========
 
-    // Sort sessions by date
-    const sortedSessions = sessions
-      .map(s => new Date(s.completed_at))
-      .sort((a, b) => b.getTime() - a.getTime())
+  /**
+   * Get all courses
+   */
+  static async getCourses(category?: string): Promise<Course[]> {
+    try {
+      let query = supabase
+        .from('courses')
+        .select('*')
+        .order('order_index', { ascending: true });
 
-    let streak = 0
-    let currentDate = new Date()
-    currentDate.setHours(0, 0, 0, 0)
-
-    for (const sessionDate of sortedSessions) {
-      const sessionDay = new Date(sessionDate)
-      sessionDay.setHours(0, 0, 0, 0)
-
-      const diffTime = currentDate.getTime() - sessionDay.getTime()
-      const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
-
-      if (diffDays === 0 || diffDays === 1) {
-        streak++
-        currentDate = sessionDay
-      } else if (diffDays > 1) {
-        break
+      if (category) {
+        query = query.eq('category', category);
       }
-    }
 
-    return streak
-  }
+      const { data, error } = await query;
 
-  private static calculateLongestStreak(sessions: { completed_at: string }[]): number {
-    if (!sessions.length) return 0
-
-    // Group sessions by date
-    const sessionDates = sessions
-      .map(s => {
-        const date = new Date(s.completed_at)
-        date.setHours(0, 0, 0, 0)
-        return date.getTime()
-      })
-      .filter((date, index, arr) => arr.indexOf(date) === index) // Remove duplicates
-      .sort((a, b) => a - b)
-
-    let longestStreak = 1
-    let currentStreak = 1
-
-    for (let i = 1; i < sessionDates.length; i++) {
-      const diffTime = sessionDates[i] - sessionDates[i - 1]
-      const diffDays = diffTime / (1000 * 60 * 60 * 24)
-
-      if (diffDays === 1) {
-        currentStreak++
-        longestStreak = Math.max(longestStreak, currentStreak)
-      } else {
-        currentStreak = 1
+      if (error) {
+        handleSupabaseError(error);
       }
+
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
     }
-
-    return longestStreak
   }
 
-  // Real-time subscriptions
-  static subscribeToUserSessions(userId: string, callback: (payload: any) => void) {
-    if (!supabase) return null
+  /**
+   * Get course by ID
+   */
+  static async getCourse(courseId: string): Promise<Course | null> {
+    try {
+      const { data, error } = await supabase
+        .from('courses')
+        .select('*')
+        .eq('id', courseId)
+        .single();
 
-    return supabase
-      .channel('user_sessions')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'meditation_sessions',
-          filter: `user_id=eq.${userId}`
-        }, 
-        callback
-      )
-      .subscribe()
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
   }
 
-  static subscribeToUserJournal(userId: string, callback: (payload: any) => void) {
-    if (!supabase) return null
+  /**
+   * Create new user profile (called by auth trigger)
+   */
+  static async createUserProfile(userId: string, email: string, displayName?: string, avatarUrl?: string): Promise<User | null> {
+    try {
+      const { data, error } = await supabase
+        .from('users')
+        .insert({
+          id: userId,
+          email,
+          display_name: displayName,
+          avatar_url: avatarUrl,
+          is_guest: false
+        })
+        .select()
+        .single();
 
-    return supabase
-      .channel('user_journal')
-      .on('postgres_changes', 
-        { 
-          event: '*', 
-          schema: 'public', 
-          table: 'journal_entries',
-          filter: `user_id=eq.${userId}`
-        }, 
-        callback
-      )
-      .subscribe()
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  // ========== JOURNAL ENTRIES ==========
+
+  /**
+   * Create new journal entry
+   */
+  static async createJournalEntry(entry: JournalEntryInsert): Promise<JournalEntry | null> {
+    try {
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .insert(entry)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's journal entries
+   */
+  static async getUserJournalEntries(
+    userId: string,
+    limit: number = 50,
+    offset: number = 0
+  ): Promise<JournalEntry[]> {
+    try {
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
+    }
+  }
+
+  /**
+   * Update journal entry
+   */
+  static async updateJournalEntry(
+    entryId: string,
+    updates: JournalEntryUpdate
+  ): Promise<JournalEntry | null> {
+    try {
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .update(updates)
+        .eq('id', entryId)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Delete journal entry
+   */
+  static async deleteJournalEntry(entryId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('journal_entries')
+        .delete()
+        .eq('id', entryId);
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return true;
+    } catch (error) {
+      handleSupabaseError(error);
+      return false;
+    }
+  }
+
+  // ========== ACHIEVEMENTS ==========
+
+  /**
+   * Create new achievement
+   */
+  static async createAchievement(achievement: AchievementInsert): Promise<Achievement | null> {
+    try {
+      const { data, error } = await supabase
+        .from('achievements')
+        .insert(achievement)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's achievements
+   */
+  static async getUserAchievements(userId: string): Promise<Achievement[]> {
+    try {
+      const { data, error } = await supabase
+        .from('achievements')
+        .select('*')
+        .eq('user_id', userId)
+        .order('unlocked_at', { ascending: false });
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
+    }
+  }
+
+  // ========== BOOKMARKS ==========
+
+  /**
+   * Create bookmark
+   */
+  static async createBookmark(bookmark: BookmarkInsert): Promise<Bookmark | null> {
+    try {
+      const { data, error } = await supabase
+        .from('bookmarks')
+        .insert(bookmark)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's bookmarks
+   */
+  static async getUserBookmarks(userId: string): Promise<Bookmark[]> {
+    try {
+      const { data, error } = await supabase
+        .from('bookmarks')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
+    }
+  }
+
+  /**
+   * Delete bookmark
+   */
+  static async deleteBookmark(bookmarkId: string): Promise<boolean> {
+    try {
+      const { error } = await supabase
+        .from('bookmarks')
+        .delete()
+        .eq('id', bookmarkId);
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return true;
+    } catch (error) {
+      handleSupabaseError(error);
+      return false;
+    }
+  }
+
+  // ========== MOODS ==========
+
+  /**
+   * Create mood entry
+   */
+  static async createMood(mood: MoodInsert): Promise<Mood | null> {
+    try {
+      const { data, error } = await supabase
+        .from('moods')
+        .insert(mood)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's mood history
+   */
+  static async getUserMoods(
+    userId: string,
+    limit: number = 30,
+    offset: number = 0
+  ): Promise<Mood[]> {
+    try {
+      const { data, error } = await supabase
+        .from('moods')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .range(offset, offset + limit - 1);
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
+    }
+  }
+
+  // ========== USER COURSE PROGRESS ==========
+
+  /**
+   * Create or update course progress
+   */
+  static async upsertCourseProgress(progress: UserCourseProgressInsert): Promise<UserCourseProgress | null> {
+    try {
+      const { data, error } = await supabase
+        .from('user_course_progress')
+        .upsert(progress)
+        .select()
+        .single();
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data;
+    } catch (error) {
+      handleSupabaseError(error);
+      return null;
+    }
+  }
+
+  /**
+   * Get user's course progress
+   */
+  static async getUserCourseProgress(userId: string): Promise<UserCourseProgress[]> {
+    try {
+      const { data, error } = await supabase
+        .from('user_course_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .order('last_accessed_at', { ascending: false });
+
+      if (error) {
+        handleSupabaseError(error);
+      }
+
+      return data || [];
+    } catch (error) {
+      handleSupabaseError(error);
+      return [];
+    }
   }
 }
+
+export default SupabaseDatabaseService;

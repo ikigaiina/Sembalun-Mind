@@ -1,6 +1,6 @@
 import React from 'react'
 import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
-import { SignInPage } from '../../pages/SignInPage'
+import { Navigate } from 'react-router-dom'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -28,7 +28,7 @@ export const SupabaseProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // If authentication is required but user is not logged in, show sign in page
   if (requireAuth && !user) {
-    return <SignInPage />
+    return <Navigate to="/login" replace />
   }
 
   // If user is authenticated or authentication is not required, render children

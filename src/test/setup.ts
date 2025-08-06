@@ -1,36 +1,7 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock Supabase
-vi.mock('../config/supabase', () => ({
-  supabase: {
-    auth: {
-      getSession: vi.fn(() => Promise.resolve({ data: { session: null } })),
-      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
-      signOut: vi.fn(() => Promise.resolve({ error: null })),
-      signInWithPassword: vi.fn(() => Promise.resolve({ error: null })),
-      signUp: vi.fn(() => Promise.resolve({ error: null })),
-      signInWithOAuth: vi.fn(() => Promise.resolve({ error: null })),
-    },
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({ data: [], error: null })),
-      insert: vi.fn(() => ({ data: null, error: null })),
-      update: vi.fn(() => ({ data: null, error: null })),
-      delete: vi.fn(() => ({ data: null, error: null })),
-    })),
-    storage: {
-      from: vi.fn(() => ({
-        upload: vi.fn(() => ({ data: null, error: null })),
-        download: vi.fn(() => ({ data: null, error: null })),
-        remove: vi.fn(() => ({ data: null, error: null })),
-      })),
-    },
-  },
-}))
 
-// Mock Supabase environment variables
-vi.stubEnv('VITE_SUPABASE_URL', 'https://test.supabase.co')
-vi.stubEnv('VITE_SUPABASE_ANON_KEY', 'test-anon-key')
 
 // Mock navigator.onLine for offline tests
 Object.defineProperty(navigator, 'onLine', {

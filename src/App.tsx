@@ -17,15 +17,21 @@ import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
 import { ComponentsDemo } from './pages/ComponentsDemo';
 import { EmotionalAwareness } from './pages/EmotionalAwareness';
-// Removed: ContentLibrary, Analytics, Courses, Community, Personalization, MultiagentDashboard
-// These will be rebuilt with Supabase integration
+import AdminDashboard from './pages/AdminDashboard';
+import ContentLibrary from './pages/ContentLibrary';
+import Analytics from './pages/Analytics';
+import AccountManagement from './pages/AccountManagement';
+import Courses from './pages/Courses';
+import Community from './pages/Community';
+import Personalization from './pages/Personalization';
+import { MultiagentDashboard } from './pages/MultiagentDashboard';
 import Help from './pages/Help';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
 import { OfflineToast } from './components/ui/OfflineToast';
 import { InstallPrompt } from './components/ui/InstallPrompt';
 import { SplashScreen } from './components/ui/SplashScreen';
 import { SupabaseProtectedRoute } from './components/auth/SupabaseProtectedRoute';
-import { AuthCallback } from './pages/AuthCallback';
-import { AuthResetPassword } from './pages/AuthResetPassword';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Main app content component
@@ -50,20 +56,12 @@ const AppContent: React.FC = () => {
 
   // Show main app if onboarding is completed
   return (
-    <>
-      <Routes>
-        {/* Auth routes that don't require protection */}
-        <Route path="/auth/callback" element={<AuthCallback />} />
-        <Route path="/auth/reset-password" element={<AuthResetPassword />} />
-        
-        {/* Protected routes */}
-        <Route path="/*" element={
-          <SupabaseProtectedRoute>
-            <OfflineToast />
-            <InstallPrompt />
-            <DashboardLayout>
-              <Routes>
-                <Route path="/" element={<Dashboard />} />
+    <SupabaseProtectedRoute>
+      <OfflineToast />
+      <InstallPrompt />
+      <DashboardLayout>
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
           <Route path="/old-home" element={<Home />} />
           <Route 
             path="/meditation" 
@@ -87,7 +85,15 @@ const AppContent: React.FC = () => {
             } 
           />
           
-          {/* New Pages - To be rebuilt with Supabase */}
+          {/* New Pages */}
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/content-library" element={<ContentLibrary />} />
+          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/account" element={<AccountManagement />} />
+          <Route path="/courses" element={<Courses />} />
+          <Route path="/community" element={<Community />} />
+          <Route path="/personalization" element={<Personalization />} />
+          <Route path="/multiagent" element={<MultiagentDashboard />} />
           <Route path="/help" element={<Help />} />
           
           {/* Utility Pages */}
@@ -104,13 +110,10 @@ const AppContent: React.FC = () => {
             element={<OnboardingFlow onComplete={completeOnboarding} />} 
           />
           <Route path="/emotional-awareness" element={<EmotionalAwareness />} />
-                <Route path="*" element={<Navigate to="/" replace />} />
-              </Routes>
-            </DashboardLayout>
-          </SupabaseProtectedRoute>
-        } />
-      </Routes>
-    </>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </DashboardLayout>
+    </SupabaseProtectedRoute>
   );
 };
 
@@ -120,7 +123,14 @@ function App() {
       <SupabaseAuthProvider>
         <OnboardingProvider>
           <Router>
-            <AppContent />
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              
+              {/* Protected routes */}
+              <Route path="/*" element={<AppContent />} />
+            </Routes>
           </Router>
         </OnboardingProvider>
       </SupabaseAuthProvider>

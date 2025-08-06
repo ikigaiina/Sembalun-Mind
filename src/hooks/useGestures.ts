@@ -1,298 +1,329 @@
-import { useRef, useEffect, useState, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 
-interface GestureState {
-  isPressed: boolean;
-  isLongPressed: boolean;
-  startPosition: { x: number; y: number } | null;
-  currentPosition: { x: number; y: number } | null;
-  deltaX: number;
-  deltaY: number;
-  distance: number;
-  direction: 'up' | 'down' | 'left' | 'right' | null;
-  velocity: { x: number; y: number };
-  isSwipe: boolean;
-  isPinching: boolean;
-  scale: number;
-}
-
-interface GestureHandlers {
-  onTap?: (position: { x: number; y: number }) => void;
-  onLongPress?: (position: { x: number; y: number }) => void;
-  onSwipe?: (direction: 'up' | 'down' | 'left' | 'right', velocity: { x: number; y: number }) => void;
-  onPinch?: (scale: number, center: { x: number; y: number }) => void;
-  onDrag?: (delta: { x: number; y: number }, position: { x: number; y: number }) => void;
+export interface GestureConfig {
+  onSwipeUp?: () => void;
+  onSwipeDown?: () => void;
+  onSwipeLeft?: () => void;
+  onSwipeRight?: () => void;
+  onPinchIn?: (scale: number) => void;
+  onPinchOut?: (scale: number) => void;
   onDragStart?: (position: { x: number; y: number }) => void;
+  onDragMove?: (position: { x: number; y: number }, delta: { x: number; y: number }) => void;
   onDragEnd?: (position: { x: number; y: number }, velocity: { x: number; y: number }) => void;
+  onTap?: () => void;
+  onDoubleTap?: () => void;
+  onLongPress?: () => void;
+  threshold?: number;
+  longPressDelay?: number;
+  doubleTapDelay?: number;
 }
 
-const LONG_PRESS_DURATION = 500;
-const SWIPE_THRESHOLD = 50;
-const SWIPE_VELOCITY_THRESHOLD = 0.5;
+interface TouchPosition {
+  x: number;
+  y: number;
+  timestamp: number;
+}
 
-export const useGestures = (handlers: GestureHandlers = {}) => {
-  const elementRef = useRef<HTMLElement | null>(null);
-  const [gestureState, setGestureState] = useState<GestureState>({
-    isPressed: false,
-    isLongPressed: false,
-    startPosition: null,
-    currentPosition: null,
-    deltaX: 0,
-    deltaY: 0,
-    distance: 0,
-    direction: null,
-    velocity: { x: 0, y: 0 },
-    isSwipe: false,
-    isPinching: false,
-    scale: 1
+interface TouchData {
+  startPosition: TouchPosition;
+  currentPosition: TouchPosition;
+  lastPosition: TouchPosition;
+  isDragging: boolean;
+  isMultiTouch: boolean;
+  touchCount: number;
+  initialDistance: number;
+}
+
+export const useGestures = (config: GestureConfig = {}) => {
+  const {
+    onSwipeUp,
+    onSwipeDown,
+    onSwipeLeft,
+    onSwipeRight,
+    onPinchIn,
+    onPinchOut,
+    onDragStart,
+    onDragMove,
+    onDragEnd,
+    onTap,
+    onDoubleTap,
+    onLongPress,
+    threshold = 50,
+    longPressDelay = 500,
+    doubleTapDelay = 300,
+  } = config;
+
+  const touchDataRef = useRef<TouchData>({
+    startPosition: { x: 0, y: 0, timestamp: 0 },
+    currentPosition: { x: 0, y: 0, timestamp: 0 },
+    lastPosition: { x: 0, y: 0, timestamp: 0 },
+    isDragging: false,
+    isMultiTouch: false,
+    touchCount: 0,
+    initialDistance: 0,
   });
 
-  const longPressTimer = useRef<NodeJS.Timeout>();
-  const lastPosition = useRef<{ x: number; y: number } | null>(null);
-  const lastTime = useRef<number>(0);
-  const touches = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+  const doubleTapTimer = useRef<NodeJS.Timeout | null>(null);
+  const [lastTapTime, setLastTapTime] = useState(0);
 
-  const calculateDistance = useCallback((pos1: { x: number; y: number }, pos2: { x: number; y: number }) => {
-    return Math.sqrt(Math.pow(pos2.x - pos1.x, 2) + Math.pow(pos2.y - pos1.y, 2));
-  }, []);
+  // Utility functions
+  const getDistance = (touch1: Touch, touch2: Touch): number => {
+    const dx = touch1.clientX - touch2.clientX;
+    const dy = touch1.clientY - touch2.clientY;
+    return Math.sqrt(dx * dx + dy * dy);
+  };
 
-  const calculateDirection = useCallback((start: { x: number; y: number }, end: { x: number; y: number }) => {
-    const deltaX = end.x - start.x;
-    const deltaY = end.y - start.y;
-    
-    if (Math.abs(deltaX) > Math.abs(deltaY)) {
-      return deltaX > 0 ? 'right' : 'left';
-    } else {
-      return deltaY > 0 ? 'down' : 'up';
-    }
-  }, []);
+  const getTouchPosition = (touch: Touch): TouchPosition => ({
+    x: touch.clientX,
+    y: touch.clientY,
+    timestamp: Date.now(),
+  });
 
-  const calculateVelocity = useCallback((current: { x: number; y: number }, previous: { x: number; y: number }, timeDelta: number) => {
-    if (timeDelta === 0) return { x: 0, y: 0 };
+  const calculateVelocity = (current: TouchPosition, previous: TouchPosition): { x: number; y: number } => {
+    const deltaTime = current.timestamp - previous.timestamp;
+    if (deltaTime === 0) return { x: 0, y: 0 };
     
     return {
-      x: (current.x - previous.x) / timeDelta,
-      y: (current.y - previous.y) / timeDelta
+      x: (current.x - previous.x) / deltaTime,
+      y: (current.y - previous.y) / deltaTime,
     };
-  }, []);
+  };
 
-  const handleStart = useCallback((position: { x: number; y: number }, touchId?: number) => {
-    const now = Date.now();
-    
-    if (touchId !== undefined) {
-      touches.current.set(touchId, position);
-    }
-
-    setGestureState(prev => ({
-      ...prev,
-      isPressed: true,
-      startPosition: position,
-      currentPosition: position,
-      deltaX: 0,
-      deltaY: 0,
-      distance: 0,
-      direction: null,
-      isSwipe: false
-    }));
-
-    lastPosition.current = position;
-    lastTime.current = now;
-
-    // Start long press timer
-    longPressTimer.current = setTimeout(() => {
-      setGestureState(prev => ({ ...prev, isLongPressed: true }));
-      handlers.onLongPress?.(position);
-    }, LONG_PRESS_DURATION);
-
-    handlers.onDragStart?.(position);
-  }, [handlers]);
-
-  const handleMove = useCallback((position: { x: number; y: number }, touchId?: number) => {
-    if (!gestureState.startPosition) return;
-
-    const now = Date.now();
-    const timeDelta = now - lastTime.current;
-    
-    if (touchId !== undefined) {
-      touches.current.set(touchId, position);
-      
-      // Handle pinch gesture for multi-touch
-      if (touches.current.size === 2) {
-        const touchArray = Array.from(touches.current.values());
-        const distance = calculateDistance(touchArray[0], touchArray[1]);
-        const center = {
-          x: (touchArray[0].x + touchArray[1].x) / 2,
-          y: (touchArray[0].y + touchArray[1].y) / 2
-        };
-        
-        if (!gestureState.isPinching) {
-          setGestureState(prev => ({ ...prev, isPinching: true, scale: 1 }));
-        } else {
-          const scale = distance / calculateDistance(
-            Array.from(touches.current.values())[0],
-            Array.from(touches.current.values())[1]
-          );
-          setGestureState(prev => ({ ...prev, scale }));
-          handlers.onPinch?.(scale, center);
-        }
-        return;
-      }
-    }
-
-    const deltaX = position.x - gestureState.startPosition.x;
-    const deltaY = position.y - gestureState.startPosition.y;
-    const distance = calculateDistance(gestureState.startPosition, position);
-    const direction = calculateDirection(gestureState.startPosition, position);
-    
-    const velocity = lastPosition.current 
-      ? calculateVelocity(position, lastPosition.current, timeDelta)
-      : { x: 0, y: 0 };
-
-    setGestureState(prev => ({
-      ...prev,
-      currentPosition: position,
-      deltaX,
-      deltaY,
-      distance,
-      direction,
-      velocity
-    }));
-
-    // Clear long press if moved too much
-    if (distance > 10 && longPressTimer.current) {
-      clearTimeout(longPressTimer.current);
-      setGestureState(prev => ({ ...prev, isLongPressed: false }));
-    }
-
-    handlers.onDrag?.({ x: deltaX, y: deltaY }, position);
-    
-    lastPosition.current = position;
-    lastTime.current = now;
-  }, [gestureState, handlers, calculateDistance, calculateDirection, calculateVelocity]);
-
-  const handleEnd = useCallback((position: { x: number; y: number }, touchId?: number) => {
-    if (touchId !== undefined) {
-      touches.current.delete(touchId);
-    }
-
+  // Clear timers
+  const clearTimers = useCallback(() => {
     if (longPressTimer.current) {
       clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
     }
+    if (doubleTapTimer.current) {
+      clearTimeout(doubleTapTimer.current);
+      doubleTapTimer.current = null;
+    }
+  }, []);
 
-    const { startPosition, distance, direction, velocity, isLongPressed } = gestureState;
+  // Touch start handler
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    clearTimers();
     
-    if (!startPosition) return;
-
-    // Determine if it's a swipe
-    const isSwipe = distance > SWIPE_THRESHOLD && 
-                   (Math.abs(velocity.x) > SWIPE_VELOCITY_THRESHOLD || 
-                    Math.abs(velocity.y) > SWIPE_VELOCITY_THRESHOLD);
-
-    if (isSwipe && direction) {
-      handlers.onSwipe?.(direction, velocity);
-    } else if (distance < 10 && !isLongPressed) {
-      // It's a tap
-      handlers.onTap?.(position);
+    const touches = e.touches;
+    const touchData = touchDataRef.current;
+    
+    touchData.touchCount = touches.length;
+    touchData.isMultiTouch = touches.length > 1;
+    
+    if (touches.length === 1) {
+      const position = getTouchPosition(touches[0]);
+      touchData.startPosition = position;
+      touchData.currentPosition = position;
+      touchData.lastPosition = position;
+      touchData.isDragging = false;
+      
+      // Start long press timer
+      if (onLongPress) {
+        longPressTimer.current = setTimeout(() => {
+          if (!touchData.isDragging) {
+            onLongPress();
+          }
+        }, longPressDelay);
+      }
+    } else if (touches.length === 2) {
+      // Initialize pinch gesture
+      touchData.initialDistance = getDistance(touches[0], touches[1]);
     }
+  }, [onLongPress, longPressDelay, clearTimers]);
 
-    handlers.onDragEnd?.(position, velocity);
+  // Touch move handler
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    const touches = e.touches;
+    const touchData = touchDataRef.current;
+    
+    if (touches.length === 1 && !touchData.isMultiTouch) {
+      const currentPosition = getTouchPosition(touches[0]);
+      const deltaX = currentPosition.x - touchData.startPosition.x;
+      const deltaY = currentPosition.y - touchData.startPosition.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      if (distance > 10 && !touchData.isDragging) {
+        touchData.isDragging = true;
+        clearTimers();
+        
+        if (onDragStart) {
+          onDragStart(touchData.startPosition);
+        }
+      }
+      
+      if (touchData.isDragging && onDragMove) {
+        const delta = {
+          x: currentPosition.x - touchData.lastPosition.x,
+          y: currentPosition.y - touchData.lastPosition.y,
+        };
+        onDragMove(currentPosition, delta);
+      }
+      
+      touchData.lastPosition = touchData.currentPosition;
+      touchData.currentPosition = currentPosition;
+    } else if (touches.length === 2) {
+      // Handle pinch gesture
+      const currentDistance = getDistance(touches[0], touches[1]);
+      const scale = currentDistance / touchData.initialDistance;
+      
+      if (scale < 0.8 && onPinchIn) {
+        onPinchIn(scale);
+      } else if (scale > 1.2 && onPinchOut) {
+        onPinchOut(scale);
+      }
+    }
+  }, [onDragStart, onDragMove, onPinchIn, onPinchOut, clearTimers]);
 
-    setGestureState(prev => ({
-      ...prev,
-      isPressed: false,
-      isLongPressed: false,
-      startPosition: null,
-      currentPosition: null,
-      deltaX: 0,
-      deltaY: 0,
-      distance: 0,
-      direction: null,
-      velocity: { x: 0, y: 0 },
-      isSwipe,
-      isPinching: false,
-      scale: 1
-    }));
+  // Touch end handler
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    const touchData = touchDataRef.current;
+    clearTimers();
+    
+    if (touchData.isDragging) {
+      if (onDragEnd) {
+        const velocity = calculateVelocity(touchData.currentPosition, touchData.lastPosition);
+        onDragEnd(touchData.currentPosition, velocity);
+      }
+    } else if (!touchData.isMultiTouch && touchData.touchCount === 1) {
+      // Handle tap gestures
+      const deltaX = touchData.currentPosition.x - touchData.startPosition.x;
+      const deltaY = touchData.currentPosition.y - touchData.startPosition.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      if (distance < threshold) {
+        // Check for swipe gestures first
+        if (Math.abs(deltaX) > Math.abs(deltaY)) {
+          if (deltaX > threshold && onSwipeRight) {
+            onSwipeRight();
+            return;
+          } else if (deltaX < -threshold && onSwipeLeft) {
+            onSwipeLeft();
+            return;
+          }
+        } else {
+          if (deltaY > threshold && onSwipeDown) {
+            onSwipeDown();
+            return;
+          } else if (deltaY < -threshold && onSwipeUp) {
+            onSwipeUp();
+            return;
+          }
+        }
+        
+        // Handle tap gestures
+        const currentTime = Date.now();
+        const timeSinceLastTap = currentTime - lastTapTime;
+        
+        if (timeSinceLastTap < doubleTapDelay && onDoubleTap) {
+          onDoubleTap();
+          setLastTapTime(0);
+        } else {
+          setLastTapTime(currentTime);
+          if (onTap) {
+            doubleTapTimer.current = setTimeout(() => {
+              onTap();
+            }, doubleTapDelay);
+          }
+        }
+      }
+    }
+    
+    // Reset touch data
+    touchData.isDragging = false;
+    touchData.isMultiTouch = false;
+    touchData.touchCount = 0;
+  }, [threshold, onSwipeUp, onSwipeDown, onSwipeLeft, onSwipeRight, onDragEnd, onTap, onDoubleTap, doubleTapDelay, lastTapTime, clearTimers]);
 
-    touches.current.clear();
-  }, [gestureState, handlers]);
-
+  // Cleanup on unmount
   useEffect(() => {
-    const element = elementRef.current;
-    if (!element) return;
-
-    // Mouse events
-    const handleMouseDown = (e: MouseEvent) => {
-      e.preventDefault();
-      handleStart({ x: e.clientX, y: e.clientY });
-    };
-
-    const handleMouseMove = (e: MouseEvent) => {
-      if (gestureState.isPressed) {
-        handleMove({ x: e.clientX, y: e.clientY });
-      }
-    };
-
-    const handleMouseUp = (e: MouseEvent) => {
-      handleEnd({ x: e.clientX, y: e.clientY });
-    };
-
-    // Touch events
-    const handleTouchStart = (e: TouchEvent) => {
-      e.preventDefault();
-      Array.from(e.touches).forEach((touch) => {
-        handleStart(
-          { x: touch.clientX, y: touch.clientY },
-          touch.identifier
-        );
-      });
-    };
-
-    const handleTouchMove = (e: TouchEvent) => {
-      e.preventDefault();
-      Array.from(e.touches).forEach((touch) => {
-        handleMove(
-          { x: touch.clientX, y: touch.clientY },
-          touch.identifier
-        );
-      });
-    };
-
-    const handleTouchEnd = (e: TouchEvent) => {
-      e.preventDefault();
-      Array.from(e.changedTouches).forEach((touch) => {
-        handleEnd(
-          { x: touch.clientX, y: touch.clientY },
-          touch.identifier
-        );
-      });
-    };
-
-    // Add event listeners
-    element.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    
-    element.addEventListener('touchstart', handleTouchStart, { passive: false });
-    element.addEventListener('touchmove', handleTouchMove, { passive: false });
-    element.addEventListener('touchend', handleTouchEnd, { passive: false });
-
     return () => {
-      element.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      
-      element.removeEventListener('touchstart', handleTouchStart);
-      element.removeEventListener('touchmove', handleTouchMove);
-      element.removeEventListener('touchend', handleTouchEnd);
-      
-      if (longPressTimer.current) {
-        clearTimeout(longPressTimer.current);
-      }
+      clearTimers();
     };
-  }, [gestureState.isPressed, handleStart, handleMove, handleEnd]);
+  }, [clearTimers]);
+
+  // Mouse handlers for desktop support
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    const touchData = touchDataRef.current;
+    const position = { x: e.clientX, y: e.clientY, timestamp: Date.now() };
+    
+    touchData.startPosition = position;
+    touchData.currentPosition = position;
+    touchData.lastPosition = position;
+    touchData.isDragging = false;
+    
+    if (onLongPress) {
+      longPressTimer.current = setTimeout(() => {
+        if (!touchData.isDragging) {
+          onLongPress();
+        }
+      }, longPressDelay);
+    }
+  }, [onLongPress, longPressDelay]);
+
+  const handleMouseMove = useCallback((e: React.MouseEvent) => {
+    const touchData = touchDataRef.current;
+    const currentPosition = { x: e.clientX, y: e.clientY, timestamp: Date.now() };
+    
+    if (!touchData.isDragging) {
+      const deltaX = currentPosition.x - touchData.startPosition.x;
+      const deltaY = currentPosition.y - touchData.startPosition.y;
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+      
+      if (distance > 10) {
+        touchData.isDragging = true;
+        clearTimers();
+        
+        if (onDragStart) {
+          onDragStart(touchData.startPosition);
+        }
+      }
+    }
+    
+    if (touchData.isDragging && onDragMove) {
+      const delta = {
+        x: currentPosition.x - touchData.lastPosition.x,
+        y: currentPosition.y - touchData.lastPosition.y,
+      };
+      onDragMove(currentPosition, delta);
+    }
+    
+    touchData.lastPosition = touchData.currentPosition;
+    touchData.currentPosition = currentPosition;
+  }, [onDragStart, onDragMove, clearTimers]);
+
+  const handleMouseUp = useCallback((e: React.MouseEvent) => {
+    const touchData = touchDataRef.current;
+    clearTimers();
+    
+    if (touchData.isDragging) {
+      if (onDragEnd) {
+        const velocity = calculateVelocity(touchData.currentPosition, touchData.lastPosition);
+        onDragEnd(touchData.currentPosition, velocity);
+      }
+    } else {
+      if (onTap) {
+        onTap();
+      }
+    }
+    
+    touchData.isDragging = false;
+  }, [onDragEnd, onTap, clearTimers]);
 
   return {
-    ref: elementRef,
-    gestureState,
-    ...gestureState
+    dragProps: {
+      onTouchStart: handleTouchStart,
+      onTouchMove: handleTouchMove,
+      onTouchEnd: handleTouchEnd,
+      onMouseDown: handleMouseDown,
+      onMouseMove: handleMouseMove,
+      onMouseUp: handleMouseUp,
+    },
+    swipeProps: {
+      onTouchStart: handleTouchStart,
+      onTouchMove: handleTouchMove,
+      onTouchEnd: handleTouchEnd,
+    },
   };
 };

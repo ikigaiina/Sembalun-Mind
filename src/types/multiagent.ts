@@ -549,23 +549,7 @@ export interface TaskAnalytics {
 }
 
 // Integration Types
-export interface FirebaseIntegration {
-  collections: {
-    tasks: string;
-    agents: string;
-    workflows: string;
-    executions: string;
-    messages: string;
-    metrics: string;
-    analytics: string;
-  };
-  realtimeChannels: {
-    taskUpdates: string;
-    agentStatus: string;
-    systemMetrics: string;
-    coordinationEvents: string;
-  };
-}
+
 
 export interface APIEndpoints {
   tasks: {

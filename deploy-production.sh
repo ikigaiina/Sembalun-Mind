@@ -54,14 +54,7 @@ print_status "npm is installed ($(npm --version))"
 echo
 print_info "Checking environment variables..."
 
-required_vars=(
-    "VITE_FIREBASE_API_KEY"
-    "VITE_FIREBASE_AUTH_DOMAIN"
-    "VITE_FIREBASE_PROJECT_ID"
-    "VITE_FIREBASE_STORAGE_BUCKET"
-    "VITE_FIREBASE_MESSAGING_SENDER_ID"
-    "VITE_FIREBASE_APP_ID"
-)
+
 
 missing_vars=()
 
@@ -128,12 +121,7 @@ node validate-production.js || {
 }
 print_status "Production validation passed"
 
-# Run Firebase initialization test
-echo
-print_info "Testing Firebase initialization..."
-node test-firebase-init.js || {
-    print_warning "Firebase initialization test had warnings, but continuing"
-}
+
 
 # Check build size
 echo
@@ -202,7 +190,7 @@ $(ls -la dist/)
 Validation Results:
 ✅ Production validation passed
 ✅ TypeScript type checking passed
-✅ Firebase configuration validated
+
 ✅ PWA manifest configured
 ✅ Service worker functional
 ✅ Static assets available
@@ -226,7 +214,7 @@ echo "🎯 PRODUCTION DEPLOYMENT READY!"
 echo "=============================="
 print_status "All validation checks passed"
 print_status "Build artifacts generated in dist/"
-print_status "Firebase configuration validated"
+
 print_status "PWA functionality confirmed"
 
 echo
@@ -241,7 +229,7 @@ echo
 print_info "Hosting platform commands:"
 echo "Vercel: vercel --prod"
 echo "Netlify: netlify deploy --prod --dir=dist"
-echo "Firebase: firebase deploy"
+
 
 echo
 print_status "Production deployment validation completed successfully!"

@@ -7,34 +7,8 @@ import { Button } from '../components/ui/Button';
 import { CairnIcon } from '../components/ui/CairnIcon';
 import { MoodSelector, type MoodType } from '../components/ui/MoodSelector';
 import { BreathingCard } from '../components/ui/BreathingCard';
+import { WelcomeMessage } from '../components/auth/WelcomeMessage';
 import { scrollToTop } from '../hooks/useScrollToTop';
-
-// Inline welcome message component
-const WelcomeMessage: React.FC<{ className?: string }> = ({ className }) => {
-  const { onboardingData } = useOnboarding();
-  const currentTime = new Date();
-  const hour = currentTime.getHours();
-  
-  const getGreeting = () => {
-    if (hour < 11) return 'pagi';
-    if (hour < 15) return 'siang'; 
-    if (hour < 18) return 'sore';
-    return 'malam';
-  };
-
-  const userName = onboardingData?.personalInfo?.firstName || 'Sahabat';
-  
-  return (
-    <div className={className}>
-      <h1 className="text-2xl font-heading text-gray-800 mb-2">
-        Selamat {getGreeting()}, {userName}
-      </h1>
-      <p className="text-gray-600 font-body">
-        Waktunya untuk jeda sejenak dan menemukan kedamaian
-      </p>
-    </div>
-  );
-};
 
 interface MeditationSession {
   id: string;

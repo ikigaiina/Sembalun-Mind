@@ -157,6 +157,16 @@ CREATE TABLE public.user_settings (
   UNIQUE(user_id, setting_key)
 );
 
+-- Moods table for daily mood tracking
+CREATE TABLE public.moods (
+  id UUID DEFAULT uuid_generate_v4() PRIMARY KEY,
+  user_id UUID REFERENCES public.users(id) ON DELETE CASCADE NOT NULL,
+  mood TEXT NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- Create indexes for better performance
 CREATE INDEX idx_meditation_sessions_user_id ON public.meditation_sessions(user_id);
 CREATE INDEX idx_meditation_sessions_completed_at ON public.meditation_sessions(completed_at DESC);
@@ -168,6 +178,8 @@ CREATE INDEX idx_user_course_progress_course_id ON public.user_course_progress(c
 CREATE INDEX idx_bookmarks_user_id ON public.bookmarks(user_id);
 CREATE INDEX idx_courses_category ON public.courses(category);
 CREATE INDEX idx_courses_order_index ON public.courses(order_index);
+CREATE INDEX idx_moods_user_id ON public.moods(user_id);
+CREATE INDEX idx_moods_created_at ON public.moods(created_at DESC);
 
 -- Row Level Security (RLS) Policies
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
@@ -177,6 +189,7 @@ ALTER TABLE public.achievements ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_course_progress ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.bookmarks ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_settings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.moods ENABLE ROW LEVEL SECURITY;
 
 -- Users policies
 CREATE POLICY "Users can view own profile" ON public.users
@@ -251,6 +264,19 @@ CREATE POLICY "Users can insert own settings" ON public.user_settings
 CREATE POLICY "Users can update own settings" ON public.user_settings
   FOR UPDATE USING (auth.uid() = user_id);
 
+-- Moods policies
+CREATE POLICY "Users can view own moods" ON public.moods
+  FOR SELECT USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can insert own moods" ON public.moods
+  FOR INSERT WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Users can update own moods" ON public.moods
+  FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can delete own moods" ON public.moods
+  FOR DELETE USING (auth.uid() = user_id);
+
 -- Courses are public for reading
 CREATE POLICY "Anyone can view courses" ON public.courses
   FOR SELECT USING (true);
@@ -281,6 +307,9 @@ CREATE TRIGGER update_user_course_progress_updated_at BEFORE UPDATE ON public.us
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 CREATE TRIGGER update_user_settings_updated_at BEFORE UPDATE ON public.user_settings 
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_moods_updated_at BEFORE UPDATE ON public.moods
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Function to handle new user registration

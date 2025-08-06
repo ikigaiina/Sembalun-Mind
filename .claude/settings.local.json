@@ -30,17 +30,10 @@
       "Bash(timeout 60 npm run build:deploy)",
       "Bash(find:*)",
       "Bash(cp:*)",
-      "Bash(git push:*)",
-      "Bash(gh pr list:*)",
-      "Bash(gh repo view:*)",
-      "Bash(gh run list:*)",
-      "Bash(vercel:*)",
-      "WebFetch(domain:sembalunmvp-hkdjcb0f0-ikigais-projects-cceb1be5.vercel.app)",
-      "Bash(npm uninstall:*)",
-      "Bash(claude-flow --version)",
-      "Bash(npm:*)",
-      "Bash(timeout 30 npx claude-flow@alpha --help)",
-      "Bash(mkdir:*)"
+      "Bash(touch:*)",
+      "Bash(start test-simple.html)",
+      "Bash(start:*)",
+      "Bash(copy fauzan-clean.html fauzan-developer-bridge.html)"
     ],
     "deny": []
   }

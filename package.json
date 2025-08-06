@@ -12,7 +12,7 @@
     "build:prod": "npm run clean && npm run build",
     "build:analyze": "npm run build && open dist/stats.html",
     "build:size": "npm run build && du -sh dist/assets/*.js | sort -hr",
-    "lint": "eslint . --max-warnings 1000",
+    "lint": "eslint . --max-warnings 50",
     "lint:fix": "eslint . --fix --max-warnings 50",
     "lint:production": "eslint . --quiet",
     "preview": "vite preview",
@@ -28,6 +28,7 @@
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
+    "test:supabase": "tsx src/scripts/testSupabaseConnection.ts",
     "prepare:production": "npm run clean && npm run typecheck && npm run build",
     "deploy:netlify": "npm run build:fast && netlify deploy --prod --dir=dist",
     "deploy:vercel": "npm run prepare:production && vercel --prod",
@@ -69,18 +70,5 @@
     "vite": "^7.0.4",
     "vite-plugin-pwa": "^1.0.2",
     "vitest": "^3.2.4"
-  },
-  "description": "A modern meditation and mindfulness application built with React, TypeScript, Vite, and Supabase.",
-  "main": "deploy.js",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/ikigaiina/sembalun.git"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/ikigaiina/sembalun/issues"
-  },
-  "homepage": "https://github.com/ikigaiina/sembalun#readme"
+  }
 }
