@@ -1,6 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
-import { updateProfile } from 'firebase/auth';
+
 import { useAuth } from '../../hooks/useAuth';
 import { DefaultProfilePicture } from '../ui/DefaultProfilePicture';
 
@@ -42,10 +41,7 @@ export const ProfilePictureUpload: React.FC<ProfilePictureUploadProps> = ({
       const snapshot = await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(snapshot.ref);
       
-      // Update Firebase Auth profile
-      await updateProfile(user, {
-        photoURL: downloadURL
-      });
+      
 
       onSuccess?.(downloadURL);
     } catch (error) {

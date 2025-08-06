@@ -1,15 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 import { emotionalIntelligenceService } from './emotionalIntelligenceService';
 import { habitAnalyticsService } from './habitAnalyticsService';
@@ -149,15 +138,22 @@ export class ProgressReportsService {
       };
 
       // Save report to database
-      const docRef = await addDoc(collection(db, 'progress_reports'), {
-        ...report,
-        period: {
-          ...report.period,
-          start: Timestamp.fromDate(report.period.start),
-          end: Timestamp.fromDate(report.period.end)
-        },
-        createdAt: Timestamp.fromDate(report.createdAt)
-      });
+      const { data, error } = await supabase.from('progress_reports').insert({
+        user_id: report.userId,
+        report_type: report.reportType,
+        period_start: report.period.start.toISOString(),
+        period_end: report.period.end.toISOString(),
+        period_label: report.period.label,
+        metrics: report.metrics,
+        insights: report.insights,
+        comparisons: report.comparisons,
+        goals: report.goals,
+        created_at: report.createdAt.toISOString()
+      }).select();
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create report');
+      const docRef = data[0];
 
       return { id: docRef.id, ...report };
     } catch (error) {
@@ -364,28 +360,34 @@ export class ProgressReportsService {
     limitCount: number = 10
   ): Promise<ProgressReport[]> {
     try {
-      const constraints = [
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      ];
+      let queryBuilder = supabase
+        .from('progress_reports')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limitCount);
 
       if (reportType) {
-        constraints.splice(1, 0, where('reportType', '==', reportType));
+        queryBuilder = queryBuilder.eq('report_type', reportType);
       }
 
-      const q = query(collection(db, 'progress_reports'), ...constraints);
-      const snapshot = await getDocs(q);
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        reportType: row.report_type,
         period: {
-          ...doc.data().period,
-          start: doc.data().period.start.toDate(),
-          end: doc.data().period.end.toDate()
+          start: new Date(row.period_start),
+          end: new Date(row.period_end),
+          label: row.period_label
         },
-        createdAt: doc.data().createdAt.toDate()
+        metrics: row.metrics,
+        insights: row.insights,
+        comparisons: row.comparisons,
+        goals: row.goals,
+        createdAt: new Date(row.created_at)
       })) as ProgressReport[];
     } catch (error) {
       console.error('Error fetching user reports:', error);

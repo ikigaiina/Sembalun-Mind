@@ -1,22 +1,7 @@
 // Multiagent Agent Service Implementation
 // Service for managing Claude Code multiagent system agents
 
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  onSnapshot,
-  serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type {
   Agent,
   AgentType,
@@ -54,16 +39,16 @@ export class MultiagentAgentService implements AgentService {
         averageExecutionTime: 0
       };
 
-      // Add to Firestore
-      const docRef = await addDoc(collection(db, this.agentsCollection), {
+      const { data, error } = await supabase.from(this.agentsCollection).insert({
         ...agent,
-        createdAt: serverTimestamp(),
-        lastActiveAt: serverTimestamp()
-      });
+        created_at: now.toISOString(),
+        last_active_at: now.toISOString()
+      }).select();
 
+      if (error) throw error;
       const registeredAgent: Agent = {
         ...agent,
-        id: docRef.id
+        id: data[0].id
       };
 
       // Emit agent registered event
@@ -84,19 +69,27 @@ export class MultiagentAgentService implements AgentService {
    */
   async updateAgentStatus(id: string, status: AgentStatus): Promise<void> {
     try {
-      const agentRef = doc(db, this.agentsCollection, id);
-      const agentSnap = await getDoc(agentRef);
+      const { data: agentData, error: fetchError } = await supabase
+        .from(this.agentsCollection)
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      if (!agentSnap.exists()) {
+      if (fetchError || !agentData) {
         throw new Error(`Agent with ID ${id} not found`);
       }
 
-      await updateDoc(agentRef, {
-        status,
-        lastActiveAt: serverTimestamp()
-      });
+      const { error: updateError } = await supabase
+        .from(this.agentsCollection)
+        .update({
+          status,
+          last_active_at: new Date().toISOString()
+        })
+        .eq('id', id);
 
-      const agent = { id: agentSnap.id, ...agentSnap.data(), status } as Agent;
+      if (updateError) throw updateError;
+
+      const agent = { ...agentData, status } as Agent;
 
       // Emit status change event
       await this.emitAgentEvent('status_changed', agent);
@@ -114,19 +107,22 @@ export class MultiagentAgentService implements AgentService {
    */
   async getAgent(id: string): Promise<Agent | null> {
     try {
-      const agentRef = doc(db, this.agentsCollection, id);
-      const agentSnap = await getDoc(agentRef);
+      const { data, error } = await supabase
+        .from(this.agentsCollection)
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      if (!agentSnap.exists()) {
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 means no rows found
+
+      if (!data) {
         return null;
       }
 
-      const data = agentSnap.data();
       return {
-        id: agentSnap.id,
         ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        lastActiveAt: data.lastActiveAt?.toDate() || new Date()
+        createdAt: new Date(data.created_at),
+        lastActiveAt: new Date(data.last_active_at)
       } as Agent;
     } catch (error) {
       console.error('Error getting agent:', error);
@@ -139,27 +135,22 @@ export class MultiagentAgentService implements AgentService {
    */
   async listAgents(type?: AgentType): Promise<Agent[]> {
     try {
-      const baseCollection = collection(db, this.agentsCollection);
-      let q;
+      let query = supabase.from(this.agentsCollection).select('*').order('last_active_at', { ascending: false });
 
       if (type) {
-        q = query(baseCollection, where('type', '==', type), orderBy('lastActiveAt', 'desc'));
-      } else {
-        q = query(baseCollection, orderBy('lastActiveAt', 'desc'));
+        query = query.eq('type', type);
       }
 
-      const querySnapshot = await getDocs(q);
-      const agents: Agent[] = [];
+      const { data, error } = await query;
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data();
-        agents.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          lastActiveAt: data.lastActiveAt?.toDate() || new Date()
-        } as Agent);
-      });
+      if (error) throw error;
+
+      const agents: Agent[] = data.map(item => ({
+        ...item,
+        id: item.id,
+        createdAt: new Date(item.created_at),
+        lastActiveAt: new Date(item.last_active_at)
+      })) as Agent[];
 
       return agents;
     } catch (error) {
@@ -190,12 +181,12 @@ export class MultiagentAgentService implements AgentService {
       const updatedAssignedTasks = [...agent.assignedTasks, taskId];
       const newLoad = Math.round((updatedAssignedTasks.length / agent.maxConcurrentTasks) * 100);
 
-      await updateDoc(doc(db, this.agentsCollection, agentId), {
-        assignedTasks: updatedAssignedTasks,
-        currentLoad: newLoad,
+      await supabase.from(this.agentsCollection).update({
+        assigned_tasks: updatedAssignedTasks,
+        current_load: newLoad,
         status: newLoad > 0 ? 'busy' : 'idle',
-        lastActiveAt: serverTimestamp()
-      });
+        last_active_at: new Date().toISOString()
+      }).eq('id', agentId);
 
       // Emit task assignment event
       await this.emitAgentEvent('task_assigned', {
@@ -222,12 +213,12 @@ export class MultiagentAgentService implements AgentService {
       const updatedAssignedTasks = agent.assignedTasks.filter(id => id !== taskId);
       const newLoad = Math.round((updatedAssignedTasks.length / agent.maxConcurrentTasks) * 100);
 
-      await updateDoc(doc(db, this.agentsCollection, agentId), {
-        assignedTasks: updatedAssignedTasks,
-        currentLoad: newLoad,
+      await supabase.from(this.agentsCollection).update({
+        assigned_tasks: updatedAssignedTasks,
+        current_load: newLoad,
         status: newLoad > 0 ? 'busy' : 'idle',
-        lastActiveAt: serverTimestamp()
-      });
+        last_active_at: new Date().toISOString()
+      }).eq('id', agentId);
 
       // Update task completion counter
       await this.updateTaskCompletion(agentId, taskId);
@@ -242,19 +233,23 @@ export class MultiagentAgentService implements AgentService {
    */
   async getAgentPerformance(id: string): Promise<AgentPerformance> {
     try {
-      const performanceRef = doc(db, this.performanceCollection, id);
-      const performanceSnap = await getDoc(performanceRef);
+      const { data, error } = await supabase
+        .from(this.performanceCollection)
+        .select('*')
+        .eq('agentId', id)
+        .single();
 
-      if (!performanceSnap.exists()) {
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 means no rows found
+
+      if (!data) {
         // Initialize performance if it doesn't exist
         await this.initializeAgentPerformance(id);
         return await this.getAgentPerformance(id);
       }
 
-      const data = performanceSnap.data();
       return {
         ...data,
-        lastEvaluated: data.lastEvaluated?.toDate() || new Date()
+        lastEvaluated: new Date(data.last_evaluated)
       } as AgentPerformance;
     } catch (error) {
       console.error('Error getting agent performance:', error);
@@ -266,29 +261,29 @@ export class MultiagentAgentService implements AgentService {
    * Subscribe to agent updates
    */
   subscribeToAgentUpdates(callback: (event: AgentEvent) => void): () => void {
-    const eventsQuery = query(
-      collection(db, this.agentEventsCollection),
-      orderBy('timestamp', 'desc'),
-      limit(50)
-    );
+    
 
-    const unsubscribe = onSnapshot(eventsQuery, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const eventData = change.doc.data();
+    const channel = supabase.channel('agent_events_channel');
+
+    const subscription = channel
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: this.agentEventsCollection },
+        (payload) => {
+          const eventData = payload.new;
           const event: AgentEvent = {
             type: eventData.type || 'status_changed',
-            agentId: eventData.agentId || '',
-            timestamp: eventData.timestamp?.toDate() || new Date(),
+            agentId: eventData.agent_id || '',
+            timestamp: new Date(eventData.timestamp),
             data: eventData.data || {}
           };
           callback(event);
         }
-      });
-    });
+      )
+      .subscribe();
 
     const listenerId = Math.random().toString(36);
-    this.listeners.set(listenerId, unsubscribe);
+    this.listeners.set(listenerId, () => supabase.removeChannel(channel));
 
     return () => {
       unsubscribe();
@@ -443,17 +438,12 @@ export class MultiagentAgentService implements AgentService {
    */
   async updateAgentConfiguration(id: string, config: Partial<AgentConfiguration>): Promise<void> {
     try {
-      const agentRef = doc(db, this.agentsCollection, id);
-      const agentSnap = await getDoc(agentRef);
-
-      if (!agentSnap.exists()) {
-        throw new Error(`Agent with ID ${id} not found`);
-      }
-
-      await updateDoc(agentRef, {
+      const { error } = await supabase.from(this.agentsCollection).update({
         configuration: config,
-        lastActiveAt: serverTimestamp()
-      });
+        last_active_at: new Date().toISOString()
+      }).eq('id', id);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating agent configuration:', error);
       throw new Error(`Failed to update agent configuration: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -478,10 +468,10 @@ export class MultiagentAgentService implements AgentService {
       await this.updateAgentStatus(id, 'offline');
 
       // Remove from agents collection
-      await updateDoc(doc(db, this.agentsCollection, id), {
+      await supabase.from(this.agentsCollection).update({
         status: 'offline',
-        deregisteredAt: serverTimestamp()
-      });
+        deregistered_at: new Date().toISOString()
+      }).eq('id', id);
 
       // Emit offline event
       await this.emitAgentEvent('offline', agent);
@@ -502,10 +492,11 @@ export class MultiagentAgentService implements AgentService {
         data: agent
       };
 
-      await addDoc(collection(db, this.agentEventsCollection), {
+      const { error } = await supabase.from(this.agentEventsCollection).insert({
         ...event,
-        timestamp: serverTimestamp()
+        timestamp: new Date().toISOString()
       });
+      if (error) throw error;
     } catch (error) {
       console.error('Error emitting agent event:', error);
       // Don't throw here to avoid breaking the main operation
@@ -533,11 +524,12 @@ export class MultiagentAgentService implements AgentService {
         competencyAreas: {} as Record<TaskType, number>
       };
 
-      await addDoc(collection(db, this.performanceCollection), {
+      const { error } = await supabase.from(this.performanceCollection).insert({
         ...performance,
-        agentId,
-        lastEvaluated: serverTimestamp()
+        agent_id: agentId,
+        last_evaluated: new Date().toISOString()
       });
+      if (error) throw error;
     } catch (error) {
       console.error('Error initializing agent performance:', error);
     }
@@ -578,10 +570,10 @@ export class MultiagentAgentService implements AgentService {
       const agent = await this.getAgent(agentId);
       if (!agent) return;
 
-      await updateDoc(doc(db, this.agentsCollection, agentId), {
-        completedTasks: agent.completedTasks + 1,
-        lastActiveAt: serverTimestamp()
-      });
+      await supabase.from(this.agentsCollection).update({
+        completed_tasks: agent.completedTasks + 1,
+        last_active_at: new Date().toISOString()
+      }).eq('id', agentId);
     } catch (error) {
       console.error('Error updating task completion:', error);
     }

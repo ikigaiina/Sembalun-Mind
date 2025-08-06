@@ -1,26 +1,7 @@
 import '@testing-library/jest-dom'
 import { vi } from 'vitest'
 
-// Mock Firebase
-vi.mock('../config/firebase', () => ({
-  auth: {
-    currentUser: null,
-    onAuthStateChanged: vi.fn(),
-    signOut: vi.fn(),
-  },
-  db: {},
-  storage: {},
-  googleProvider: {},
-  appleProvider: {},
-}))
 
-// Mock environment variables
-vi.stubEnv('VITE_FIREBASE_API_KEY', 'test-api-key')
-vi.stubEnv('VITE_FIREBASE_AUTH_DOMAIN', 'test.firebaseapp.com')
-vi.stubEnv('VITE_FIREBASE_PROJECT_ID', 'test-project')
-vi.stubEnv('VITE_FIREBASE_STORAGE_BUCKET', 'test.appspot.com')
-vi.stubEnv('VITE_FIREBASE_MESSAGING_SENDER_ID', '123456789')
-vi.stubEnv('VITE_FIREBASE_APP_ID', 'test-app-id')
 
 // Mock navigator.onLine for offline tests
 Object.defineProperty(navigator, 'onLine', {

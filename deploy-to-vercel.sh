@@ -133,7 +133,7 @@ print_success "🎉 Deployment preparation complete!"
 echo ""
 echo "📋 Next steps:"
 echo "  1. Set environment variables in Vercel dashboard"
-echo "  2. Configure Firebase authorized domains"
+
 echo "  3. Test the deployed application"
 echo "  4. Set up custom domain (optional)"
 echo ""

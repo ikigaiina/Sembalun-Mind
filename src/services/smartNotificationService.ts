@@ -1,18 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs,
-  getDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp,
-  deleteDoc
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 import { habitAnalyticsService } from './habitAnalyticsService';
 import { emotionalIntelligenceService } from './emotionalIntelligenceService';
@@ -141,14 +127,32 @@ export class SmartNotificationService {
         optimalTimes
       );
 
-      const docRef = await addDoc(collection(db, 'smart_notifications'), {
-        ...notification,
-        scheduledTime: Timestamp.fromDate(notification.scheduledTime),
-        createdAt: Timestamp.fromDate(notification.createdAt),
-        updatedAt: Timestamp.fromDate(notification.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('smart_notifications')
+        .insert({
+          user_id: notification.userId,
+          type: notification.type,
+          category: notification.category,
+          title: notification.title,
+          message: notification.message,
+          priority: notification.priority,
+          scheduled_time: notification.scheduledTime.toISOString(),
+          delivered_time: notification.deliveredTime?.toISOString(),
+          is_read: notification.isRead,
+          is_delivered: notification.isDelivered,
+          data: notification.data,
+          triggers: notification.triggers,
+          personalized_content: notification.personalizedContent,
+          delivery_method: notification.deliveryMethod,
+          created_at: notification.createdAt.toISOString(),
+          updated_at: notification.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create notification');
+      return data.id;
     } catch (error) {
       console.error('Error creating intelligent reminder:', error);
       throw error;
@@ -170,18 +174,36 @@ export class SmartNotificationService {
         recentMoods
       );
 
-      const docRef = await addDoc(collection(db, 'smart_notifications'), {
-        ...notification,
-        scheduledTime: Timestamp.fromDate(notification.scheduledTime),
-        deliveredTime: Timestamp.fromDate(new Date()), // Immediate delivery
-        createdAt: Timestamp.fromDate(notification.createdAt),
-        updatedAt: Timestamp.fromDate(notification.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('smart_notifications')
+        .insert({
+          user_id: notification.userId,
+          type: notification.type,
+          category: notification.category,
+          title: notification.title,
+          message: notification.message,
+          priority: notification.priority,
+          scheduled_time: notification.scheduledTime.toISOString(),
+          delivered_time: notification.deliveredTime?.toISOString(),
+          is_read: notification.isRead,
+          is_delivered: notification.isDelivered,
+          data: notification.data,
+          triggers: notification.triggers,
+          personalized_content: notification.personalizedContent,
+          delivery_method: notification.deliveryMethod,
+          created_at: notification.createdAt.toISOString(),
+          updated_at: notification.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create notification');
 
       // Trigger immediate delivery for contextual notifications
-      await this.deliverNotification(docRef.id);
+      await this.deliverNotification(data.id);
 
-      return docRef.id;
+      return data.id;
     } catch (error) {
       console.error('Error generating contextual notification:', error);
       throw error;
@@ -261,17 +283,36 @@ export class SmartNotificationService {
         updatedAt: new Date()
       };
 
-      const docRef = await addDoc(collection(db, 'smart_notifications'), {
-        ...notification,
-        scheduledTime: Timestamp.fromDate(notification.scheduledTime),
-        createdAt: Timestamp.fromDate(notification.createdAt),
-        updatedAt: Timestamp.fromDate(notification.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('smart_notifications')
+        .insert({
+          user_id: notification.userId,
+          type: notification.type,
+          category: notification.category,
+          title: notification.title,
+          message: notification.message,
+          priority: notification.priority,
+          scheduled_time: notification.scheduledTime.toISOString(),
+          delivered_time: notification.deliveredTime?.toISOString(),
+          is_read: notification.isRead,
+          is_delivered: notification.isDelivered,
+          data: notification.data,
+          triggers: notification.triggers,
+          personalized_content: notification.personalizedContent,
+          delivery_method: notification.deliveryMethod,
+          created_at: notification.createdAt.toISOString(),
+          updated_at: notification.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create notification');
 
       // Immediate delivery for achievements
-      await this.deliverNotification(docRef.id);
+      await this.deliverNotification(data.id);
 
-      return docRef.id;
+      return data.id;
     } catch (error) {
       console.error('Error creating achievement notification:', error);
       throw error;
@@ -319,14 +360,32 @@ export class SmartNotificationService {
         updatedAt: new Date()
       };
 
-      const docRef = await addDoc(collection(db, 'smart_notifications'), {
-        ...notification,
-        scheduledTime: Timestamp.fromDate(notification.scheduledTime),
-        createdAt: Timestamp.fromDate(notification.createdAt),
-        updatedAt: Timestamp.fromDate(notification.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('smart_notifications')
+        .insert({
+          user_id: notification.userId,
+          type: notification.type,
+          category: notification.category,
+          title: notification.title,
+          message: notification.message,
+          priority: notification.priority,
+          scheduled_time: notification.scheduledTime.toISOString(),
+          delivered_time: notification.deliveredTime?.toISOString(),
+          is_read: notification.isRead,
+          is_delivered: notification.isDelivered,
+          data: notification.data,
+          triggers: notification.triggers,
+          personalized_content: notification.personalizedContent,
+          delivery_method: notification.deliveryMethod,
+          created_at: notification.createdAt.toISOString(),
+          updated_at: notification.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create notification');
+      return data.id;
     } catch (error) {
       console.error('Error generating weekly progress summary:', error);
       throw error;
@@ -346,24 +405,44 @@ export class SmartNotificationService {
       };
 
       // Update or create preferences document
-      const q = query(
-        collection(db, 'notification_preferences'),
-        where('userId', '==', userId)
-      );
-      
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        await addDoc(collection(db, 'notification_preferences'), {
-          ...updatedPrefs,
-          updatedAt: Timestamp.fromDate(updatedPrefs.updatedAt)
-        });
+      if (existingPrefs.id) {
+        const { error } = await supabase
+          .from('notification_preferences')
+          .update({
+            enable_smart_reminders: updatedPrefs.enableSmartReminders,
+            enable_contextual_notifications: updatedPrefs.enableContextualNotifications,
+            enable_achievement_notifications: updatedPrefs.enableAchievementNotifications,
+            enable_progress_summaries: updatedPrefs.enableProgressSummaries,
+            quiet_hours: updatedPrefs.quietHours,
+            preferred_times: updatedPrefs.preferredTimes,
+            frequency: updatedPrefs.frequency,
+            motivational_tone: updatedPrefs.motivationalTone,
+            language_preference: updatedPrefs.languagePreference,
+            delivery_methods: updatedPrefs.deliveryMethods,
+            custom_settings: updatedPrefs.customSettings,
+            updated_at: updatedPrefs.updatedAt.toISOString()
+          })
+          .eq('id', existingPrefs.id);
+        if (error) throw error;
       } else {
-        const docRef = doc(db, 'notification_preferences', snapshot.docs[0].id);
-        await updateDoc(docRef, {
-          ...updatedPrefs,
-          updatedAt: Timestamp.fromDate(updatedPrefs.updatedAt)
-        });
+        const { error } = await supabase
+          .from('notification_preferences')
+          .insert({
+            user_id: updatedPrefs.userId,
+            enable_smart_reminders: updatedPrefs.enableSmartReminders,
+            enable_contextual_notifications: updatedPrefs.enableContextualNotifications,
+            enable_achievement_notifications: updatedPrefs.enableAchievementNotifications,
+            enable_progress_summaries: updatedPrefs.enableProgressSummaries,
+            quiet_hours: updatedPrefs.quietHours,
+            preferred_times: updatedPrefs.preferredTimes,
+            frequency: updatedPrefs.frequency,
+            motivational_tone: updatedPrefs.motivationalTone,
+            language_preference: updatedPrefs.languagePreference,
+            delivery_methods: updatedPrefs.deliveryMethods,
+            custom_settings: updatedPrefs.customSettings,
+            updated_at: updatedPrefs.updatedAt.toISOString()
+          });
+        if (error) throw error;
       }
 
       // Reschedule notifications based on new preferences
@@ -380,26 +459,38 @@ export class SmartNotificationService {
     limitCount: number = 20
   ): Promise<SmartNotification[]> {
     try {
-      const constraints = [
-        where('userId', '==', userId),
-        orderBy('scheduledTime', 'desc'),
-        limit(limitCount)
-      ];
+      let queryBuilder = supabase
+        .from('smart_notifications')
+        .select('*')
+        .eq('user_id', userId)
+        .order('scheduled_time', { ascending: false })
+        .limit(limitCount);
 
       if (unreadOnly) {
-        constraints.splice(1, 0, where('isRead', '==', false));
+        queryBuilder = queryBuilder.eq('is_read', false);
       }
 
-      const q = query(collection(db, 'smart_notifications'), ...constraints);
-      const snapshot = await getDocs(q);
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        scheduledTime: doc.data().scheduledTime.toDate(),
-        deliveredTime: doc.data().deliveredTime?.toDate(),
-        createdAt: doc.data().createdAt.toDate(),
-        updatedAt: doc.data().updatedAt.toDate()
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        type: row.type,
+        category: row.category,
+        title: row.title,
+        message: row.message,
+        priority: row.priority,
+        scheduledTime: new Date(row.scheduled_time),
+        deliveredTime: row.delivered_time ? new Date(row.delivered_time) : undefined,
+        isRead: row.is_read,
+        isDelivered: row.is_delivered,
+        data: row.data,
+        triggers: row.triggers,
+        personalizedContent: row.personalized_content,
+        deliveryMethod: row.delivery_method,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as SmartNotification[];
     } catch (error) {
       console.error('Error fetching user notifications:', error);
@@ -409,11 +500,14 @@ export class SmartNotificationService {
 
   async markNotificationAsRead(notificationId: string): Promise<void> {
     try {
-      const docRef = doc(db, 'smart_notifications', notificationId);
-      await updateDoc(docRef, {
-        isRead: true,
-        updatedAt: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('smart_notifications')
+        .update({
+          is_read: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', notificationId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error marking notification as read:', error);
       throw error;
@@ -565,42 +659,54 @@ export class SmartNotificationService {
 
   private async getUserPreferences(userId: string): Promise<UserNotificationPreferences> {
     try {
-      const q = query(
-        collection(db, 'notification_preferences'),
-        where('userId', '==', userId)
-      );
+      const { data, error } = await supabase
+        .from('notification_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
       
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        // Return default preferences
-        return {
-          userId,
-          enableSmartReminders: true,
-          enableContextualNotifications: true,
-          enableAchievementNotifications: true,
-          enableProgressSummaries: true,
-          quietHours: { start: '22:00', end: '07:00' },
-          preferredTimes: ['07:00', '12:00', '19:00'],
-          frequency: 'moderate',
-          motivationalTone: 'encouraging',
-          languagePreference: 'indonesian',
-          deliveryMethods: { push: true, email: false, inApp: true },
-          customSettings: {
-            stressThreshold: 3,
-            moodThreshold: 3,
-            streakReminders: true,
-            goalDeadlineAlerts: true,
-            weeklyReports: true
-          },
-          updatedAt: new Date()
-        };
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Return default preferences if not found
+          return {
+            userId,
+            enableSmartReminders: true,
+            enableContextualNotifications: true,
+            enableAchievementNotifications: true,
+            enableProgressSummaries: true,
+            quietHours: { start: '22:00', end: '07:00' },
+            preferredTimes: ['07:00', '12:00', '19:00'],
+            frequency: 'moderate',
+            motivationalTone: 'encouraging',
+            languagePreference: 'indonesian',
+            deliveryMethods: { push: true, email: false, inApp: true },
+            customSettings: {
+              stressThreshold: 3,
+              moodThreshold: 3,
+              streakReminders: true,
+              goalDeadlineAlerts: true,
+              weeklyReports: true
+            },
+            updatedAt: new Date()
+          };
+        }
+        throw error;
       }
 
-      const data = snapshot.docs[0].data();
       return {
-        ...data,
-        updatedAt: data.updatedAt.toDate()
+        userId: data.user_id,
+        enableSmartReminders: data.enable_smart_reminders,
+        enableContextualNotifications: data.enable_contextual_notifications,
+        enableAchievementNotifications: data.enable_achievement_notifications,
+        enableProgressSummaries: data.enable_progress_summaries,
+        quietHours: data.quiet_hours,
+        preferredTimes: data.preferred_times,
+        frequency: data.frequency,
+        motivationalTone: data.motivational_tone,
+        languagePreference: data.language_preference,
+        deliveryMethods: data.delivery_methods,
+        customSettings: data.custom_settings,
+        updatedAt: new Date(data.updated_at)
       } as UserNotificationPreferences;
     } catch (error) {
       console.error('Error fetching user preferences:', error);
@@ -743,12 +849,27 @@ export class SmartNotificationService {
         updatedAt: new Date()
       };
 
-      await addDoc(collection(db, 'smart_notifications'), {
-        ...notification,
-        scheduledTime: Timestamp.fromDate(notification.scheduledTime),
-        createdAt: Timestamp.fromDate(notification.createdAt),
-        updatedAt: Timestamp.fromDate(notification.updatedAt)
-      });
+      const { error } = await supabase
+        .from('smart_notifications')
+        .insert({
+          user_id: notification.userId,
+          type: notification.type,
+          category: notification.category,
+          title: notification.title,
+          message: notification.message,
+          priority: notification.priority,
+          scheduled_time: notification.scheduledTime.toISOString(),
+          delivered_time: notification.deliveredTime?.toISOString(),
+          is_read: notification.isRead,
+          is_delivered: notification.isDelivered,
+          data: notification.data,
+          triggers: notification.triggers,
+          personalized_content: notification.personalizedContent,
+          delivery_method: notification.deliveryMethod,
+          created_at: notification.createdAt.toISOString(),
+          updated_at: notification.updatedAt.toISOString()
+        });
+      if (error) throw error;
     }
   }
 
@@ -825,18 +946,23 @@ export class SmartNotificationService {
 
   private async getUserName(userId: string): Promise<string> {
     try {
-      // Fetch actual user profile from Firestore
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const displayName = userData.displayName;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, email')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const displayName = data.display_name;
         if (displayName && displayName.trim()) {
           // Return first name only
           return displayName.split(' ')[0];
         }
         
         // Try email prefix if no display name
-        const email = userData.email;
+        const email = data.email;
         if (email) {
           const emailPrefix = email.split('@')[0];
           if (emailPrefix && /^[a-zA-Z]/.test(emailPrefix)) {
@@ -977,11 +1103,14 @@ export class SmartNotificationService {
     // This would integrate with push notification service (FCM, etc.)
     // For demo purposes, just mark as delivered
     try {
-      const docRef = doc(db, 'smart_notifications', notificationId);
-      await updateDoc(docRef, {
-        isDelivered: true,
-        deliveredTime: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('smart_notifications')
+        .update({
+          is_delivered: true,
+          delivered_time: new Date().toISOString()
+        })
+        .eq('id', notificationId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error delivering notification:', error);
     }

@@ -1,15 +1,5 @@
-import { 
-  collection, 
-  query, 
-  where, 
-  getDocs,
-  writeBatch,
-  doc,
-  deleteDoc,
-  type Query,
-  type DocumentData
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
+import type { PostgrestFilterBuilder } from '@supabase/postgrest-js';
 
 export interface ResetOptions {
   resetAchievements?: boolean;
@@ -158,22 +148,23 @@ export class AchievementResetService {
 
     try {
       // Get all unique user IDs from achievements
-      const achievementsQuery = query(collection(db, 'user_achievements'));
-      const achievementsSnapshot = await getDocs(achievementsQuery);
-      
+      const { data: achievements, error: achievementsError } = await supabase
+        .from('user_achievements')
+        .select('user_id');
+      if (achievementsError) throw achievementsError;
+
       const userIds = new Set<string>();
-      achievementsSnapshot.docs.forEach(doc => {
-        const userId = doc.data().userId;
-        if (userId) userIds.add(userId);
+      achievements.forEach(row => {
+        if (row.user_id) userIds.add(row.user_id);
       });
 
-      // Also get user IDs from sessions if no achievements exist yet
-      const sessionsQuery = query(collection(db, 'meditation_sessions'));
-      const sessionsSnapshot = await getDocs(sessionsQuery);
+      const { data: sessions, error: sessionsError } = await supabase
+        .from('meditation_sessions')
+        .select('user_id');
+      if (sessionsError) throw sessionsError;
       
-      sessionsSnapshot.docs.forEach(doc => {
-        const userId = doc.data().userId;
-        if (userId) userIds.add(userId);
+      sessions.forEach(row => {
+        if (row.user_id) userIds.add(row.user_id);
       });
 
       let totalDeleted = 0;
@@ -232,24 +223,24 @@ export class AchievementResetService {
       const preview: any = { collections: {}, totalDocuments: 0 };
 
       for (const collectionName of collections) {
-        let q: Query<DocumentData, DocumentData> = collection(db, collectionName);
+        let queryBuilder = supabase.from(collectionName).select('*', { count: 'exact' });
         
         if (userId) {
-          q = query(collection(db, collectionName), where('userId', '==', userId));
+          queryBuilder = queryBuilder.eq('user_id', userId);
         }
 
-        const snapshot = await getDocs(q);
-        const docs = snapshot.docs.slice(0, 3); // Show max 3 sample documents
+        const { data, count, error } = await queryBuilder.limit(3);
+        if (error) throw error;
         
         preview.collections[collectionName] = {
-          count: snapshot.size,
-          sampleData: docs.map(doc => ({
-            id: doc.id,
-            data: this.sanitizeDataForPreview(doc.data())
-          }))
+          count: count || 0,
+          sampleData: data ? data.map(row => ({
+            id: row.id, // Assuming 'id' column exists
+            data: this.sanitizeDataForPreview(row)
+          })) : []
         };
 
-        preview.totalDocuments += snapshot.size;
+        preview.totalDocuments += (count || 0);
       }
 
       return preview;
@@ -268,41 +259,17 @@ export class AchievementResetService {
    */
   private async deleteCollection(collectionName: string, userId: string): Promise<number> {
     try {
-      const q = query(
-        collection(db, collectionName),
-        where('userId', '==', userId)
-      );
+      const { count, error } = await supabase
+        .from(collectionName)
+        .delete({ count: 'exact' })
+        .eq('user_id', userId); // Assuming 'user_id' is the column name in Supabase
 
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
-        return 0;
+      if (error) {
+        throw error;
       }
 
-      // Batch delete untuk performa yang lebih baik
-      const batch = writeBatch(db);
-      let batchCount = 0;
-      let totalDeleted = 0;
-
-      for (const document of snapshot.docs) {
-        batch.delete(document.ref);
-        batchCount++;
-        totalDeleted++;
-
-        // Firebase batch memiliki limit 500 operasi
-        if (batchCount === 500) {
-          await batch.commit();
-          batchCount = 0;
-        }
-      }
-
-      // Commit batch terakhir jika ada
-      if (batchCount > 0) {
-        await batch.commit();
-      }
-
-      console.log(`Deleted ${totalDeleted} documents from ${collectionName} for user ${userId}`);
-      return totalDeleted;
+      console.log(`Deleted ${count} documents from ${collectionName} for user ${userId}`);
+      return count || 0;
 
     } catch (error) {
       console.error(`Error deleting from ${collectionName}:`, error);
@@ -356,15 +323,16 @@ export class AchievementResetService {
       };
 
       for (const collectionName of collections) {
-        const q = query(
-          collection(db, collectionName),
-          where('userId', '==', userId)
-        );
+        const { data, error } = await supabase
+          .from(collectionName)
+          .select('*')
+          .eq('user_id', userId);
+        
+        if (error) throw error;
 
-        const snapshot = await getDocs(q);
-        backupData.collections[collectionName] = snapshot.docs.map(doc => ({
-          id: doc.id,
-          data: doc.data()
+        backupData.collections[collectionName] = data.map(row => ({
+          id: row.id, // Assuming 'id' column exists
+          data: row
         }));
       }
 

@@ -1,17 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp,
-  writeBatch
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { 
   ContentRecommendation, 
   UsagePattern, 
@@ -448,26 +435,35 @@ export class RecommendationService {
 
   private async saveRecommendations(userId: string, recommendations: ContentRecommendation[]): Promise<void> {
     try {
-      const batch = writeBatch(db);
-      
-      for (const rec of recommendations) {
-        const docRef = doc(collection(db, 'content_recommendations'));
-        const recData = {
-          ...rec,
-          createdAt: Timestamp.fromDate(rec.createdAt),
-          expiresAt: rec.expiresAt ? Timestamp.fromDate(rec.expiresAt) : null
-        };
-        
-        if (batch) {
-          batch.set(docRef, recData);
-        } else {
-          await addDoc(collection(db, 'content_recommendations'), recData);
-        }
-      }
-      
-      if (batch) {
-        await batch.commit();
-      }
+      // Supabase doesn't have a direct batch write for inserts like Firestore
+      // We'll insert them one by one, or use a single insert with an array of objects
+      // For simplicity, using individual inserts for now.
+      // For large batches, consider a Supabase Edge Function or a single insert with an array.
+
+      const payload = recommendations.map(rec => ({
+        user_id: rec.userId,
+        content_id: rec.contentId,
+        content_type: rec.contentType,
+        title: rec.title,
+        description: rec.description,
+        reason: rec.reason,
+        confidence: rec.confidence,
+        priority: rec.priority,
+        category: rec.category,
+        estimated_duration: rec.estimatedDuration,
+        difficulty: rec.difficulty,
+        tags: rec.tags,
+        created_at: rec.createdAt.toISOString(),
+        expires_at: rec.expiresAt ? rec.expiresAt.toISOString() : null,
+        viewed: rec.viewed,
+        interacted: rec.interacted
+      }));
+
+      const { error } = await supabase
+        .from('content_recommendations')
+        .insert(payload);
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error saving recommendations:', error);
     }
@@ -475,21 +471,35 @@ export class RecommendationService {
 
   async getUserRecommendations(userId: string, limit_count: number = 10): Promise<ContentRecommendation[]> {
     try {
-      const q = query(
-        collection(db, 'content_recommendations'),
-        where('userId', '==', userId),
-        where('viewed', '==', false),
-        orderBy('confidence', 'desc'),
-        orderBy('createdAt', 'desc'),
-        limit(limit_count)
-      );
+      const { data, error } = await supabase
+        .from('content_recommendations')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('viewed', false)
+        .order('confidence', { ascending: false })
+        .order('created_at', { ascending: false })
+        .limit(limit_count);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        expiresAt: doc.data().expiresAt?.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        contentId: row.content_id,
+        contentType: row.content_type,
+        title: row.title,
+        description: row.description,
+        reason: row.reason,
+        confidence: row.confidence,
+        priority: row.priority,
+        category: row.category,
+        estimatedDuration: row.estimated_duration,
+        difficulty: row.difficulty,
+        tags: row.tags,
+        createdAt: new Date(row.created_at),
+        expiresAt: row.expires_at ? new Date(row.expires_at) : undefined,
+        viewed: row.viewed,
+        interacted: row.interacted
       })) as ContentRecommendation[];
     } catch (error) {
       console.error('Error fetching recommendations:', error);
@@ -499,11 +509,14 @@ export class RecommendationService {
 
   async markRecommendationViewed(recommendationId: string): Promise<void> {
     try {
-      const docRef = doc(db, 'content_recommendations', recommendationId);
-      await updateDoc(docRef, {
-        viewed: true,
-        viewedAt: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('content_recommendations')
+        .update({
+          viewed: true,
+          viewed_at: new Date().toISOString()
+        })
+        .eq('id', recommendationId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error marking recommendation as viewed:', error);
     }
@@ -511,11 +524,14 @@ export class RecommendationService {
 
   async markRecommendationInteracted(recommendationId: string): Promise<void> {
     try {
-      const docRef = doc(db, 'content_recommendations', recommendationId);
-      await updateDoc(docRef, {
-        interacted: true,
-        interactedAt: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('content_recommendations')
+        .update({
+          interacted: true,
+          interacted_at: new Date().toISOString()
+        })
+        .eq('id', recommendationId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error marking recommendation as interacted:', error);
     }
@@ -523,18 +539,23 @@ export class RecommendationService {
 
   private async getUserUsagePatterns(userId: string): Promise<UsagePattern[]> {
     try {
-      const q = query(
-        collection(db, 'usage_patterns'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(100)
-      );
+      const { data, error } = await supabase
+        .from('usage_patterns')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(100);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        sessionType: row.session_type,
+        duration: row.duration,
+        moodBefore: row.mood_before,
+        moodAfter: row.mood_after,
+        createdAt: new Date(row.created_at)
       })) as UsagePattern[];
     } catch (error) {
       console.error('Error fetching usage patterns:', error);
@@ -544,20 +565,29 @@ export class RecommendationService {
 
   private async getUserPreferences(userId: string): Promise<UserPreferences | null> {
     try {
-      const q = query(
-        collection(db, 'user_preferences'),
-        where('userId', '==', userId),
-        limit(1)
-      );
+      const { data, error } = await supabase
+        .from('user_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
+      if (error) {
+        if (error.code === 'PGRST116') return null; // No rows found
+        throw error;
+      }
 
-      const doc = snapshot.docs[0];
+      if (!data) return null;
+
       return {
-        id: doc.id,
-        ...doc.data(),
-        lastUpdated: doc.data().lastUpdated.toDate()
+        id: data.id,
+        userId: data.user_id,
+        favoriteSessionTypes: data.favorite_session_types,
+        preferredDuration: data.preferred_duration,
+        difficultyLevel: data.difficulty_level,
+        goals: data.goals,
+        notificationPreferences: data.notification_preferences,
+        culturalContext: data.cultural_context,
+        lastUpdated: new Date(data.last_updated)
       } as UserPreferences;
     } catch (error) {
       console.error('Error fetching user preferences:', error);
@@ -569,18 +599,30 @@ export class RecommendationService {
     try {
       const existingPrefs = await this.getUserPreferences(userId);
       
+      const payload: any = {
+        favorite_session_types: preferences.favoriteSessionTypes,
+        preferred_duration: preferences.preferredDuration,
+        difficulty_level: preferences.difficultyLevel,
+        goals: preferences.goals,
+        notification_preferences: preferences.notificationPreferences,
+        cultural_context: preferences.culturalContext,
+        last_updated: new Date().toISOString()
+      };
+
       if (existingPrefs) {
-        const docRef = doc(db, 'user_preferences', existingPrefs.id);
-        await updateDoc(docRef, {
-          ...preferences,
-          lastUpdated: Timestamp.fromDate(new Date())
-        });
+        const { error } = await supabase
+          .from('user_preferences')
+          .update(payload)
+          .eq('id', existingPrefs.id);
+        if (error) throw error;
       } else {
-        await addDoc(collection(db, 'user_preferences'), {
-          userId,
-          ...preferences,
-          lastUpdated: Timestamp.fromDate(new Date())
-        });
+        const { error } = await supabase
+          .from('user_preferences')
+          .insert({
+            user_id: userId,
+            ...payload
+          });
+        if (error) throw error;
       }
     } catch (error) {
       console.error('Error updating user preferences:', error);
@@ -589,11 +631,17 @@ export class RecommendationService {
 
   async trackUsagePattern(userId: string, pattern: Omit<UsagePattern, 'id' | 'userId' | 'createdAt'>): Promise<void> {
     try {
-      await addDoc(collection(db, 'usage_patterns'), {
-        userId,
-        ...pattern,
-        createdAt: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('usage_patterns')
+        .insert({
+          user_id: userId,
+          session_type: pattern.sessionType,
+          duration: pattern.duration,
+          mood_before: pattern.moodBefore,
+          mood_after: pattern.moodAfter,
+          created_at: new Date().toISOString()
+        });
+      if (error) throw error;
     } catch (error) {
       console.error('Error tracking usage pattern:', error);
     }

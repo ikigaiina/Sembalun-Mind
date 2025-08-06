@@ -1,16 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 import { notesService } from './notesService';
 
@@ -81,19 +69,28 @@ export class EmotionalIntelligenceService {
         metric.socialSkills
       ) / 5;
 
-      const eiMetric: Omit<EmotionalIntelligenceMetric, 'id'> = {
-        userId,
-        date: new Date(),
-        ...metric,
-        overallScore: Math.round(overallScore * 10) / 10
+      const eiMetric = {
+        user_id: userId,
+        date: new Date().toISOString(),
+        self_awareness: metric.selfAwareness,
+        self_regulation: metric.selfRegulation,
+        motivation: metric.motivation,
+        empathy: metric.empathy,
+        social_skills: metric.socialSkills,
+        overall_score: Math.round(overallScore * 10) / 10,
+        data_source: metric.dataSource,
+        context_data: metric.contextData
       };
 
-      const docRef = await addDoc(collection(db, 'ei_metrics'), {
-        ...eiMetric,
-        date: Timestamp.fromDate(eiMetric.date)
-      });
+      const { data, error } = await supabase
+        .from('ei_metrics')
+        .insert(eiMetric)
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to record EI metric');
+      return data.id;
     } catch (error) {
       console.error('Error recording EI metric:', error);
       throw error;
@@ -164,19 +161,28 @@ export class EmotionalIntelligenceService {
     try {
       const startDate = this.getStartDate(timeframe);
       
-      const q = query(
-        collection(db, 'ei_metrics'),
-        where('userId', '==', userId),
-        where('date', '>=', Timestamp.fromDate(startDate)),
-        orderBy('date', 'desc'),
-        limit(limitCount)
-      );
+      const { data, error } = await supabase
+        .from('ei_metrics')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('date', startDate.toISOString())
+        .order('date', { ascending: false })
+        .limit(limitCount);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        date: new Date(row.date),
+        selfAwareness: row.self_awareness,
+        selfRegulation: row.self_regulation,
+        motivation: row.motivation,
+        empathy: row.empathy,
+        socialSkills: row.social_skills,
+        overallScore: row.overall_score,
+        dataSource: row.data_source,
+        contextData: row.context_data
       })) as EmotionalIntelligenceMetric[];
     } catch (error) {
       console.error('Error fetching EI metrics:', error);
@@ -267,20 +273,29 @@ export class EmotionalIntelligenceService {
       const currentStart = this.getStartDate(timeframe);
       const previousStart = this.getPreviousStartDate(timeframe, currentStart);
       
-      const q = query(
-        collection(db, 'ei_metrics'),
-        where('userId', '==', userId),
-        where('date', '>=', Timestamp.fromDate(previousStart)),
-        where('date', '<', Timestamp.fromDate(currentStart)),
-        orderBy('date', 'desc'),
-        limit(100)
-      );
+      const { data, error } = await supabase
+        .from('ei_metrics')
+        .select('*')
+        .eq('user_id', userId)
+        .gte('date', previousStart.toISOString())
+        .lt('date', currentStart.toISOString())
+        .order('date', { ascending: false })
+        .limit(100);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        date: doc.data().date.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        date: new Date(row.date),
+        selfAwareness: row.self_awareness,
+        selfRegulation: row.self_regulation,
+        motivation: row.motivation,
+        empathy: row.empathy,
+        socialSkills: row.social_skills,
+        overallScore: row.overall_score,
+        dataSource: row.data_source,
+        contextData: row.context_data
       })) as EmotionalIntelligenceMetric[];
     } catch (error) {
       console.error('Error fetching previous EI metrics:', error);
@@ -439,22 +454,29 @@ export class EmotionalIntelligenceService {
     goal: Omit<EIDevelopmentGoal, 'id' | 'userId' | 'progress' | 'createdAt' | 'updatedAt'>
   ): Promise<string> {
     try {
-      const goalData: Omit<EIDevelopmentGoal, 'id'> = {
-        userId,
-        ...goal,
+      const now = new Date().toISOString();
+      const goalData = {
+        user_id: userId,
+        metric: goal.metric,
+        target_score: goal.targetScore,
+        current_score: 0,
+        deadline: goal.deadline.toISOString(),
+        strategies: goal.strategies,
         progress: 0,
-        createdAt: new Date(),
-        updatedAt: new Date()
+        is_active: true,
+        created_at: now,
+        updated_at: now
       };
 
-      const docRef = await addDoc(collection(db, 'ei_goals'), {
-        ...goalData,
-        deadline: Timestamp.fromDate(goalData.deadline),
-        createdAt: Timestamp.fromDate(goalData.createdAt),
-        updatedAt: Timestamp.fromDate(goalData.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('ei_goals')
+        .insert(goalData)
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create EI development goal');
+      return data.id;
     } catch (error) {
       console.error('Error creating EI development goal:', error);
       throw error;
@@ -463,20 +485,27 @@ export class EmotionalIntelligenceService {
 
   async getUserDevelopmentGoals(userId: string): Promise<EIDevelopmentGoal[]> {
     try {
-      const q = query(
-        collection(db, 'ei_goals'),
-        where('userId', '==', userId),
-        where('isActive', '==', true),
-        orderBy('createdAt', 'desc')
-      );
+      const { data, error } = await supabase
+        .from('ei_goals')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        deadline: doc.data().deadline.toDate(),
-        createdAt: doc.data().createdAt.toDate(),
-        updatedAt: doc.data().updatedAt.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        metric: row.metric,
+        targetScore: row.target_score,
+        currentScore: row.current_score,
+        deadline: new Date(row.deadline),
+        strategies: row.strategies,
+        progress: row.progress,
+        isActive: row.is_active,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as EIDevelopmentGoal[];
     } catch (error) {
       console.error('Error fetching EI development goals:', error);
@@ -486,20 +515,43 @@ export class EmotionalIntelligenceService {
 
   async updateGoalProgress(goalId: string, newCurrentScore: number): Promise<void> {
     try {
-      const goals = await this.getUserDevelopmentGoals(''); // This would need the userId in practice
-      const goal = goals.find(g => g.id === goalId);
-      if (!goal) return;
+      // Fetch the goal first to calculate progress correctly
+      const { data: goalData, error: fetchError } = await supabase
+        .from('ei_goals')
+        .select('*')
+        .eq('id', goalId)
+        .single();
+
+      if (fetchError) throw fetchError;
+      if (!goalData) throw new Error('Goal not found');
+
+      const goal: EIDevelopmentGoal = {
+        id: goalData.id,
+        userId: goalData.user_id,
+        metric: goalData.metric,
+        targetScore: goalData.target_score,
+        currentScore: goalData.current_score,
+        deadline: new Date(goalData.deadline),
+        strategies: goalData.strategies,
+        progress: goalData.progress,
+        isActive: goalData.is_active,
+        createdAt: new Date(goalData.created_at),
+        updatedAt: new Date(goalData.updated_at)
+      };
 
       const progress = Math.min(100, Math.max(0, 
         ((newCurrentScore - goal.currentScore) / (goal.targetScore - goal.currentScore)) * 100
       ));
 
-      const docRef = doc(db, 'ei_goals', goalId);
-      await updateDoc(docRef, {
-        currentScore: newCurrentScore,
-        progress,
-        updatedAt: Timestamp.fromDate(new Date())
-      });
+      const { error: updateError } = await supabase
+        .from('ei_goals')
+        .update({
+          current_score: newCurrentScore,
+          progress,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', goalId);
+      if (updateError) throw updateError;
     } catch (error) {
       console.error('Error updating goal progress:', error);
       throw error;

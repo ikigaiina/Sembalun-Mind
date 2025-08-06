@@ -1,23 +1,7 @@
 // Multiagent Task Service Implementation
 // Core service for managing Claude Code multiagent tasks
 
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDoc, 
-  getDocs, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  onSnapshot,
-  serverTimestamp,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type {
   AgentTask,
   TaskType,
@@ -55,16 +39,23 @@ export class MultiagentTaskService implements TaskService {
         status: 'pending' as TaskStatus
       };
 
-      // Add to Firestore
-      const docRef = await addDoc(collection(db, this.tasksCollection), {
-        ...task,
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      });
+      // Add to Supabase
+      const { data, error } = await supabase
+        .from(this.tasksCollection)
+        .insert({
+          ...task,
+          created_at: task.createdAt.toISOString(),
+          updated_at: task.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create task');
 
       const createdTask: AgentTask = {
         ...task,
-        id: docRef.id
+        id: data.id
       };
 
       // Emit task created event
@@ -85,29 +76,36 @@ export class MultiagentTaskService implements TaskService {
    */
   async updateTask(id: string, updates: Partial<AgentTask>): Promise<AgentTask> {
     try {
-      const taskRef = doc(db, this.tasksCollection, id);
-      const taskSnap = await getDoc(taskRef);
+      const { data: currentTaskData, error: fetchError } = await supabase
+        .from(this.tasksCollection)
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      if (!taskSnap.exists()) {
-        throw new Error(`Task with ID ${id} not found`);
-      }
+      if (fetchError) throw fetchError;
+      if (!currentTaskData) throw new Error(`Task with ID ${id} not found`);
 
-      const currentTask = { id: taskSnap.id, ...taskSnap.data() } as AgentTask;
+      const currentTask = currentTaskData as AgentTask;
       
       // Prepare updates with timestamp
-      const updateData = {
+      const updatePayload: any = {
         ...updates,
-        updatedAt: serverTimestamp()
+        updated_at: new Date().toISOString() // Supabase uses ISO strings for timestamps
       };
 
-      // Convert Date objects to Timestamps for Firestore
-      Object.keys(updateData).forEach(key => {
-        if ((updateData as any)[key] instanceof Date) {
-          (updateData as any)[key] = Timestamp.fromDate((updateData as any)[key] as Date);
+      // Convert Date objects to ISO strings for Supabase
+      Object.keys(updatePayload).forEach(key => {
+        if (updatePayload[key] instanceof Date) {
+          updatePayload[key] = updatePayload[key].toISOString();
         }
       });
 
-      await updateDoc(taskRef, updateData);
+      const { error: updateError } = await supabase
+        .from(this.tasksCollection)
+        .update(updatePayload)
+        .eq('id', id);
+
+      if (updateError) throw updateError;
 
       const updatedTask: AgentTask = {
         ...currentTask,
@@ -135,23 +133,37 @@ export class MultiagentTaskService implements TaskService {
    */
   async getTask(id: string): Promise<AgentTask | null> {
     try {
-      const taskRef = doc(db, this.tasksCollection, id);
-      const taskSnap = await getDoc(taskRef);
+      const { data, error } = await supabase
+        .from(this.tasksCollection)
+        .select('*')
+        .eq('id', id)
+        .single();
 
-      if (!taskSnap.exists()) {
-        return null;
+      if (error) {
+        if (error.code === 'PGRST116') return null; // No rows found
+        throw error;
       }
 
-      const data = taskSnap.data();
+      if (!data) return null;
+
       return {
-        id: taskSnap.id,
-        ...data,
-        createdAt: data.createdAt?.toDate() || new Date(),
-        updatedAt: data.updatedAt?.toDate() || new Date(),
-        scheduledAt: data.scheduledAt?.toDate(),
-        startedAt: data.startedAt?.toDate(),
-        completedAt: data.completedAt?.toDate(),
-        failedAt: data.failedAt?.toDate()
+        id: data.id,
+        type: data.type,
+        status: data.status,
+        priority: data.priority,
+        context: data.context,
+        metadata: data.metadata,
+        result: data.result,
+        error: data.error,
+        retryCount: data.retry_count,
+        maxRetries: data.max_retries,
+        assignedAgentId: data.assigned_agent_id,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+        scheduledAt: data.scheduled_at ? new Date(data.scheduled_at) : undefined,
+        startedAt: data.started_at ? new Date(data.started_at) : undefined,
+        completedAt: data.completed_at ? new Date(data.completed_at) : undefined,
+        failedAt: data.failed_at ? new Date(data.failed_at) : undefined
       } as AgentTask;
     } catch (error) {
       console.error('Error getting task:', error);
@@ -164,66 +176,68 @@ export class MultiagentTaskService implements TaskService {
    */
   async listTasks(filters?: TaskFilters, sorting?: TaskSorting): Promise<AgentTask[]> {
     try {
-      let q: any = collection(db, this.tasksCollection);
+      let queryBuilder = supabase.from(this.tasksCollection).select('*');
 
       // Apply filters
       if (filters) {
         if (filters.status && filters.status.length > 0) {
-          q = query(q, where('status', 'in', filters.status));
+          queryBuilder = queryBuilder.in('status', filters.status);
         }
         if (filters.type && filters.type.length > 0) {
-          q = query(q, where('type', 'in', filters.type));
+          queryBuilder = queryBuilder.in('type', filters.type);
         }
         if (filters.priority && filters.priority.length > 0) {
-          q = query(q, where('priority', 'in', filters.priority));
+          queryBuilder = queryBuilder.in('priority', filters.priority);
         }
         if (filters.agentId) {
-          q = query(q, where('assignedAgentId', '==', filters.agentId));
+          queryBuilder = queryBuilder.eq('assigned_agent_id', filters.agentId);
         }
         if (filters.userId) {
-          q = query(q, where('context.userId', '==', filters.userId));
+          queryBuilder = queryBuilder.eq('context->>userId', filters.userId); // Assuming context is JSONB
         }
         if (filters.culturalContext) {
-          q = query(q, where('metadata.culturalContext', '==', filters.culturalContext));
+          queryBuilder = queryBuilder.eq('metadata->>culturalContext', filters.culturalContext); // Assuming metadata is JSONB
         }
         if (filters.dateRange) {
-          q = query(
-            q,
-            where('createdAt', '>=', Timestamp.fromDate(filters.dateRange.start)),
-            where('createdAt', '<=', Timestamp.fromDate(filters.dateRange.end))
-          );
+          queryBuilder = queryBuilder
+            .gte('created_at', filters.dateRange.start.toISOString())
+            .lte('created_at', filters.dateRange.end.toISOString());
         }
       }
 
       // Apply sorting
       if (sorting) {
-        q = query(q, orderBy(sorting.field, sorting.direction));
+        queryBuilder = queryBuilder.order(sorting.field, { ascending: sorting.direction === 'asc' });
       } else {
         // Default sorting by creation date (newest first)
-        q = query(q, orderBy('createdAt', 'desc'));
+        queryBuilder = queryBuilder.order('created_at', { ascending: false });
       }
 
-      // Limit results to prevent overwhelming
-      q = query(q, limit(100));
+      // Limit results
+      queryBuilder = queryBuilder.limit(100);
 
-      const querySnapshot = await getDocs(q);
-      const tasks: AgentTask[] = [];
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      querySnapshot.forEach((doc) => {
-        const data = doc.data() as any;
-        tasks.push({
-          id: doc.id,
-          ...data,
-          createdAt: data.createdAt?.toDate() || new Date(),
-          updatedAt: data.updatedAt?.toDate() || new Date(),
-          scheduledAt: data.scheduledAt?.toDate(),
-          startedAt: data.startedAt?.toDate(),
-          completedAt: data.completedAt?.toDate(),
-          failedAt: data.failedAt?.toDate()
-        } as AgentTask);
-      });
-
-      return tasks;
+      return data.map(row => ({
+        id: row.id,
+        type: row.type,
+        status: row.status,
+        priority: row.priority,
+        context: row.context,
+        metadata: row.metadata,
+        result: row.result,
+        error: row.error,
+        retryCount: row.retry_count,
+        maxRetries: row.max_retries,
+        assignedAgentId: row.assigned_agent_id,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        scheduledAt: row.scheduled_at ? new Date(row.scheduled_at) : undefined,
+        startedAt: row.started_at ? new Date(row.started_at) : undefined,
+        completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
+        failedAt: row.failed_at ? new Date(row.failed_at) : undefined
+      })) as AgentTask[];
     } catch (error) {
       console.error('Error listing tasks:', error);
       throw new Error(`Failed to list tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -297,30 +311,37 @@ export class MultiagentTaskService implements TaskService {
    * Subscribe to task updates
    */
   subscribeToTaskUpdates(callback: (event: TaskEvent) => void): () => void {
-    const eventsQuery = query(
-      collection(db, this.eventsCollection),
-      orderBy('timestamp', 'desc'),
-      limit(50)
-    );
+    // Supabase Realtime for complex queries is typically handled via Row Level Security (RLS)
+    // and direct table subscriptions. For a general 'events' collection, you'd subscribe
+    // to inserts. If filtering is needed, it's often done client-side or via a backend function.
+    // This is a simplified example subscribing to inserts on the events table.
 
-    const unsubscribe = onSnapshot(eventsQuery, (snapshot) => {
-      snapshot.docChanges().forEach((change) => {
-        if (change.type === 'added') {
-          const eventData = change.doc.data() as any;
+    const channel = supabase.channel('task_events_channel')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: this.eventsCollection },
+        (payload) => {
+          const eventData = payload.new as any;
           const event: TaskEvent = {
-            ...eventData,
-            timestamp: eventData.timestamp?.toDate() || new Date()
+            type: eventData.type,
+            taskId: eventData.task_id,
+            data: eventData.data,
+            agentId: eventData.agent_id,
+            userId: eventData.user_id,
+            timestamp: new Date(eventData.timestamp)
           };
           callback(event);
         }
-      });
-    });
+      )
+      .subscribe();
 
     const listenerId = Math.random().toString(36);
-    this.listeners.set(listenerId, unsubscribe);
+    this.listeners.set(listenerId, () => {
+      supabase.removeChannel(channel);
+    });
 
     return () => {
-      unsubscribe();
+      supabase.removeChannel(channel);
       this.listeners.delete(listenerId);
     };
   }
@@ -424,26 +445,18 @@ export class MultiagentTaskService implements TaskService {
       const cutoffDate = new Date();
       cutoffDate.setDate(cutoffDate.getDate() - olderThanDays);
 
-      const oldTasksQuery = query(
-        collection(db, this.tasksCollection),
-        where('status', 'in', ['completed', 'cancelled']),
-        where('updatedAt', '<', Timestamp.fromDate(cutoffDate))
-      );
+      const { count, error } = await supabase
+        .from(this.tasksCollection)
+        .delete()
+        .in('status', ['completed', 'cancelled'])
+        .lt('updated_at', cutoffDate.toISOString())
+        .select('id', { count: 'exact' });
 
-      const querySnapshot = await getDocs(oldTasksQuery);
-      let deletedCount = 0;
-
-      // Delete in batches to avoid overwhelming Firestore
-      const batchPromises: Promise<void>[] = [];
-      querySnapshot.forEach((doc) => {
-        batchPromises.push(deleteDoc(doc.ref));
-        deletedCount++;
-      });
-
-      await Promise.all(batchPromises);
-      console.log(`Cleaned up ${deletedCount} old tasks`);
+      if (error) throw error;
       
-      return deletedCount;
+      console.log(`Cleaned up ${count || 0} old tasks`);
+      
+      return count || 0;
     } catch (error) {
       console.error('Error cleaning up old tasks:', error);
       throw new Error(`Failed to cleanup old tasks: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -463,10 +476,18 @@ export class MultiagentTaskService implements TaskService {
         userId: task.context?.userId
       };
 
-      await addDoc(collection(db, this.eventsCollection), {
-        ...event,
-        timestamp: serverTimestamp()
-      });
+      const { error } = await supabase
+        .from(this.eventsCollection)
+        .insert({
+          type: event.type,
+          task_id: event.taskId,
+          data: event.data,
+          agent_id: event.agentId,
+          user_id: event.userId,
+          timestamp: new Date().toISOString()
+        });
+
+      if (error) throw error;
     } catch (error) {
       console.error('Error emitting task event:', error);
       // Don't throw here to avoid breaking the main operation

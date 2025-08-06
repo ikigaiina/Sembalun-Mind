@@ -60,7 +60,7 @@ export default defineConfig({
         // Simplified chunking - only essential splits
         manualChunks: {
           'react-core': ['react', 'react-dom'],
-          'firebase-core': ['firebase/app', 'firebase/auth', 'firebase/firestore'],
+          
           'vendor': ['react-router-dom', 'lucide-react']
         },
         chunkFileNames: 'js/[name]-[hash].js',

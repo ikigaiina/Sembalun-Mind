@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { updatePassword, reauthenticateWithCredential, EmailAuthProvider } from 'firebase/auth';
+
 import { useAuth } from '../../hooks/useAuth';
 import { Input } from '../ui/Input';
 

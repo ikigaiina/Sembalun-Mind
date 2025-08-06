@@ -1,18 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp,
-  writeBatch
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { UserBookmark } from '../types/personalization';
 
 export class BookmarkService {
@@ -43,12 +29,27 @@ export class BookmarkService {
         lastAccessedAt: undefined
       };
 
-      const docRef = await addDoc(collection(db, 'user_bookmarks'), {
-        ...bookmarkData,
-        createdAt: Timestamp.fromDate(bookmarkData.createdAt)
-      });
+      const { data, error } = await supabase
+        .from('user_bookmarks')
+        .insert({
+          user_id: bookmarkData.userId,
+          content_id: bookmarkData.contentId,
+          content_type: bookmarkData.contentType,
+          title: bookmarkData.title,
+          description: bookmarkData.description,
+          category: bookmarkData.category,
+          tags: bookmarkData.tags,
+          notes: bookmarkData.notes,
+          is_favorite: bookmarkData.isFavorite,
+          created_at: bookmarkData.createdAt.toISOString(),
+          last_accessed_at: bookmarkData.lastAccessedAt?.toISOString()
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create bookmark');
+      return data.id;
     } catch (error) {
       console.error('Error creating bookmark:', error);
       throw error;
@@ -62,28 +63,37 @@ export class BookmarkService {
     limit_count: number = 50
   ): Promise<UserBookmark[]> {
     try {
-      let q = query(
-        collection(db, 'user_bookmarks'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
+      let queryBuilder = supabase
+        .from('user_bookmarks')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit_count);
 
       if (category) {
-        q = query(q, where('category', '==', category));
+        queryBuilder = queryBuilder.eq('category', category);
       }
 
       if (contentType) {
-        q = query(q, where('contentType', '==', contentType));
+        queryBuilder = queryBuilder.eq('content_type', contentType);
       }
 
-      q = query(q, limit(limit_count));
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt?.toDate()
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        contentId: row.content_id,
+        contentType: row.content_type,
+        title: row.title,
+        description: row.description,
+        category: row.category,
+        tags: row.tags,
+        notes: row.notes,
+        isFavorite: row.is_favorite,
+        createdAt: new Date(row.created_at),
+        lastAccessedAt: row.last_accessed_at ? new Date(row.last_accessed_at) : undefined
       })) as UserBookmark[];
     } catch (error) {
       console.error('Error fetching bookmarks:', error);
@@ -93,20 +103,29 @@ export class BookmarkService {
 
   async getFavoriteBookmarks(userId: string, limit_count: number = 20): Promise<UserBookmark[]> {
     try {
-      const q = query(
-        collection(db, 'user_bookmarks'),
-        where('userId', '==', userId),
-        where('isFavorite', '==', true),
-        orderBy('lastAccessedAt', 'desc'),
-        limit(limit_count)
-      );
+      const { data, error } = await supabase
+        .from('user_bookmarks')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_favorite', true)
+        .order('last_accessed_at', { ascending: false })
+        .limit(limit_count);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt?.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        contentId: row.content_id,
+        contentType: row.content_type,
+        title: row.title,
+        description: row.description,
+        category: row.category,
+        tags: row.tags,
+        notes: row.notes,
+        isFavorite: row.is_favorite,
+        createdAt: new Date(row.created_at),
+        lastAccessedAt: row.last_accessed_at ? new Date(row.last_accessed_at) : undefined
       })) as UserBookmark[];
     } catch (error) {
       console.error('Error fetching favorite bookmarks:', error);
@@ -119,8 +138,15 @@ export class BookmarkService {
     updates: Partial<Pick<UserBookmark, 'notes' | 'tags' | 'isFavorite'>>
   ): Promise<void> {
     try {
-      const docRef = doc(db, 'user_bookmarks', bookmarkId);
-      await updateDoc(docRef, updates);
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .update({
+          notes: updates.notes,
+          tags: updates.tags,
+          is_favorite: updates.isFavorite
+        })
+        .eq('id', bookmarkId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating bookmark:', error);
       throw error;
@@ -129,10 +155,11 @@ export class BookmarkService {
 
   async markBookmarkAccessed(bookmarkId: string): Promise<void> {
     try {
-      const docRef = doc(db, 'user_bookmarks', bookmarkId);
-      await updateDoc(docRef, {
-        lastAccessedAt: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .update({ last_accessed_at: new Date().toISOString() })
+        .eq('id', bookmarkId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error marking bookmark as accessed:', error);
     }
@@ -140,8 +167,11 @@ export class BookmarkService {
 
   async toggleFavorite(bookmarkId: string, isFavorite: boolean): Promise<void> {
     try {
-      const docRef = doc(db, 'user_bookmarks', bookmarkId);
-      await updateDoc(docRef, { isFavorite });
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .update({ is_favorite: isFavorite })
+        .eq('id', bookmarkId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error toggling favorite:', error);
       throw error;
@@ -150,37 +180,48 @@ export class BookmarkService {
 
   async deleteBookmark(bookmarkId: string): Promise<void> {
     try {
-      const docRef = doc(db, 'user_bookmarks', bookmarkId);
-      await deleteDoc(docRef);
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .delete()
+        .eq('id', bookmarkId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error deleting bookmark:', error);
       throw error;
     }
   }
 
-  async getBookmarkByContent(
+    async getBookmarkByContent(
     userId: string, 
     contentId: string, 
     contentType: string
   ): Promise<UserBookmark | null> {
     try {
-      const q = query(
-        collection(db, 'user_bookmarks'),
-        where('userId', '==', userId),
-        where('contentId', '==', contentId),
-        where('contentType', '==', contentType),
-        limit(1)
-      );
+      const { data, error } = await supabase
+        .from('user_bookmarks')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('content_id', contentId)
+        .eq('content_type', contentType)
+        .limit(1);
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
 
-      const doc = snapshot.docs[0];
+      const row = data[0];
       return {
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt?.toDate()
+        id: row.id,
+        userId: row.user_id,
+        contentId: row.content_id,
+        contentType: row.content_type,
+        title: row.title,
+        description: row.description,
+        category: row.category,
+        tags: row.tags,
+        notes: row.notes,
+        isFavorite: row.is_favorite,
+        createdAt: new Date(row.created_at),
+        lastAccessedAt: row.last_accessed_at ? new Date(row.last_accessed_at) : undefined
       } as UserBookmark;
     } catch (error) {
       console.error('Error getting bookmark by content:', error);
@@ -194,21 +235,34 @@ export class BookmarkService {
     tags?: string[]
   ): Promise<UserBookmark[]> {
     try {
-      const q = query(
-        collection(db, 'user_bookmarks'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      );
+      let queryBuilder = supabase
+        .from('user_bookmarks')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
-      const snapshot = await getDocs(q);
-      let bookmarks = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt?.toDate()
+      // Supabase has full-text search capabilities, but for simplicity and to match
+      // the original client-side filtering logic, we'll fetch all and filter.
+      // For large datasets, consider Supabase's text search features.
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      let bookmarks = data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        contentId: row.content_id,
+        contentType: row.content_type,
+        title: row.title,
+        description: row.description,
+        category: row.category,
+        tags: row.tags,
+        notes: row.notes,
+        isFavorite: row.is_favorite,
+        createdAt: new Date(row.created_at),
+        lastAccessedAt: row.last_accessed_at ? new Date(row.last_accessed_at) : undefined
       })) as UserBookmark[];
 
-      // Filter by search term (client-side filtering since Firestore has limited text search)
+      // Filter by search term (client-side filtering since Supabase has limited text search on multiple columns)
       if (searchTerm) {
         const lowerSearchTerm = searchTerm.toLowerCase();
         bookmarks = bookmarks.filter(bookmark => 
@@ -342,16 +396,18 @@ export class BookmarkService {
     updates: Partial<Pick<UserBookmark, 'tags' | 'category' | 'isFavorite'>>
   ): Promise<void> {
     try {
-      const batch = writeBatch(db);
+      const updatePayload = {
+        tags: updates.tags,
+        category: updates.category,
+        is_favorite: updates.isFavorite
+      };
+
+      const { error } = await supabase
+        .from('user_bookmarks')
+        .update(updatePayload)
+        .in('id', bookmarkIds);
       
-      for (const bookmarkId of bookmarkIds) {
-        const docRef = doc(db, 'user_bookmarks', bookmarkId);
-        batch.update(docRef, updates);
-      }
-      
-      if (batch) {
-        await batch.commit();
-      }
+      if (error) throw error;
     } catch (error) {
       console.error('Error bulk updating bookmarks:', error);
       throw error;

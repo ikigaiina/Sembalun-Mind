@@ -1,15 +1,4 @@
-import { 
-  collection, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { Achievement, PersonalizedReward, AchievementRequirement } from '../types/personalization';
 import { progressService } from './progressService';
 
@@ -414,39 +403,55 @@ export class AchievementService {
     };
 
     // Save to database
-    await addDoc(collection(db, 'user_achievements'), {
-      ...achievement,
-      unlockedAt: Timestamp.fromDate(achievement.unlockedAt),
-      rewards: achievement.rewards.map(reward => ({
-        ...reward,
-        validUntil: reward.validUntil ? Timestamp.fromDate(reward.validUntil) : null
-      }))
-    });
+    const { data, error } = await supabase
+      .from('user_achievements')
+      .insert({
+        ...achievement,
+        unlocked_at: achievement.unlockedAt.toISOString(),
+        rewards: achievement.rewards.map(reward => ({
+          ...reward,
+          validUntil: reward.validUntil ? reward.validUntil.toISOString() : null
+        }))
+      })
+      .select();
+
+    if (error) throw error;
 
     return achievement;
   }
 
   async getUserAchievements(userId: string, category?: string): Promise<Achievement[]> {
     try {
-      let q = query(
-        collection(db, 'user_achievements'),
-        where('userId', '==', userId),
-        orderBy('unlockedAt', 'desc')
-      );
+      let queryBuilder = supabase
+        .from('user_achievements')
+        .select('*')
+        .eq('user_id', userId)
+        .order('unlocked_at', { ascending: false });
 
       if (category) {
-        q = query(q, where('category', '==', category));
+        queryBuilder = queryBuilder.eq('category', category);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        unlockedAt: doc.data().unlockedAt.toDate(),
-        rewards: doc.data().rewards.map((reward: any) => ({
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        achievementType: row.achievementType,
+        title: row.title,
+        description: row.description,
+        iconUrl: row.iconUrl,
+        badgeColor: row.badgeColor,
+        unlockedAt: new Date(row.unlocked_at),
+        requirements: row.requirements,
+        rewards: row.rewards.map((reward: any) => ({
           ...reward,
-          validUntil: reward.validUntil?.toDate()
-        }))
+          validUntil: reward.validUntil ? new Date(reward.validUntil) : null
+        })),
+        rarity: row.rarity,
+        category: row.category,
+        points: row.points
       })) as Achievement[];
     } catch (error) {
       console.error('Error fetching achievements:', error);
@@ -478,23 +483,18 @@ export class AchievementService {
       reward.claimedAt = new Date();
 
       // Update in database
-      const achievementQuery = query(
-        collection(db, 'user_achievements'),
-        where('userId', '==', userId),
-        where('id', '==', achievementId),
-        limit(1)
-      );
-
-      const snapshot = await getDocs(achievementQuery);
-      if (!snapshot.empty) {
-        const docRef = snapshot.docs[0].ref;
-        await updateDoc(docRef, {
+      const { error: updateError } = await supabase
+        .from('user_achievements')
+        .update({
           rewards: achievement.rewards.map(r => ({
             ...r,
-            claimedAt: r.claimedAt ? Timestamp.fromDate(r.claimedAt) : null
+            claimedAt: r.claimedAt ? r.claimedAt.toISOString() : null
           }))
-        });
-      }
+        })
+        .eq('id', achievement.id)
+        .eq('user_id', userId);
+
+      if (updateError) throw updateError;
 
       // Apply reward effects
       await this.applyRewardEffects(userId, reward);

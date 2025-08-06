@@ -1,9 +1,0 @@
-{
-  "projects": {
-    "default": "sembalun-82030",
-    "production": "sembalun-82030",
-    "staging": "sembalun-82030"
-  },
-  "targets": {},
-  "etags": {}
-}

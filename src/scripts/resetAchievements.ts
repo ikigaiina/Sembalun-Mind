@@ -11,20 +11,7 @@
  */
 
 import { achievementResetService } from '../services/achievementResetService';
-import { initializeApp } from 'firebase/app';
 
-// Firebase config - pastikan environment variables sudah diset
-const firebaseConfig = {
-  apiKey: process.env.VITE_FIREBASE_API_KEY,
-  authDomain: process.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.VITE_FIREBASE_APP_ID,
-};
-
-// Initialize Firebase
-initializeApp(firebaseConfig);
 
 interface ScriptArgs {
   userId?: string;

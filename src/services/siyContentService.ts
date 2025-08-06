@@ -1,18 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy,
-  writeBatch,
-  setDoc,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { 
   SIYModule,
   SIYExercise,
@@ -46,18 +32,34 @@ export class SIYContentService {
   
   async getSIYModules(category?: 'siy-attention' | 'siy-awareness' | 'siy-regulation' | 'siy-empathy' | 'siy-social' | 'siy-happiness' | 'siy-workplace'): Promise<SIYModule[]> {
     try {
-      let q = query(collection(db, this.SIY_MODULES_COLLECTION), orderBy('order'));
+      let queryBuilder = supabase.from(this.SIY_MODULES_COLLECTION).select('*').order('order');
       
       if (category) {
-        q = query(q, where('category', '==', category));
+        queryBuilder = queryBuilder.eq('category', category);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        category: row.category,
+        subcategory: row.subcategory,
+        exercises: row.exercises,
+        estimatedDuration: row.estimated_duration,
+        objectives: row.objectives,
+        prerequisites: row.prerequisites,
+        difficulty: row.difficulty,
+        order: row.order,
+        isCore: row.is_core,
+        tags: row.tags,
+        instructions: row.instructions,
+        tips: row.tips,
+        scientificBackground: row.scientific_background,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as SIYModule[];
       
     } catch (error) {
@@ -68,19 +70,39 @@ export class SIYContentService {
 
   async getSIYModule(moduleId: string): Promise<SIYModule | null> {
     try {
-      const docRef = doc(db, this.SIY_MODULES_COLLECTION, moduleId);
-      const docSnap = await getDoc(docRef);
-      
-      if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data(),
-          createdAt: docSnap.data().createdAt?.toDate(),
-          updatedAt: docSnap.data().updatedAt?.toDate()
-        } as SIYModule;
+      const { data, error } = await supabase
+        .from(this.SIY_MODULES_COLLECTION)
+        .select('*')
+        .eq('id', moduleId)
+        .single();
+
+      if (error) {
+        if (error.code === 'PGRST116') return null; // No rows found
+        throw error;
       }
-      
-      return null;
+
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        category: data.category,
+        subcategory: data.subcategory,
+        exercises: data.exercises,
+        estimatedDuration: data.estimated_duration,
+        objectives: data.objectives,
+        prerequisites: data.prerequisites,
+        difficulty: data.difficulty,
+        order: data.order,
+        isCore: data.is_core,
+        tags: data.tags,
+        instructions: data.instructions,
+        tips: data.tips,
+        scientificBackground: data.scientific_background,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at)
+      } as SIYModule;
     } catch (error) {
       console.error('Error fetching SIY module:', error);
       throw new Error('Failed to fetch SIY module');
@@ -89,20 +111,32 @@ export class SIYContentService {
 
   async getSIYExercises(moduleId?: string): Promise<SIYExercise[]> {
     try {
-      let q = query(collection(db, this.SIY_EXERCISES_COLLECTION), orderBy('order'));
+      let queryBuilder = supabase.from(this.SIY_EXERCISES_COLLECTION).select('*').order('order');
       
       if (moduleId) {
-        q = query(q, where('moduleId', '==', moduleId));
+        queryBuilder = queryBuilder.eq('module_id', moduleId);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        moduleId: row.module_id,
+        title: row.title,
+        description: row.description,
+        type: row.type,
+        duration: row.duration,
+        instructions: row.instructions,
+        reflectionPrompts: row.reflection_prompts,
+        interactiveElements: row.interactive_elements,
+        difficulty: row.difficulty,
+        order: row.order,
+        tags: row.tags,
+        isOptional: row.is_optional,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as SIYExercise[];
-      
     } catch (error) {
       console.error('Error fetching SIY exercises:', error);
       throw new Error('Failed to fetch SIY exercises');
@@ -115,29 +149,61 @@ export class SIYContentService {
   
   async populateSIYContent(): Promise<{ success: boolean; message: string; counts: Record<string, number> }> {
     try {
-      const batch = writeBatch(db);
       const counts = { modules: 0, exercises: 0, learningPaths: 0 };
 
       // Generate Attention Training Module
       const attentionModules = await this.generateAttentionTrainingModules();
       for (const module of attentionModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         // Generate exercises for this module
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
@@ -145,22 +211,55 @@ export class SIYContentService {
       // Generate Self-Awareness Modules
       const awarenessModules = await this.generateSelfAwarenessModules();
       for (const module of awarenessModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
@@ -168,22 +267,55 @@ export class SIYContentService {
       // Generate Self-Regulation Modules
       const regulationModules = await this.generateSelfRegulationModules();
       for (const module of regulationModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
@@ -191,88 +323,220 @@ export class SIYContentService {
       // Generate Social EI Modules
       const empathyModules = await this.generateEmpathyDevelopmentModules();
       for (const module of empathyModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
 
       const socialSkillsModules = await this.generateSocialSkillsModules();
       for (const module of socialSkillsModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
 
       const happinessModules = await this.generateHappinessCompassionModules();
       for (const module of happinessModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
 
       const workplaceModules = await this.generateWorkplaceApplicationModules();
       for (const module of workplaceModules) {
-        const moduleRef = doc(collection(db, this.SIY_MODULES_COLLECTION));
-        batch.set(moduleRef, {
-          ...module,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { data: moduleData, error: moduleError } = await supabase
+          .from(this.SIY_MODULES_COLLECTION)
+          .insert({
+            id: module.id,
+            title: module.title,
+            description: module.description,
+            category: module.category,
+            subcategory: module.subcategory,
+            estimated_duration: module.estimatedDuration,
+            objectives: module.objectives,
+            prerequisites: module.prerequisites,
+            difficulty: module.difficulty,
+            order: module.order,
+            is_core: module.isCore,
+            tags: module.tags,
+            instructions: module.instructions,
+            tips: module.tips,
+            scientific_background: module.scientificBackground,
+            created_at: module.createdAt.toISOString(),
+            updated_at: module.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (moduleError) throw moduleError;
+        if (!moduleData) throw new Error('Failed to insert module');
         counts.modules++;
 
         for (const exercise of module.exercises) {
-          const exerciseRef = doc(collection(db, this.SIY_EXERCISES_COLLECTION));
-          batch.set(exerciseRef, {
-            ...exercise,
-            moduleId: moduleRef.id,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now()
-          });
+          const { error: exerciseError } = await supabase
+            .from(this.SIY_EXERCISES_COLLECTION)
+            .insert({
+              id: exercise.id,
+              module_id: moduleData.id,
+              title: exercise.title,
+              description: exercise.description,
+              type: exercise.type,
+              duration: exercise.duration,
+              instructions: exercise.instructions,
+              reflection_prompts: exercise.reflectionPrompts,
+              interactive_elements: exercise.interactiveElements,
+              difficulty: exercise.difficulty,
+              order: exercise.order,
+              tags: exercise.tags,
+              is_optional: exercise.isOptional,
+              created_at: exercise.createdAt.toISOString(),
+              updated_at: exercise.updatedAt.toISOString()
+            });
+          if (exerciseError) throw exerciseError;
           counts.exercises++;
         }
       }
@@ -280,16 +544,23 @@ export class SIYContentService {
       // Generate Learning Paths
       const learningPaths = this.generateSIYLearningPaths();
       for (const path of learningPaths) {
-        const pathRef = doc(collection(db, this.SIY_LEARNING_PATHS_COLLECTION));
-        batch.set(pathRef, {
-          ...path,
-          createdAt: Timestamp.now(),
-          updatedAt: Timestamp.now()
-        });
+        const { error: pathError } = await supabase
+          .from(this.SIY_LEARNING_PATHS_COLLECTION)
+          .insert({
+            id: path.id,
+            title: path.title,
+            description: path.description,
+            modules: path.modules,
+            estimated_completion_time: path.estimatedCompletionTime,
+            difficulty: path.difficulty,
+            tags: path.tags,
+            is_premium: path.isPremium,
+            created_at: path.createdAt.toISOString(),
+            updated_at: path.updatedAt.toISOString()
+          });
+        if (pathError) throw pathError;
         counts.learningPaths++;
       }
-
-      await batch.commit();
 
       return {
         success: true,

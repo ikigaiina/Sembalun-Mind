@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { OnboardingProvider } from './contexts/OnboardingContext';
 import { OfflineProvider } from './contexts/OfflineContext';
-import { AuthProvider } from './contexts/AuthContextProvider';
+import { SupabaseAuthProvider } from './contexts/SupabaseAuthContext';
 import { useOnboarding } from './hooks/useOnboarding';
 import { OnboardingFlow } from './pages/onboarding';
 import { DashboardLayout } from './components/ui/DashboardLayout';
@@ -26,10 +26,12 @@ import Community from './pages/Community';
 import Personalization from './pages/Personalization';
 import { MultiagentDashboard } from './pages/MultiagentDashboard';
 import Help from './pages/Help';
+import Login from './pages/Login';
+import SignUp from './pages/SignUp';
 import { OfflineToast } from './components/ui/OfflineToast';
 import { InstallPrompt } from './components/ui/InstallPrompt';
 import { SplashScreen } from './components/ui/SplashScreen';
-import { ProtectedRoute } from './components/auth/ProtectedRoute';
+import { SupabaseProtectedRoute } from './components/auth/SupabaseProtectedRoute';
 import { useScrollToTop } from './hooks/useScrollToTop';
 
 // Main app content component
@@ -54,7 +56,7 @@ const AppContent: React.FC = () => {
 
   // Show main app if onboarding is completed
   return (
-    <ProtectedRoute>
+    <SupabaseProtectedRoute>
       <OfflineToast />
       <InstallPrompt />
       <DashboardLayout>
@@ -111,20 +113,27 @@ const AppContent: React.FC = () => {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </DashboardLayout>
-    </ProtectedRoute>
+    </SupabaseProtectedRoute>
   );
 };
 
 function App() {
   return (
     <OfflineProvider>
-      <AuthProvider>
+      <SupabaseAuthProvider>
         <OnboardingProvider>
           <Router>
-            <AppContent />
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<Login />} />
+              <Route path="/signup" element={<SignUp />} />
+              
+              {/* Protected routes */}
+              <Route path="/*" element={<AppContent />} />
+            </Routes>
           </Router>
         </OnboardingProvider>
-      </AuthProvider>
+      </SupabaseAuthProvider>
     </OfflineProvider>
   );
 }

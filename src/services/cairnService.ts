@@ -1,18 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  getDoc,
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  writeBatch,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { CairnProgress, CairnMilestone, CairnReward } from '../types/progress';
 
 export interface CairnTemplate {
@@ -231,18 +217,18 @@ export class CairnService {
   async initializeUserCairns(userId: string): Promise<void> {
     try {
       // Check if user already has cairns
-      const existingQuery = query(
-        collection(db, 'cairn_progress'),
-        where('userId', '==', userId),
-        limit(1)
-      );
-      
-      const existingSnapshot = await getDocs(existingQuery);
-      if (!existingSnapshot.empty) {
+      const { data: existingCairns, error: existingError } = await supabase
+        .from('cairn_progress')
+        .select('id')
+        .eq('user_id', userId)
+        .limit(1);
+
+      if (existingError) throw existingError;
+      if (existingCairns && existingCairns.length > 0) {
         return; // User already has cairns initialized
       }
 
-      const batch = writeBatch(db);
+      const cairnsToInsert = [];
 
       // Initialize with easy daily and weekly cairns
       const beginner_cairns = this.cairnTemplates.filter(template => 
@@ -251,7 +237,6 @@ export class CairnService {
       );
 
       beginner_cairns.forEach(template => {
-        const cairnRef = doc(collection(db, 'cairn_progress'));
         const cairn: Omit<CairnProgress, 'id'> = {
           userId,
           cairnType: template.cairnType,
@@ -279,16 +264,31 @@ export class CairnService {
           version: 1
         };
 
-        batch.set(cairnRef, {
-          ...cairn,
-          startDate: Timestamp.fromDate(cairn.startDate),
-          endDate: cairn.endDate ? Timestamp.fromDate(cairn.endDate) : null,
-          completedAt: null,
-          lastModified: Timestamp.fromDate(cairn.lastModified)
+        cairnsToInsert.push({
+          user_id: cairn.userId,
+          cairn_type: cairn.cairnType,
+          title: cairn.title,
+          description: cairn.description,
+          target_value: cairn.targetValue,
+          current_value: cairn.currentValue,
+          unit: cairn.unit,
+          start_date: cairn.startDate.toISOString(),
+          end_date: cairn.endDate ? cairn.endDate.toISOString() : null,
+          is_completed: cairn.isCompleted,
+          difficulty: cairn.difficulty,
+          category: cairn.category,
+          rewards: cairn.rewards,
+          milestones: cairn.milestones,
+          sync_status: cairn.syncStatus,
+          last_modified: cairn.lastModified.toISOString(),
+          version: cairn.version
         });
       });
 
-      await batch.commit();
+      if (cairnsToInsert.length > 0) {
+        const { error } = await supabase.from('cairn_progress').insert(cairnsToInsert);
+        if (error) throw error;
+      }
     } catch (error) {
       console.error('Error initializing user cairns:', error);
       throw error;
@@ -297,24 +297,39 @@ export class CairnService {
 
   async getUserCairns(userId: string, includeCompleted: boolean = false): Promise<CairnProgress[]> {
     try {
-      let q = query(
-        collection(db, 'cairn_progress'),
-        where('userId', '==', userId),
-        orderBy('startDate', 'desc')
-      );
+      let queryBuilder = supabase
+        .from('cairn_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .order('start_date', { ascending: false });
 
       if (!includeCompleted) {
-        q = query(q, where('isCompleted', '==', false));
+        queryBuilder = queryBuilder.eq('is_completed', false);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        startDate: doc.data().startDate.toDate(),
-        endDate: doc.data().endDate?.toDate(),
-        completedAt: doc.data().completedAt?.toDate(),
-        lastModified: doc.data().lastModified.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        cairnType: row.cairn_type,
+        title: row.title,
+        description: row.description,
+        targetValue: row.target_value,
+        currentValue: row.current_value,
+        unit: row.unit,
+        startDate: new Date(row.start_date),
+        endDate: row.end_date ? new Date(row.end_date) : undefined,
+        isCompleted: row.is_completed,
+        difficulty: row.difficulty,
+        category: row.category,
+        rewards: row.rewards,
+        milestones: row.milestones,
+        syncStatus: row.sync_status,
+        lastModified: new Date(row.last_modified),
+        version: row.version,
+        completedAt: row.completed_at ? new Date(row.completed_at) : undefined
       })) as CairnProgress[];
     } catch (error) {
       console.error('Error fetching user cairns:', error);
@@ -328,21 +343,36 @@ export class CairnService {
     activityData?: { sessionId?: string; courseId?: string; streakData?: any }
   ): Promise<{ milestoneReached?: CairnMilestone; completed?: boolean; rewards?: CairnReward[] }> {
     try {
-      const cairnRef = doc(db, 'cairn_progress', cairnId);
-      const cairnDoc = await getDoc(cairnRef);
-      
-      if (!cairnDoc.exists()) {
-        throw new Error('Cairn not found');
-      }
+      const { data: cairnData, error: fetchError } = await supabase
+        .from('cairn_progress')
+        .select('*')
+        .eq('id', cairnId)
+        .single();
 
-      const cairn = {
-        id: cairnDoc.id,
-        ...cairnDoc.data(),
-        startDate: cairnDoc.data()!.startDate.toDate(),
-        endDate: cairnDoc.data()!.endDate?.toDate(),
-        completedAt: cairnDoc.data()!.completedAt?.toDate(),
-        lastModified: cairnDoc.data()!.lastModified.toDate()
-      } as CairnProgress;
+      if (fetchError) throw fetchError;
+      if (!cairnData) throw new Error('Cairn not found');
+
+      const cairn: CairnProgress = {
+        id: cairnData.id,
+        userId: cairnData.user_id,
+        cairnType: cairnData.cairn_type,
+        title: cairnData.title,
+        description: cairnData.description,
+        targetValue: cairnData.target_value,
+        currentValue: cairnData.current_value,
+        unit: cairnData.unit,
+        startDate: new Date(cairnData.start_date),
+        endDate: cairnData.end_date ? new Date(cairnData.end_date) : undefined,
+        isCompleted: cairnData.is_completed,
+        difficulty: cairnData.difficulty,
+        category: cairnData.category,
+        rewards: cairnData.rewards,
+        milestones: cairnData.milestones,
+        syncStatus: cairnData.sync_status,
+        lastModified: new Date(cairnData.last_modified),
+        version: cairnData.version,
+        completedAt: cairnData.completed_at ? new Date(cairnData.completed_at) : undefined
+      };
 
       const oldValue = cairn.currentValue;
       const newValue = Math.min(cairn.targetValue, oldValue + increment);
@@ -384,22 +414,27 @@ export class CairnService {
 
       // Update cairn
       const updateData = {
-        currentValue: newValue,
-        isCompleted: cairn.isCompleted,
-        completedAt: cairn.completedAt ? Timestamp.fromDate(cairn.completedAt) : null,
+        current_value: newValue,
+        is_completed: cairn.isCompleted,
+        completed_at: cairn.completedAt ? cairn.completedAt.toISOString() : null,
         milestones: cairn.milestones.map(m => ({
           ...m,
-          completedAt: m.completedAt ? Timestamp.fromDate(m.completedAt) : null
+          completedAt: m.completedAt ? m.completedAt.toISOString() : null
         })),
         rewards: cairn.rewards.map(r => ({
           ...r,
-          earnedAt: r.earnedAt ? Timestamp.fromDate(r.earnedAt) : null
+          earnedAt: r.earnedAt ? r.earnedAt.toISOString() : null
         })),
-        lastModified: Timestamp.fromDate(new Date()),
+        last_modified: new Date().toISOString(),
         version: cairn.version + 1
       };
 
-      await updateDoc(cairnRef, updateData);
+      const { error: updateError } = await supabase
+        .from('cairn_progress')
+        .update(updateData)
+        .eq('id', cairnId);
+
+      if (updateError) throw updateError;
 
       return { milestoneReached, completed, rewards };
     } catch (error) {
@@ -439,11 +474,9 @@ export class CairnService {
       );
 
       // Add 1-2 suggested cairns
-      const cairnsToAdd = nextCairns.slice(0, 2);
-      const batch = writeBatch(db);
+      const cairnsToInsert = [];
 
       cairnsToAdd.forEach(template => {
-        const cairnRef = doc(collection(db, 'cairn_progress'));
         const cairn: Omit<CairnProgress, 'id'> = {
           userId,
           cairnType: template.cairnType,
@@ -471,17 +504,30 @@ export class CairnService {
           version: 1
         };
 
-        batch.set(cairnRef, {
-          ...cairn,
-          startDate: Timestamp.fromDate(cairn.startDate),
-          endDate: cairn.endDate ? Timestamp.fromDate(cairn.endDate) : null,
-          completedAt: null,
-          lastModified: Timestamp.fromDate(cairn.lastModified)
+        cairnsToInsert.push({
+          user_id: cairn.userId,
+          cairn_type: cairn.cairnType,
+          title: cairn.title,
+          description: cairn.description,
+          target_value: cairn.targetValue,
+          current_value: cairn.currentValue,
+          unit: cairn.unit,
+          start_date: cairn.startDate.toISOString(),
+          end_date: cairn.endDate ? cairn.endDate.toISOString() : null,
+          is_completed: cairn.isCompleted,
+          difficulty: cairn.difficulty,
+          category: cairn.category,
+          rewards: cairn.rewards,
+          milestones: cairn.milestones,
+          sync_status: cairn.syncStatus,
+          last_modified: cairn.lastModified.toISOString(),
+          version: cairn.version
         });
       });
 
-      if (cairnsToAdd.length > 0) {
-        await batch.commit();
+      if (cairnsToInsert.length > 0) {
+        const { error } = await supabase.from('cairn_progress').insert(cairnsToInsert);
+        if (error) throw error;
       }
     } catch (error) {
       console.error('Error suggesting next cairns:', error);
@@ -506,7 +552,7 @@ export class CairnService {
     try {
       const cairn: Omit<CairnProgress, 'id'> = {
         userId,
-        cairnType: 'milestone',
+        cairnType: cairnData.cairnType || 'milestone',
         title: cairnData.title || 'Custom Cairn',
         description: cairnData.description || 'Custom meditation goal',
         targetValue: cairnData.targetValue || 1,
@@ -524,15 +570,33 @@ export class CairnService {
         version: 1
       };
 
-      const docRef = await addDoc(collection(db, 'cairn_progress'), {
-        ...cairn,
-        startDate: Timestamp.fromDate(cairn.startDate),
-        endDate: cairn.endDate ? Timestamp.fromDate(cairn.endDate) : null,
-        completedAt: null,
-        lastModified: Timestamp.fromDate(cairn.lastModified)
-      });
+      const { data, error } = await supabase
+        .from('cairn_progress')
+        .insert({
+          user_id: cairn.userId,
+          cairn_type: cairn.cairnType,
+          title: cairn.title,
+          description: cairn.description,
+          target_value: cairn.targetValue,
+          current_value: cairn.currentValue,
+          unit: cairn.unit,
+          start_date: cairn.startDate.toISOString(),
+          end_date: cairn.endDate ? cairn.endDate.toISOString() : null,
+          is_completed: cairn.isCompleted,
+          difficulty: cairn.difficulty,
+          category: cairn.category,
+          rewards: cairn.rewards,
+          milestones: cairn.milestones,
+          sync_status: cairn.syncStatus,
+          last_modified: cairn.lastModified.toISOString(),
+          version: cairn.version
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create custom cairn');
+      return data.id;
     } catch (error) {
       console.error('Error creating custom cairn:', error);
       throw error;
@@ -548,7 +612,35 @@ export class CairnService {
     currentLevel: string;
   }> {
     try {
-      const allCairns = await this.getUserCairns(userId, true);
+      const { data: allCairnsData, error } = await supabase
+        .from('cairn_progress')
+        .select('*')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      const allCairns = allCairnsData.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        cairnType: row.cairn_type,
+        title: row.title,
+        description: row.description,
+        targetValue: row.target_value,
+        currentValue: row.current_value,
+        unit: row.unit,
+        startDate: new Date(row.start_date),
+        endDate: row.end_date ? new Date(row.end_date) : undefined,
+        isCompleted: row.is_completed,
+        difficulty: row.difficulty,
+        category: row.category,
+        rewards: row.rewards,
+        milestones: row.milestones,
+        syncStatus: row.sync_status,
+        lastModified: new Date(row.last_modified),
+        version: row.version,
+        completedAt: row.completed_at ? new Date(row.completed_at) : undefined
+      })) as CairnProgress[];
+
       const completedCairns = allCairns.filter(c => c.isCompleted);
       const activeCairns = allCairns.filter(c => !c.isCompleted);
       

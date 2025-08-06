@@ -44,7 +44,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ currentPhotoURL, onS
     setError('');
 
     try {
-      // Upload to Firebase Storage using service
+      // Upload to Storage using service
       const photoURL = await AvatarService.uploadAvatar(file);
       
       // Update user profile

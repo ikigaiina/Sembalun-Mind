@@ -1,20 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  getDoc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp,
-  writeBatch,
-  setDoc
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { 
   MeditationSession, 
   Course, 
@@ -52,28 +36,42 @@ export class ContentDatabase {
     limit_count?: number
   ): Promise<MeditationSession[]> {
     try {
-      let q = query(collection(db, this.SESSIONS_COLLECTION));
+      let queryBuilder = supabase.from(this.SESSIONS_COLLECTION).select('*');
       
       if (category) {
-        q = query(q, where('category', '==', category));
+        queryBuilder = queryBuilder.eq('category', category);
       }
       
       if (difficulty) {
-        q = query(q, where('difficulty', '==', difficulty));
+        queryBuilder = queryBuilder.eq('difficulty', difficulty);
       }
       
-      q = query(q, orderBy('createdAt', 'desc'));
+      queryBuilder = queryBuilder.order('created_at', { ascending: false });
       
       if (limit_count) {
-        q = query(q, limit(limit_count));
+        queryBuilder = queryBuilder.limit(limit_count);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        audioUrl: row.audio_url,
+        duration: row.duration,
+        category: row.category,
+        difficulty: row.difficulty,
+        instructor: row.instructor,
+        tags: row.tags,
+        isPremium: row.is_premium,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        thumbnailUrl: row.thumbnail_url,
+        completionCount: row.completion_count,
+        averageRating: row.average_rating,
+        isNew: row.is_new
       })) as MeditationSession[];
       
     } catch (error) {
@@ -84,19 +82,33 @@ export class ContentDatabase {
 
   async getSession(sessionId: string): Promise<MeditationSession | null> {
     try {
-      const docRef = doc(db, this.SESSIONS_COLLECTION, sessionId);
-      const docSnap = await getDoc(docRef);
+      const { data, error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .select('*')
+        .eq('id', sessionId)
+        .single();
       
-      if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data(),
-          createdAt: docSnap.data().createdAt?.toDate(),
-          updatedAt: docSnap.data().updatedAt?.toDate()
-        } as MeditationSession;
-      }
-      
-      return null;
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        audioUrl: data.audio_url,
+        duration: data.duration,
+        category: data.category,
+        difficulty: data.difficulty,
+        instructor: data.instructor,
+        tags: data.tags,
+        isPremium: data.is_premium,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+        thumbnailUrl: data.thumbnail_url,
+        completionCount: data.completion_count,
+        averageRating: data.average_rating,
+        isNew: data.is_new
+      } as MeditationSession;
     } catch (error) {
       console.error('Error fetching session:', error);
       throw new Error('Failed to fetch meditation session');
@@ -105,14 +117,32 @@ export class ContentDatabase {
 
   async createSession(sessionData: Omit<MeditationSession, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
     try {
-      const now = Timestamp.now();
-      const docRef = await addDoc(collection(db, this.SESSIONS_COLLECTION), {
-        ...sessionData,
-        createdAt: now,
-        updatedAt: now
-      });
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .insert({
+          title: sessionData.title,
+          description: sessionData.description,
+          audio_url: sessionData.audioUrl,
+          duration: sessionData.duration,
+          category: sessionData.category,
+          difficulty: sessionData.difficulty,
+          instructor: sessionData.instructor,
+          tags: sessionData.tags,
+          is_premium: sessionData.isPremium,
+          created_at: now,
+          updated_at: now,
+          thumbnail_url: sessionData.thumbnailUrl,
+          completion_count: sessionData.completionCount,
+          average_rating: sessionData.averageRating,
+          is_new: sessionData.isNew
+        })
+        .select('id')
+        .single();
       
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create session');
+      return data.id;
     } catch (error) {
       console.error('Error creating session:', error);
       throw new Error('Failed to create meditation session');
@@ -121,11 +151,27 @@ export class ContentDatabase {
 
   async updateSession(sessionId: string, updates: Partial<MeditationSession>): Promise<void> {
     try {
-      const docRef = doc(db, this.SESSIONS_COLLECTION, sessionId);
-      await updateDoc(docRef, {
-        ...updates,
-        updatedAt: Timestamp.now()
-      });
+      const now = new Date().toISOString();
+      const { error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .update({
+          title: updates.title,
+          description: updates.description,
+          audio_url: updates.audioUrl,
+          duration: updates.duration,
+          category: updates.category,
+          difficulty: updates.difficulty,
+          instructor: updates.instructor,
+          tags: updates.tags,
+          is_premium: updates.isPremium,
+          updated_at: now,
+          thumbnail_url: updates.thumbnailUrl,
+          completion_count: updates.completionCount,
+          average_rating: updates.averageRating,
+          is_new: updates.isNew
+        })
+        .eq('id', sessionId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating session:', error);
       throw new Error('Failed to update meditation session');
@@ -134,7 +180,11 @@ export class ContentDatabase {
 
   async deleteSession(sessionId: string): Promise<void> {
     try {
-      await deleteDoc(doc(db, this.SESSIONS_COLLECTION, sessionId));
+      const { error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .delete()
+        .eq('id', sessionId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error deleting session:', error);
       throw new Error('Failed to delete meditation session');
@@ -147,24 +197,38 @@ export class ContentDatabase {
 
   async getCourses(category?: SessionCategory, difficulty?: Difficulty): Promise<Course[]> {
     try {
-      let q = query(collection(db, this.COURSES_COLLECTION));
+      let queryBuilder = supabase.from(this.COURSES_COLLECTION).select('*');
       
       if (category) {
-        q = query(q, where('category', '==', category));
+        queryBuilder = queryBuilder.eq('category', category);
       }
       
       if (difficulty) {
-        q = query(q, where('difficulty', '==', difficulty));
+        queryBuilder = queryBuilder.eq('difficulty', difficulty);
       }
       
-      q = query(q, orderBy('createdAt', 'desc'));
+      queryBuilder = queryBuilder.order('created_at', { ascending: false });
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        thumbnailUrl: row.thumbnail_url,
+        instructor: row.instructor,
+        duration: row.duration,
+        sessionCount: row.session_count,
+        category: row.category,
+        difficulty: row.difficulty,
+        isPremium: row.is_premium,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        tags: row.tags,
+        averageRating: row.average_rating,
+        completionCount: row.completion_count,
+        isNew: row.is_new
       })) as Course[];
       
     } catch (error) {
@@ -175,19 +239,33 @@ export class ContentDatabase {
 
   async getCourse(courseId: string): Promise<Course | null> {
     try {
-      const docRef = doc(db, this.COURSES_COLLECTION, courseId);
-      const docSnap = await getDoc(docRef);
+      const { data, error } = await supabase
+        .from(this.COURSES_COLLECTION)
+        .select('*')
+        .eq('id', courseId)
+        .single();
       
-      if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data(),
-          createdAt: docSnap.data().createdAt?.toDate(),
-          updatedAt: docSnap.data().updatedAt?.toDate()
-        } as Course;
-      }
-      
-      return null;
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        title: data.title,
+        description: data.description,
+        thumbnailUrl: data.thumbnail_url,
+        instructor: data.instructor,
+        duration: data.duration,
+        sessionCount: data.session_count,
+        category: data.category,
+        difficulty: data.difficulty,
+        isPremium: data.is_premium,
+        createdAt: new Date(data.created_at),
+        updatedAt: new Date(data.updated_at),
+        tags: data.tags,
+        averageRating: data.average_rating,
+        completionCount: data.completion_count,
+        isNew: data.is_new
+      } as Course;
     } catch (error) {
       console.error('Error fetching course:', error);
       throw new Error('Failed to fetch course');
@@ -196,14 +274,32 @@ export class ContentDatabase {
 
   async createCourse(courseData: Omit<Course, 'id' | 'createdAt' | 'updatedAt'>): Promise<string> {
     try {
-      const now = Timestamp.now();
-      const docRef = await addDoc(collection(db, this.COURSES_COLLECTION), {
-        ...courseData,
-        createdAt: now,
-        updatedAt: now
-      });
+      const now = new Date().toISOString();
+      const { data, error } = await supabase
+        .from(this.COURSES_COLLECTION)
+        .insert({
+          title: courseData.title,
+          description: courseData.description,
+          thumbnail_url: courseData.thumbnailUrl,
+          instructor: courseData.instructor,
+          duration: courseData.duration,
+          session_count: courseData.sessionCount,
+          category: courseData.category,
+          difficulty: courseData.difficulty,
+          is_premium: courseData.isPremium,
+          created_at: now,
+          updated_at: now,
+          tags: courseData.tags,
+          average_rating: courseData.averageRating,
+          completion_count: courseData.completionCount,
+          is_new: courseData.isNew
+        })
+        .select('id')
+        .single();
       
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create course');
+      return data.id;
     } catch (error) {
       console.error('Error creating course:', error);
       throw new Error('Failed to create course');
@@ -216,19 +312,22 @@ export class ContentDatabase {
 
   async getScript(sessionId: string): Promise<GuidedScript | null> {
     try {
-      const q = query(
-        collection(db, this.SCRIPTS_COLLECTION), 
-        where('sessionId', '==', sessionId),
-        limit(1)
-      );
+      const { data, error } = await supabase
+        .from(this.SCRIPTS_COLLECTION)
+        .select('*')
+        .eq('session_id', sessionId)
+        .limit(1);
       
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
       
-      const doc = snapshot.docs[0];
+      const row = data[0];
       return {
-        id: doc.id,
-        ...doc.data()
+        id: row.id,
+        sessionId: row.session_id,
+        scriptText: row.script_text,
+        language: row.language,
+        version: row.version
       } as GuidedScript;
       
     } catch (error) {
@@ -239,8 +338,19 @@ export class ContentDatabase {
 
   async createScript(scriptData: Omit<GuidedScript, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, this.SCRIPTS_COLLECTION), scriptData);
-      return docRef.id;
+      const { data, error } = await supabase
+        .from(this.SCRIPTS_COLLECTION)
+        .insert({
+          session_id: scriptData.sessionId,
+          script_text: scriptData.scriptText,
+          language: scriptData.language,
+          version: scriptData.version
+        })
+        .select('id')
+        .single();
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create script');
+      return data.id;
     } catch (error) {
       console.error('Error creating script:', error);
       throw new Error('Failed to create guided script');
@@ -253,12 +363,21 @@ export class ContentDatabase {
 
   async getAmbientSounds(): Promise<AmbientSound[]> {
     try {
-      const q = query(collection(db, this.AMBIENT_SOUNDS_COLLECTION), orderBy('name'));
-      const snapshot = await getDocs(q);
+      const { data, error } = await supabase
+        .from(this.AMBIENT_SOUNDS_COLLECTION)
+        .select('*')
+        .order('name');
       
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        name: row.name,
+        audioUrl: row.audio_url,
+        thumbnailUrl: row.thumbnail_url,
+        category: row.category,
+        duration: row.duration,
+        isPremium: row.is_premium
       })) as AmbientSound[];
       
     } catch (error) {
@@ -273,22 +392,29 @@ export class ContentDatabase {
 
   async getUserProgress(userId: string, sessionId?: string): Promise<UserProgress[]> {
     try {
-      let q = query(
-        collection(db, this.USER_PROGRESS_COLLECTION),
-        where('userId', '==', userId)
-      );
+      let queryBuilder = supabase
+        .from(this.USER_PROGRESS_COLLECTION)
+        .select('*')
+        .eq('user_id', userId)
+        .order('last_accessed_at', { ascending: false });
       
       if (sessionId) {
-        q = query(q, where('sessionId', '==', sessionId));
+        queryBuilder = queryBuilder.eq('session_id', sessionId);
       }
       
-      q = query(q, orderBy('lastAccessedAt', 'desc'));
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        ...doc.data(),
-        completedAt: doc.data().completedAt?.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt?.toDate()
+      return data.map(row => ({
+        userId: row.user_id,
+        sessionId: row.session_id,
+        completed: row.completed,
+        progress: row.progress,
+        completedAt: row.completed_at ? new Date(row.completed_at) : undefined,
+        lastAccessedAt: new Date(row.last_accessed_at),
+        notes: row.notes,
+        rating: row.rating,
+        feedback: row.feedback
       })) as UserProgress[];
       
     } catch (error) {
@@ -300,27 +426,38 @@ export class ContentDatabase {
   async updateUserProgress(progressData: UserProgress): Promise<void> {
     try {
       const progressId = `${progressData.userId}_${progressData.sessionId}`;
-      const docRef = doc(db, this.USER_PROGRESS_COLLECTION, progressId);
-      
-      await updateDoc(docRef, {
-        ...progressData,
-        lastAccessedAt: Timestamp.now(),
-        completedAt: progressData.completedAt ? Timestamp.fromDate(progressData.completedAt) : null
-      });
-      
-    } catch {
-      // If document doesn't exist, create it
-      try {
-        const docRef = doc(db, this.USER_PROGRESS_COLLECTION, `${progressData.userId}_${progressData.sessionId}`);
-        await updateDoc(docRef, {
-          ...progressData,
-          lastAccessedAt: Timestamp.now(),
-          completedAt: progressData.completedAt ? Timestamp.fromDate(progressData.completedAt) : null
-        });
-      } catch (createError) {
-        console.error('Error creating user progress:', createError);
-        throw new Error('Failed to update user progress');
+      const now = new Date().toISOString();
+
+      const updatePayload = {
+        completed: progressData.completed,
+        progress: progressData.progress,
+        completed_at: progressData.completedAt ? progressData.completedAt.toISOString() : null,
+        last_accessed_at: now,
+        notes: progressData.notes,
+        rating: progressData.rating,
+        feedback: progressData.feedback
+      };
+
+      const { error: updateError } = await supabase
+        .from(this.USER_PROGRESS_COLLECTION)
+        .update(updatePayload)
+        .eq('user_id', progressData.userId)
+        .eq('session_id', progressData.sessionId);
+
+      if (updateError) {
+        // If update fails (e.g., record not found), try inserting
+        const insertPayload = {
+          id: progressId,
+          user_id: progressData.userId,
+          session_id: progressData.sessionId,
+          ...updatePayload
+        };
+        const { error: insertError } = await supabase.from(this.USER_PROGRESS_COLLECTION).insert(insertPayload);
+        if (insertError) throw insertError;
       }
+    } catch (error) {
+      console.error('Error updating user progress:', error);
+      throw new Error('Failed to update user progress');
     }
   }
 
@@ -330,22 +467,32 @@ export class ContentDatabase {
 
   async bulkCreateSessions(sessions: Omit<MeditationSession, 'id' | 'createdAt' | 'updatedAt'>[]): Promise<string[]> {
     try {
-      const batch = writeBatch(db);
-      const ids: string[] = [];
-      const now = Timestamp.now();
+      const now = new Date().toISOString();
+      const sessionsToInsert = sessions.map(sessionData => ({
+        title: sessionData.title,
+        description: sessionData.description,
+        audio_url: sessionData.audioUrl,
+        duration: sessionData.duration,
+        category: sessionData.category,
+        difficulty: sessionData.difficulty,
+        instructor: sessionData.instructor,
+        tags: sessionData.tags,
+        is_premium: sessionData.isPremium,
+        created_at: now,
+        updated_at: now,
+        thumbnail_url: sessionData.thumbnailUrl,
+        completion_count: sessionData.completionCount,
+        average_rating: sessionData.averageRating,
+        is_new: sessionData.isNew
+      }));
 
-      sessions.forEach(sessionData => {
-        const docRef = doc(collection(db, this.SESSIONS_COLLECTION));
-        batch.set(docRef, {
-          ...sessionData,
-          createdAt: now,
-          updatedAt: now
-        });
-        ids.push(docRef.id);
-      });
-
-      await batch.commit();
-      return ids;
+      const { data, error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .insert(sessionsToInsert)
+        .select('id');
+      
+      if (error) throw error;
+      return data ? data.map(row => row.id) : [];
       
     } catch (error) {
       console.error('Error bulk creating sessions:', error);
@@ -367,33 +514,44 @@ export class ContentDatabase {
     }
   ): Promise<MeditationSession[]> {
     try {
-      // Note: Firestore doesn't support full-text search natively
-      // This is a basic implementation - for production, consider using Algolia or similar
-      
-      let q = query(collection(db, this.SESSIONS_COLLECTION));
+      let queryBuilder = supabase.from(this.SESSIONS_COLLECTION).select('*');
       
       if (filters?.category) {
-        q = query(q, where('category', '==', filters.category));
+        queryBuilder = queryBuilder.eq('category', filters.category);
       }
       
       if (filters?.difficulty) {
-        q = query(q, where('difficulty', '==', filters.difficulty));
+        queryBuilder = queryBuilder.eq('difficulty', filters.difficulty);
       }
       
       if (filters?.instructor) {
-        q = query(q, where('instructor', '==', filters.instructor));
+        queryBuilder = queryBuilder.eq('instructor', filters.instructor);
       }
       
       if (filters?.tags && filters.tags.length > 0) {
-        q = query(q, where('tags', 'array-contains-any', filters.tags));
+        queryBuilder = queryBuilder.contains('tags', filters.tags);
       }
 
-      const snapshot = await getDocs(q);
-      const sessions = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      const sessions = data.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        audioUrl: row.audio_url,
+        duration: row.duration,
+        category: row.category,
+        difficulty: row.difficulty,
+        instructor: row.instructor,
+        tags: row.tags,
+        isPremium: row.is_premium,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        thumbnailUrl: row.thumbnail_url,
+        completionCount: row.completion_count,
+        averageRating: row.average_rating,
+        isNew: row.is_new
       })) as MeditationSession[];
 
       // Client-side filtering for title/description search
@@ -419,13 +577,21 @@ export class ContentDatabase {
 
   async getInstructors(): Promise<InstructorProfile[]> {
     try {
-      const q = query(collection(db, this.INSTRUCTORS_COLLECTION), orderBy('name'));
-      const snapshot = await getDocs(q);
+      const { data, error } = await supabase
+        .from(this.INSTRUCTORS_COLLECTION)
+        .select('*')
+        .order('name');
       
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        joinedAt: doc.data().joinedAt?.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        name: row.name,
+        bio: row.bio,
+        avatarUrl: row.avatar_url,
+        specialties: row.specialties,
+        socialLinks: row.social_links,
+        joinedAt: new Date(row.joined_at)
       })) as InstructorProfile[];
       
     } catch (error) {
@@ -436,18 +602,24 @@ export class ContentDatabase {
 
   async getInstructor(instructorId: string): Promise<InstructorProfile | null> {
     try {
-      const docRef = doc(db, this.INSTRUCTORS_COLLECTION, instructorId);
-      const docSnap = await getDoc(docRef);
+      const { data, error } = await supabase
+        .from(this.INSTRUCTORS_COLLECTION)
+        .select('*')
+        .eq('id', instructorId)
+        .single();
       
-      if (docSnap.exists()) {
-        return {
-          id: docSnap.id,
-          ...docSnap.data(),
-          joinedAt: docSnap.data().joinedAt?.toDate()
-        } as InstructorProfile;
-      }
-      
-      return null;
+      if (error) throw error;
+      if (!data) return null;
+
+      return {
+        id: data.id,
+        name: data.name,
+        bio: data.bio,
+        avatarUrl: data.avatar_url,
+        specialties: data.specialties,
+        socialLinks: data.social_links,
+        joinedAt: new Date(data.joined_at)
+      } as InstructorProfile;
     } catch (error) {
       console.error('Error fetching instructor:', error);
       throw new Error('Failed to fetch instructor');
@@ -460,20 +632,27 @@ export class ContentDatabase {
 
   async getUserInteractions(userId: string, sessionId?: string): Promise<UserContentInteractions[]> {
     try {
-      let q = query(
-        collection(db, this.USER_INTERACTIONS_COLLECTION),
-        where('userId', '==', userId)
-      );
+      let queryBuilder = supabase
+        .from(this.USER_INTERACTIONS_COLLECTION)
+        .select('*')
+        .eq('user_id', userId);
       
       if (sessionId) {
-        q = query(q, where('sessionId', '==', sessionId));
+        queryBuilder = queryBuilder.eq('session_id', sessionId);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        userId: row.user_id,
+        sessionId: row.session_id,
+        liked: row.liked,
+        completed: row.completed,
+        rating: row.rating,
+        notes: row.notes,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as UserContentInteractions[];
       
     } catch (error) {
@@ -484,13 +663,22 @@ export class ContentDatabase {
 
   async updateUserInteraction(interactionData: UserContentInteractions): Promise<void> {
     try {
-      const interactionId = `${interactionData.userId}_${interactionData.sessionId}`;
-      const docRef = doc(db, this.USER_INTERACTIONS_COLLECTION, interactionId);
+      const now = new Date().toISOString();
+      const updatePayload = {
+        liked: interactionData.liked,
+        completed: interactionData.completed,
+        rating: interactionData.rating,
+        notes: interactionData.notes,
+        updated_at: now
+      };
+
+      const { error } = await supabase
+        .from(this.USER_INTERACTIONS_COLLECTION)
+        .update(updatePayload)
+        .eq('user_id', interactionData.userId)
+        .eq('session_id', interactionData.sessionId);
       
-      await setDoc(docRef, {
-        ...interactionData,
-        updatedAt: Timestamp.now()
-      }, { merge: true });
+      if (error) throw error;
       
     } catch (error) {
       console.error('Error updating user interaction:', error);
@@ -504,10 +692,15 @@ export class ContentDatabase {
 
   async logAnalyticsEvent(eventData: AnalyticsData): Promise<void> {
     try {
-      await addDoc(collection(db, this.ANALYTICS_COLLECTION), {
-        ...eventData,
-        timestamp: Timestamp.now()
-      });
+      const { error } = await supabase
+        .from(this.ANALYTICS_COLLECTION)
+        .insert({
+          event_name: eventData.eventName,
+          user_id: eventData.userId,
+          properties: eventData.properties,
+          timestamp: new Date().toISOString()
+        });
+      if (error) throw error;
     } catch (error) {
       console.error('Error logging analytics event:', error);
       // Don't throw error for analytics - it shouldn't break user experience
@@ -522,26 +715,31 @@ export class ContentDatabase {
     sessionsByDifficulty: Record<string, number>;
   }> {
     try {
-      const [sessionsSnapshot, coursesSnapshot, instructorsSnapshot] = await Promise.all([
-        getDocs(collection(db, this.SESSIONS_COLLECTION)),
-        getDocs(collection(db, this.COURSES_COLLECTION)),
-        getDocs(collection(db, this.INSTRUCTORS_COLLECTION))
+      const [{ count: totalSessions, error: sessionsError }, { count: totalCourses, error: coursesError }, { count: totalInstructors, error: instructorsError }] = await Promise.all([
+        supabase.from(this.SESSIONS_COLLECTION).select('id', { count: 'exact', head: true }),
+        supabase.from(this.COURSES_COLLECTION).select('id', { count: 'exact', head: true }),
+        supabase.from(this.INSTRUCTORS_COLLECTION).select('id', { count: 'exact', head: true })
       ]);
 
-      const sessions = sessionsSnapshot.docs.map(doc => doc.data());
-      
+      if (sessionsError) throw sessionsError;
+      if (coursesError) throw coursesError;
+      if (instructorsError) throw instructorsError;
+
+      const { data: sessionsData, error: sessionsDataError } = await supabase.from(this.SESSIONS_COLLECTION).select('category, difficulty');
+      if (sessionsDataError) throw sessionsDataError;
+
       const sessionsByCategory: Record<string, number> = {};
       const sessionsByDifficulty: Record<string, number> = {};
 
-      sessions.forEach(session => {
+      sessionsData.forEach(session => {
         sessionsByCategory[session.category] = (sessionsByCategory[session.category] || 0) + 1;
         sessionsByDifficulty[session.difficulty] = (sessionsByDifficulty[session.difficulty] || 0) + 1;
       });
 
       return {
-        totalSessions: sessionsSnapshot.size,
-        totalCourses: coursesSnapshot.size,
-        totalInstructors: instructorsSnapshot.size,
+        totalSessions: totalSessions || 0,
+        totalCourses: totalCourses || 0,
+        totalInstructors: totalInstructors || 0,
         sessionsByCategory,
         sessionsByDifficulty
       };
@@ -570,51 +768,86 @@ export class ContentDatabase {
     try {
       const sampleContent = sampleContentGenerator.generateCompleteContent();
       
-      // Use batches for efficient writes
-      const batch = writeBatch(db);
-      
       // Add instructors
-      sampleContent.instructors.forEach(instructor => {
-        const docRef = doc(collection(db, this.INSTRUCTORS_COLLECTION));
-        batch.set(docRef, {
-          ...instructor,
-          joinedAt: Timestamp.fromDate(instructor.joinedAt)
-        });
-      });
+      const { error: instructorsError } = await supabase.from(this.INSTRUCTORS_COLLECTION).insert(
+        sampleContent.instructors.map(i => ({
+          name: i.name,
+          bio: i.bio,
+          avatar_url: i.avatarUrl,
+          specialties: i.specialties,
+          social_links: i.socialLinks,
+          joined_at: i.joinedAt.toISOString()
+        }))
+      );
+      if (instructorsError) throw instructorsError;
 
       // Add sessions
-      sampleContent.sessions.forEach(session => {
-        const docRef = doc(collection(db, this.SESSIONS_COLLECTION));
-        batch.set(docRef, {
-          ...session,
-          createdAt: Timestamp.fromDate(session.createdAt),
-          updatedAt: Timestamp.fromDate(session.updatedAt)
-        });
-      });
+      const { error: sessionsError } = await supabase.from(this.SESSIONS_COLLECTION).insert(
+        sampleContent.sessions.map(s => ({
+          title: s.title,
+          description: s.description,
+          audio_url: s.audioUrl,
+          duration: s.duration,
+          category: s.category,
+          difficulty: s.difficulty,
+          instructor: s.instructor,
+          tags: s.tags,
+          is_premium: s.isPremium,
+          created_at: s.createdAt.toISOString(),
+          updated_at: s.updatedAt.toISOString(),
+          thumbnail_url: s.thumbnailUrl,
+          completion_count: s.completionCount,
+          average_rating: s.averageRating,
+          is_new: s.isNew
+        }))
+      );
+      if (sessionsError) throw sessionsError;
 
       // Add courses
-      sampleContent.courses.forEach(course => {
-        const docRef = doc(collection(db, this.COURSES_COLLECTION));
-        batch.set(docRef, {
-          ...course,
-          createdAt: Timestamp.fromDate(course.createdAt),
-          updatedAt: Timestamp.fromDate(course.updatedAt)
-        });
-      });
+      const { error: coursesError } = await supabase.from(this.COURSES_COLLECTION).insert(
+        sampleContent.courses.map(c => ({
+          title: c.title,
+          description: c.description,
+          thumbnail_url: c.thumbnailUrl,
+          instructor: c.instructor,
+          duration: c.duration,
+          session_count: c.sessionCount,
+          category: c.category,
+          difficulty: c.difficulty,
+          is_premium: c.isPremium,
+          created_at: c.createdAt.toISOString(),
+          updated_at: c.updatedAt.toISOString(),
+          tags: c.tags,
+          average_rating: c.averageRating,
+          completion_count: c.completionCount,
+          is_new: c.isNew
+        }))
+      );
+      if (coursesError) throw coursesError;
 
       // Add ambient sounds
-      sampleContent.ambientSounds.forEach(sound => {
-        const docRef = doc(collection(db, this.AMBIENT_SOUNDS_COLLECTION));
-        batch.set(docRef, sound);
-      });
+      const { error: ambientSoundsError } = await supabase.from(this.AMBIENT_SOUNDS_COLLECTION).insert(
+        sampleContent.ambientSounds.map(a => ({
+          name: a.name,
+          audio_url: a.audioUrl,
+          thumbnail_url: a.thumbnailUrl,
+          category: a.category,
+          duration: a.duration,
+          is_premium: a.isPremium
+        }))
+      );
+      if (ambientSoundsError) throw ambientSoundsError;
 
       // Add scripts
-      sampleContent.scripts.forEach(script => {
-        const docRef = doc(collection(db, this.SCRIPTS_COLLECTION));
-        batch.set(docRef, script);
-      });
-
-      await batch.commit();
+      const { error: scriptsError } = await supabase.from(this.SCRIPTS_COLLECTION).insert(
+        sampleContent.scripts.map(s => ({
+          session_id: s.sessionId,
+          script_text: s.scriptText,
+          language: s.language,
+          version: s.version
+        }))
+      );
+      if (scriptsError) throw scriptsError;
 
       return {
         success: true,
@@ -657,16 +890,11 @@ export class ContentDatabase {
         this.SCRIPTS_COLLECTION
       ];
 
-      const batch = writeBatch(db);
-      
       for (const collectionName of collections) {
-        const snapshot = await getDocs(collection(db, collectionName));
-        snapshot.docs.forEach(doc => {
-          batch.delete(doc.ref);
-        });
+        const { error } = await supabase.from(collectionName).delete().neq('id', '' as any); // Delete all rows
+        if (error) throw error;
       }
 
-      await batch.commit();
       console.log('All content cleared successfully');
       
     } catch (error) {
@@ -680,19 +908,32 @@ export class ContentDatabase {
    */
   async getFeaturedSessions(limit_count: number = 10): Promise<MeditationSession[]> {
     try {
-      const q = query(
-        collection(db, this.SESSIONS_COLLECTION),
-        where('isNew', '==', true),
-        orderBy('averageRating', 'desc'),
-        limit(limit_count)
-      );
+      const { data, error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .select('*')
+        .eq('is_new', true)
+        .order('average_rating', { ascending: false })
+        .limit(limit_count);
       
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        audioUrl: row.audio_url,
+        duration: row.duration,
+        category: row.category,
+        difficulty: row.difficulty,
+        instructor: row.instructor,
+        tags: row.tags,
+        isPremium: row.is_premium,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        thumbnailUrl: row.thumbnail_url,
+        completionCount: row.completion_count,
+        averageRating: row.average_rating,
+        isNew: row.is_new
       })) as MeditationSession[];
       
     } catch (error) {
@@ -706,18 +947,31 @@ export class ContentDatabase {
    */
   async getTrendingSessions(limit_count: number = 10): Promise<MeditationSession[]> {
     try {
-      const q = query(
-        collection(db, this.SESSIONS_COLLECTION),
-        orderBy('completionCount', 'desc'),
-        limit(limit_count)
-      );
+      const { data, error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .select('*')
+        .order('completion_count', { ascending: false })
+        .limit(limit_count);
       
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt?.toDate(),
-        updatedAt: doc.data().updatedAt?.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        audioUrl: row.audio_url,
+        duration: row.duration,
+        category: row.category,
+        difficulty: row.difficulty,
+        instructor: row.instructor,
+        tags: row.tags,
+        isPremium: row.is_premium,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at),
+        thumbnailUrl: row.thumbnail_url,
+        completionCount: row.completion_count,
+        averageRating: row.average_rating,
+        isNew: row.is_new
       })) as MeditationSession[];
       
     } catch (error) {

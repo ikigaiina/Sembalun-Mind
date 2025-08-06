@@ -1,17 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { PersonalNote, Reflection } from '../types/personalization';
 
 export class NotesService {
@@ -37,13 +24,26 @@ export class NotesService {
         updatedAt: new Date()
       };
 
-      const docRef = await addDoc(collection(db, 'personal_notes'), {
-        ...noteData,
-        createdAt: Timestamp.fromDate(noteData.createdAt),
-        updatedAt: Timestamp.fromDate(noteData.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('personal_notes')
+        .insert({
+          user_id: noteData.userId,
+          title: noteData.title,
+          content: noteData.content,
+          mood: noteData.mood,
+          tags: noteData.tags,
+          is_private: noteData.isPrivate,
+          related_content_type: noteData.relatedContentType,
+          related_content_id: noteData.relatedContentId,
+          created_at: noteData.createdAt.toISOString(),
+          updated_at: noteData.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create note');
+      return data.id;
     } catch (error) {
       console.error('Error creating note:', error);
       throw error;
@@ -56,23 +56,32 @@ export class NotesService {
     limit_count: number = 50
   ): Promise<PersonalNote[]> {
     try {
-      let q = query(
-        collection(db, 'personal_notes'),
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc'),
-        limit(limit_count)
-      );
+      let queryBuilder = supabase
+        .from('personal_notes')
+        .select('*')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+        .limit(limit_count);
 
       if (relatedContentType) {
-        q = query(q, where('relatedContentType', '==', relatedContentType));
+        queryBuilder = queryBuilder.eq('related_content_type', relatedContentType);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        updatedAt: doc.data().updatedAt.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        title: row.title,
+        content: row.content,
+        mood: row.mood,
+        tags: row.tags,
+        isPrivate: row.is_private,
+        relatedContentType: row.related_content_type,
+        relatedContentId: row.related_content_id,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as PersonalNote[];
     } catch (error) {
       console.error('Error fetching notes:', error);
@@ -85,11 +94,18 @@ export class NotesService {
     updates: Partial<Pick<PersonalNote, 'title' | 'content' | 'mood' | 'tags' | 'isPrivate'>>
   ): Promise<void> {
     try {
-      const docRef = doc(db, 'personal_notes', noteId);
-      await updateDoc(docRef, {
-        ...updates,
-        updatedAt: Timestamp.fromDate(new Date())
-      });
+      const { error } = await supabase
+        .from('personal_notes')
+        .update({
+          title: updates.title,
+          content: updates.content,
+          mood: updates.mood,
+          tags: updates.tags,
+          is_private: updates.isPrivate,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', noteId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating note:', error);
       throw error;
@@ -98,8 +114,11 @@ export class NotesService {
 
   async deleteNote(noteId: string): Promise<void> {
     try {
-      const docRef = doc(db, 'personal_notes', noteId);
-      await deleteDoc(docRef);
+      const { error } = await supabase
+        .from('personal_notes')
+        .delete()
+        .eq('id', noteId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error deleting note:', error);
       throw error;
@@ -146,12 +165,25 @@ export class NotesService {
         createdAt: new Date()
       };
 
-      const docRef = await addDoc(collection(db, 'reflections'), {
-        ...reflectionData,
-        createdAt: Timestamp.fromDate(reflectionData.createdAt)
-      });
+      const { data, error } = await supabase
+        .from('reflections')
+        .insert({
+          user_id: reflectionData.userId,
+          session_id: reflectionData.sessionId,
+          mood_before: reflectionData.moodBefore,
+          mood_after: reflectionData.moodAfter,
+          insights: reflectionData.insights,
+          gratitude: reflectionData.gratitude,
+          challenges: reflectionData.challenges,
+          improvements: reflectionData.improvements,
+          created_at: reflectionData.createdAt.toISOString()
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create reflection');
+      return data.id;
     } catch (error) {
       console.error('Error creating reflection:', error);
       throw error;
@@ -164,22 +196,31 @@ export class NotesService {
     limit_count: number = 30
   ): Promise<Reflection[]> {
     try {
-      let q = query(
-        collection(db, 'reflections'),
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limit_count)
-      );
+      let queryBuilder = supabase
+        .from('reflections')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limit_count);
 
       if (sessionId) {
-        q = query(q, where('sessionId', '==', sessionId));
+        queryBuilder = queryBuilder.eq('session_id', sessionId);
       }
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate()
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        sessionId: row.session_id,
+        moodBefore: row.mood_before,
+        moodAfter: row.mood_after,
+        insights: row.insights,
+        gratitude: row.gratitude,
+        challenges: row.challenges,
+        improvements: row.improvements,
+        createdAt: new Date(row.created_at)
       })) as Reflection[];
     } catch (error) {
       console.error('Error fetching reflections:', error);

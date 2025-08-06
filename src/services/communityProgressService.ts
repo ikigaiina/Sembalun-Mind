@@ -1,18 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp,
-  getAggregateFromServer,
-  average,
-  count
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 
 export interface CommunityStats {
@@ -511,18 +497,16 @@ export class CommunityProgressService {
       
       const sessions = await progressService.getMeditationSessions(userId, 100);
       const anonymizedData = {
-        totalSessions: sessions.length,
-        avgDuration: sessions.length > 0 ? sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length : 0,
+        total_sessions: sessions.length,
+        avg_duration: sessions.length > 0 ? sessions.reduce((sum, s) => sum + s.duration, 0) / sessions.length : 0,
         techniques: sessions.flatMap(s => s.techniques),
-        experienceLevel: this.determineExperienceLevel(sessions),
-        timestamp: new Date()
+        experience_level: this.determineExperienceLevel(sessions),
+        timestamp: new Date().toISOString()
       };
 
       // This would be submitted to an aggregated collection without user identification
-      await addDoc(collection(db, 'community_anonymized_data'), {
-        ...anonymizedData,
-        timestamp: Timestamp.fromDate(anonymizedData.timestamp)
-      });
+      const { error } = await supabase.from('community_anonymized_data').insert(anonymizedData);
+      if (error) throw error;
 
       console.log('Anonymous data submitted to community stats');
     } catch (error) {

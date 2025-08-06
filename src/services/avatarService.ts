@@ -1,6 +1,4 @@
-import { ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
-import { updateProfile } from 'firebase/auth';
-import { storage, auth } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 
 export class AvatarService {
   private static readonly MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -63,7 +61,7 @@ export class AvatarService {
   }
 
   static async uploadAvatar(file: File): Promise<string> {
-    const user = auth.currentUser;
+    const user = supabase.auth.user();
     if (!user) {
       throw new Error('User must be authenticated to upload avatar');
     }
@@ -82,17 +80,39 @@ export class AvatarService {
       const timestamp = Date.now();
       const randomString = Math.random().toString(36).substring(2, 15);
       const extension = compressedFile.name.split('.').pop();
-      const filename = `avatars/${user.uid}/${timestamp}_${randomString}.${extension}`;
+      const filename = `avatars/${user.id}/${timestamp}_${randomString}.${extension}`;
 
-      // Upload to Firebase Storage
-      const storageRef = ref(storage, filename);
-      const snapshot = await uploadBytes(storageRef, compressedFile);
-      const downloadURL = await getDownloadURL(snapshot.ref);
+      // Upload to Supabase Storage
+      const { data, error } = await supabase.storage
+        .from('avatars')
+        .upload(filename, compressedFile, {
+          cacheControl: '3600',
+          upsert: false,
+        });
 
-      // Update user profile
-      await updateProfile(user, { photoURL: downloadURL });
+      if (error) {
+        throw error;
+      }
 
-      return downloadURL;
+      const { publicURL, error: publicURLError } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filename);
+
+      if (publicURLError) {
+        throw publicURLError;
+      }
+
+      // Update user profile in Supabase
+      const { error: updateError } = await supabase
+        .from('users') // Assuming you have a 'users' table for profiles
+        .update({ avatar_url: publicURL })
+        .eq('id', user.id);
+
+      if (updateError) {
+        throw updateError;
+      }
+
+      return publicURL;
     } catch (error) {
       console.error('Avatar upload error:', error);
       throw new Error('Failed to upload avatar. Please try again.');
@@ -100,20 +120,32 @@ export class AvatarService {
   }
 
   static async deleteCurrentAvatar(): Promise<void> {
-    const user = auth.currentUser;
-    if (!user || !user.photoURL) {
+    const user = supabase.auth.user();
+    if (!user || !user.user_metadata.avatar_url) {
       return;
     }
 
     try {
-      // Delete from storage if it's a Firebase Storage URL
-      if (user.photoURL.includes('firebasestorage.googleapis.com')) {
-        const storageRef = ref(storage, user.photoURL);
-        await deleteObject(storageRef);
+      const avatarUrl = user.user_metadata.avatar_url;
+      // Extract the path from the Supabase public URL
+      const urlParts = avatarUrl.split('/');
+      const filename = urlParts.slice(urlParts.indexOf('public') + 2).join('/');
+
+      const { error } = await supabase.storage.from('avatars').remove([filename]);
+
+      if (error) {
+        throw error;
       }
 
-      // Update user profile
-      await updateProfile(user, { photoURL: null });
+      // Update user profile in Supabase to remove avatar_url
+      const { error: updateError } = await supabase
+        .from('users')
+        .update({ avatar_url: null })
+        .eq('id', user.id);
+
+      if (updateError) {
+        throw updateError;
+      }
     } catch (error) {
       console.error('Avatar deletion error:', error);
       throw new Error('Failed to delete avatar. Please try again.');

@@ -1,4 +1,4 @@
-import type { User as FirebaseUser } from 'firebase/auth';
+import type { User as SupabaseUser, Session, AuthError as SupabaseAuthError } from '@supabase/supabase-js';
 
 export interface UserProfile {
   uid: string;
@@ -203,29 +203,46 @@ export interface UserProgress {
   completedPrograms: string[];
 }
 
-export interface AuthContextType {
-  user: FirebaseUser | null;
+export interface SupabaseAuthContextType {
+  user: SupabaseUser | null;
+  session: Session | null;
   userProfile: UserProfile | null;
   loading: boolean;
   isGuest: boolean;
-  signInWithGoogle: () => Promise<void>;
-  signInWithApple: () => Promise<void>;
-  signInWithEmail: (email: string, password: string) => Promise<void>;
-  signUpWithEmail: (email: string, password: string, displayName: string) => Promise<void>;
-  signOut: () => Promise<void>;
-  resetPassword: (email: string) => Promise<void>;
+  // Authentication methods
+  signInWithGoogle: () => Promise<{ error: SupabaseAuthError | null }>;
+  signInWithApple: () => Promise<{ error: SupabaseAuthError | null }>;
+  signInWithEmail: (email: string, password: string) => Promise<{ error: SupabaseAuthError | null }>;
+  signUpWithEmail: (email: string, password: string, displayName?: string) => Promise<{ error: SupabaseAuthError | null }>;
+  signOut: () => Promise<{ error: SupabaseAuthError | null }>;
+  resetPassword: (email: string) => Promise<{ error: SupabaseAuthError | null }>;
+  // Guest functionality
   continueAsGuest: () => void;
-  updateUserProfile: (updates: Partial<UserProfile>) => Promise<void>;
-  deleteAccount: () => Promise<void>;
-  exportUserData: () => Promise<string>;
   migrateGuestData: () => Promise<void>;
-  sendVerificationEmail: () => Promise<void>;
-  reauthenticateUser: (password: string) => Promise<void>;
+  // Profile management
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<{ error: SupabaseAuthError | null }>;
+  deleteAccount: () => Promise<{ error: SupabaseAuthError | null }>;
+  exportUserData: () => Promise<string>;
+  // Email verification
+  sendVerificationEmail: () => Promise<{ error: SupabaseAuthError | null }>;
+  reauthenticateUser: (password: string) => Promise<{ error: SupabaseAuthError | null }>;
+  // Session management
+  refreshSession: () => Promise<{ error: SupabaseAuthError | null }>;
 }
 
 export interface AuthError {
   code: string;
   message: string;
+}
+
+/**
+ * Supabase-specific auth error interface
+ */
+export interface SupabaseError {
+  message: string;
+  status?: number;
+  statusCode?: number;
+  code?: string;
 }
 
 /**
@@ -258,9 +275,9 @@ export interface AuthFormErrors {
 }
 
 /**
- * Enhanced authentication context type with better loading states
+ * Enhanced Supabase authentication context type with better loading states
  */
-export interface EnhancedAuthContextType extends AuthContextType {
+export interface EnhancedSupabaseAuthContextType extends SupabaseAuthContextType {
   /** Detailed loading states */
   loadingStates: AuthLoadingStates;
   /** Form validation errors */
@@ -269,20 +286,37 @@ export interface EnhancedAuthContextType extends AuthContextType {
   clearFormErrors: (fields?: string[]) => void;
   /** Set form errors */
   setFormErrors: (errors: Partial<AuthFormErrors>) => void;
+  /** OAuth provider states */
+  oauthProviders: {
+    google: { loading: boolean; error: string | null };
+    apple: { loading: boolean; error: string | null };
+  };
 }
 
 /**
  * Type guard to check if user is authenticated
  */
-export const isAuthenticated = (user: FirebaseUser | null, isGuest: boolean): boolean => {
+export const isAuthenticated = (user: SupabaseUser | null, isGuest: boolean): boolean => {
   return Boolean(user || isGuest);
 };
 
 /**
  * Type guard to check if user is a registered user (not guest)
  */
-export const isRegisteredUser = (user: FirebaseUser | null, isGuest: boolean): boolean => {
+export const isRegisteredUser = (user: SupabaseUser | null, isGuest: boolean): boolean => {
   return Boolean(user && !isGuest);
+};
+
+/**
+ * Type guard to check if error is a Supabase auth error
+ */
+export const isSupabaseAuthError = (error: unknown): error is SupabaseAuthError => {
+  return (
+    typeof error === 'object' &&
+    error !== null &&
+    'message' in error &&
+    typeof (error as SupabaseAuthError).message === 'string'
+  );
 };
 
 /**

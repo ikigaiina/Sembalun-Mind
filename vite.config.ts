@@ -48,19 +48,7 @@ export default defineConfig(({ mode }) => {
               }
             }
           },
-          // Firebase APIs
-          {
-            urlPattern: /^https:\/\/.*\.googleapis\.com\/.*/i,
-            handler: 'NetworkFirst',
-            options: {
-              cacheName: 'firebase-api-cache',
-              expiration: {
-                maxEntries: 50,
-                maxAgeSeconds: 60 * 60 * 24 * 7
-              },
-              networkTimeoutSeconds: 5
-            }
-          },
+          
           // Audio files
           {
             urlPattern: /\.(?:mp3|wav|ogg|flac|m4a)$/i,
@@ -175,27 +163,7 @@ export default defineConfig(({ mode }) => {
             return 'react-router'
           }
 
-          // Firebase chunks - optimized to prevent initialization errors
-          if (id.includes('firebase/app') || id.includes('@firebase/app')) {
-            return 'firebase-core'
-          }
-          if (id.includes('firebase/auth') || id.includes('@firebase/auth')) {
-            return 'firebase-auth'
-          }
-          if (id.includes('firebase/firestore') || id.includes('@firebase/firestore')) {
-            return 'firebase-firestore'
-          }
-          if (id.includes('firebase/storage') || id.includes('firebase/analytics') || id.includes('firebase/performance') || 
-              id.includes('@firebase/storage') || id.includes('@firebase/analytics') || id.includes('@firebase/performance')) {
-            return 'firebase-optional'
-          }
-          if (id.includes('react-firebase-hooks')) {
-            return 'firebase-hooks'
-          }
-          // Keep Firebase utilities together to prevent hoisting issues
-          if (id.includes('@firebase/util') || id.includes('firebase/util')) {
-            return 'firebase-core'
-          }
+          
 
           // Feature-based chunking for better code splitting
           
@@ -383,9 +351,7 @@ export default defineConfig(({ mode }) => {
         'react',
         'react-dom',
         'react-router-dom',
-        'firebase/app',
-        'firebase/auth',
-        'firebase/firestore'
+        
       ],
       exclude: ['@vite/env']
     }

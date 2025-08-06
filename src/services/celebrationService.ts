@@ -1,16 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { smartNotificationService } from './smartNotificationService';
 import { progressService } from './progressService';
 import { achievementService } from './achievementService';
@@ -356,11 +344,14 @@ export class CelebrationService {
     engagement: Partial<CelebrationEvent['userEngagement']>
   ): Promise<void> {
     try {
-      const docRef = doc(db, 'celebrations', celebrationId);
-      await updateDoc(docRef, {
-        userEngagement: engagement,
-        celebratedAt: engagement.acknowledged ? Timestamp.fromDate(new Date()) : null
-      });
+      const { error } = await supabase
+        .from('celebrations')
+        .update({
+          user_engagement: engagement,
+          celebrated_at: engagement.acknowledged ? new Date().toISOString() : null
+        })
+        .eq('id', celebrationId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error updating celebration engagement:', error);
       throw error;
@@ -373,24 +364,35 @@ export class CelebrationService {
     unacknowledgedOnly: boolean = false
   ): Promise<CelebrationEvent[]> {
     try {
-      const constraints = [
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc'),
-        limit(limitCount)
-      ];
+      let queryBuilder = supabase
+        .from('celebrations')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(limitCount);
 
       if (unacknowledgedOnly) {
-        constraints.splice(1, 0, where('userEngagement.acknowledged', '==', false));
+        queryBuilder = queryBuilder.eq('user_engagement->>acknowledged', false);
       }
 
-      const q = query(collection(db, 'celebrations'), ...constraints);
-      const snapshot = await getDocs(q);
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        createdAt: doc.data().createdAt.toDate(),
-        celebratedAt: doc.data().celebratedAt?.toDate()
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        type: row.type,
+        category: row.category,
+        title: row.title,
+        description: row.description,
+        celebrationLevel: row.celebration_level,
+        rewards: row.rewards,
+        triggerData: row.trigger_data,
+        personalizedContent: row.personalized_content,
+        celebrationActions: row.celebration_actions,
+        userEngagement: row.user_engagement,
+        createdAt: new Date(row.created_at),
+        celebratedAt: row.celebrated_at ? new Date(row.celebrated_at) : undefined
       })) as CelebrationEvent[];
     } catch (error) {
       console.error('Error fetching user celebrations:', error);
@@ -591,14 +593,15 @@ export class CelebrationService {
 
   private async getUserCelebrationPreferences(userId: string): Promise<CelebrationPreferences> {
     try {
-      const q = query(
-        collection(db, 'celebration_preferences'),
-        where('userId', '==', userId)
-      );
+      const { data, error } = await supabase
+        .from('celebration_preferences')
+        .select('*')
+        .eq('user_id', userId)
+        .limit(1);
 
-      const snapshot = await getDocs(q);
+      if (error) throw error;
       
-      if (snapshot.empty) {
+      if (!data || data.length === 0) {
         // Return default preferences
         return {
           userId,
@@ -625,7 +628,17 @@ export class CelebrationService {
         };
       }
 
-      return snapshot.docs[0].data() as CelebrationPreferences;
+      const row = data[0];
+      return {
+        userId: row.user_id,
+        celebrationStyle: row.celebration_style,
+        culturalContext: row.cultural_context,
+        preferredTone: row.preferred_tone,
+        notificationSettings: row.notification_settings,
+        sharingPreferences: row.sharing_preferences,
+        customCelebrations: row.custom_celebrations,
+        updatedAt: new Date(row.updated_at)
+      } as CelebrationPreferences;
     } catch (error) {
       console.error('Error fetching celebration preferences:', error);
       throw error;
@@ -880,12 +893,29 @@ export class CelebrationService {
 
   private async saveCelebration(celebration: Omit<CelebrationEvent, 'id'>): Promise<string> {
     try {
-      const docRef = await addDoc(collection(db, 'celebrations'), {
-        ...celebration,
-        createdAt: Timestamp.fromDate(celebration.createdAt)
-      });
+      const { data, error } = await supabase
+        .from('celebrations')
+        .insert({
+          user_id: celebration.userId,
+          type: celebration.type,
+          category: celebration.category,
+          title: celebration.title,
+          description: celebration.description,
+          celebration_level: celebration.celebrationLevel,
+          rewards: celebration.rewards,
+          trigger_data: celebration.triggerData,
+          personalized_content: celebration.personalizedContent,
+          celebration_actions: celebration.celebrationActions,
+          user_engagement: celebration.userEngagement,
+          created_at: celebration.createdAt.toISOString(),
+          celebrated_at: celebration.celebratedAt ? celebration.celebratedAt.toISOString() : null
+        })
+        .select('id')
+        .single();
       
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to save celebration');
+      return data.id;
     } catch (error) {
       console.error('Error saving celebration:', error);
       throw error;
@@ -912,15 +942,16 @@ export class CelebrationService {
 
   private async checkExistingCelebration(userId: string, type: string, sourceId: string): Promise<boolean> {
     try {
-      const q = query(
-        collection(db, 'celebrations'),
-        where('userId', '==', userId),
-        where('type', '==', type),
-        where('triggerData.sourceId', '==', sourceId)
-      );
+      const { data, error } = await supabase
+        .from('celebrations')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('type', type)
+        .eq('trigger_data->>sourceId', sourceId) // Access nested JSONB field
+        .limit(1);
 
-      const snapshot = await getDocs(q);
-      return !snapshot.empty;
+      if (error) throw error;
+      return data && data.length > 0;
     } catch (error) {
       console.error('Error checking existing celebration:', error);
       return false;

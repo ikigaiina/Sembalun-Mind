@@ -1,16 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 
 export interface HabitPattern {
@@ -103,13 +91,27 @@ export class HabitAnalyticsService {
       // Save patterns to database
       const savedPatterns: HabitPattern[] = [];
       for (const pattern of patterns) {
-        const docRef = await addDoc(collection(db, 'habit_patterns'), {
-          ...pattern,
-          lastOccurrence: Timestamp.fromDate(pattern.lastOccurrence),
-          createdAt: Timestamp.fromDate(pattern.createdAt),
-          updatedAt: Timestamp.fromDate(pattern.updatedAt)
-        });
-        savedPatterns.push({ id: docRef.id, ...pattern });
+        const { data, error } = await supabase
+          .from('habit_patterns')
+          .insert({
+            user_id: pattern.userId,
+            habit_type: pattern.habitType,
+            pattern: pattern.pattern,
+            strength: pattern.strength,
+            confidence: pattern.confidence,
+            frequency: pattern.frequency,
+            last_occurrence: pattern.lastOccurrence.toISOString(),
+            trend: pattern.trend,
+            suggestions: pattern.suggestions,
+            created_at: pattern.createdAt.toISOString(),
+            updated_at: pattern.updatedAt.toISOString()
+          })
+          .select('id')
+          .single();
+
+        if (error) throw error;
+        if (!data) throw new Error('Failed to save habit pattern');
+        savedPatterns.push({ id: data.id, ...pattern });
       }
 
       return savedPatterns;
@@ -456,20 +458,28 @@ export class HabitAnalyticsService {
 
   async getUserHabitPatterns(userId: string): Promise<HabitPattern[]> {
     try {
-      const q = query(
-        collection(db, 'habit_patterns'),
-        where('userId', '==', userId),
-        orderBy('updatedAt', 'desc'),
-        limit(20)
-      );
+      const { data, error } = await supabase
+        .from('habit_patterns')
+        .select('*')
+        .eq('user_id', userId)
+        .order('updated_at', { ascending: false })
+        .limit(20);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        lastOccurrence: doc.data().lastOccurrence.toDate(),
-        createdAt: doc.data().createdAt.toDate(),
-        updatedAt: doc.data().updatedAt.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        habitType: row.habit_type,
+        pattern: row.pattern,
+        strength: row.strength,
+        confidence: row.confidence,
+        frequency: row.frequency,
+        lastOccurrence: new Date(row.last_occurrence),
+        trend: row.trend,
+        suggestions: row.suggestions,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as HabitPattern[];
     } catch (error) {
       console.error('Error fetching habit patterns:', error);

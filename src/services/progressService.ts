@@ -1,21 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit, 
-  getDocs, 
-  getDoc,
-  writeBatch,
-  Timestamp,
-  onSnapshot,
-} from 'firebase/firestore';
-import type { DocumentData } from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type {
   MeditationSession,
   MoodEntry,
@@ -43,17 +26,31 @@ export class ProgressService {
   // Session Management
   async createMeditationSession(session: Omit<MeditationSession, 'id' | 'syncStatus' | 'lastModified' | 'version'>): Promise<string> {
     try {
-      const sessionData = {
-        ...session,
-        syncStatus: 'synced' as const,
-        lastModified: new Date(),
-        version: 1,
-        completedAt: Timestamp.fromDate(session.completedAt),
-        startedAt: Timestamp.fromDate(session.startedAt),
-        endedAt: Timestamp.fromDate(session.endedAt)
-      };
+      const { data, error } = await supabase
+        .from('meditation_sessions')
+        .insert({
+          user_id: session.userId,
+          duration: session.duration,
+          quality: session.quality,
+          mood_before: session.moodBefore,
+          mood_after: session.moodAfter,
+          stress_level: session.stressLevel,
+          energy_level: session.energyLevel,
+          techniques: session.techniques,
+          notes: session.notes,
+          completed_at: session.completedAt.toISOString(),
+          started_at: session.startedAt.toISOString(),
+          ended_at: session.endedAt.toISOString(),
+          created_at: new Date().toISOString(),
+          last_modified: new Date().toISOString(),
+          version: 1
+        })
+        .select('id')
+        .single();
 
-      const docRef = await addDoc(collection(db, 'meditation_sessions'), sessionData);
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create session');
+      const docRef = data;
       
       // Update user streaks
       await this.updateUserStreaks(session.userId, 'meditation', session.completedAt);
@@ -62,7 +59,7 @@ export class ProgressService {
       await this.updateCairnProgress(session.userId, 'sessions', 1);
       await this.updateCairnProgress(session.userId, 'minutes', Math.floor(session.duration / 60));
 
-      return docRef.id;
+      return data.id;
     } catch (error) {
       console.error('Error creating meditation session:', error);
       // Add to offline queue if online save fails
@@ -71,37 +68,7 @@ export class ProgressService {
     }
   }
 
-  async getMeditationSessions(
-    userId: string, 
-    limit_count: number = 50,
-    startAfter?: Date
-  ): Promise<MeditationSession[]> {
-    try {
-      let q = query(
-        collection(db, 'meditation_sessions'),
-        where('userId', '==', userId),
-        orderBy('completedAt', 'desc'),
-        limit(limit_count)
-      );
-
-      if (startAfter) {
-        q = query(q, where('completedAt', '>=', Timestamp.fromDate(startAfter)));
-      }
-
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        completedAt: doc.data().completedAt.toDate(),
-        startedAt: doc.data().startedAt.toDate(),
-        endedAt: doc.data().endedAt.toDate(),
-        lastModified: doc.data().lastModified.toDate()
-      })) as MeditationSession[];
-    } catch (error) {
-      console.error('Error fetching meditation sessions:', error);
-      return [];
-    }
-  }
+    
 
   async getSessionStats(userId: string, period: 'week' | 'month' | 'year' = 'month'): Promise<{
     totalSessions: number;
@@ -147,20 +114,28 @@ export class ProgressService {
   // Mood Tracking
   async createMoodEntry(mood: Omit<MoodEntry, 'id' | 'syncStatus' | 'lastModified' | 'version'>): Promise<string> {
     try {
-      const moodData = {
-        ...mood,
-        syncStatus: 'synced' as const,
-        lastModified: new Date(),
-        version: 1,
-        timestamp: Timestamp.fromDate(mood.timestamp)
-      };
+      const { data, error } = await supabase
+        .from('mood_entries')
+        .insert({
+          user_id: mood.userId,
+          mood_state: mood.moodState,
+          timestamp: mood.timestamp.toISOString(),
+          notes: mood.notes,
+          sync_status: 'synced',
+          last_modified: new Date().toISOString(),
+          version: 1
+        })
+        .select('id')
+        .single();
 
-      const docRef = await addDoc(collection(db, 'mood_entries'), moodData);
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create mood entry');
+      const docRef = data;
       
       // Update mood tracking streak
       await this.updateUserStreaks(mood.userId, 'mood_tracking', mood.timestamp);
 
-      return docRef.id;
+      return data.id;
     } catch (error) {
       console.error('Error creating mood entry:', error);
       await this.addToOfflineQueue('create', 'mood', '', mood);
@@ -170,19 +145,25 @@ export class ProgressService {
 
   async getMoodEntries(userId: string, limit_count: number = 100): Promise<MoodEntry[]> {
     try {
-      const q = query(
-        collection(db, 'mood_entries'),
-        where('userId', '==', userId),
-        orderBy('timestamp', 'desc'),
-        limit(limit_count)
-      );
+      const { data, error } = await supabase
+        .from('mood_entries')
+        .select('*')
+        .eq('user_id', userId)
+        .order('timestamp', { ascending: false })
+        .limit(limit_count);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        timestamp: doc.data().timestamp.toDate(),
-        lastModified: doc.data().lastModified.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        moodState: row.mood_state,
+        timestamp: new Date(row.timestamp),
+        notes: row.notes,
+        syncStatus: row.sync_status,
+        createdAt: new Date(row.created_at),
+        lastModified: new Date(row.last_modified),
+        version: row.version
       })) as MoodEntry[];
     } catch (error) {
       console.error('Error fetching mood entries:', error);
@@ -243,18 +224,18 @@ export class ProgressService {
   }
 
   // Streak Management
-  async updateUserStreaks(userId: string, type: 'meditation' | 'mood_tracking' | 'course_study' | 'mindfulness', activityDate: Date): Promise<void> {
-    try {
-      const q = query(
-        collection(db, 'user_streaks'),
-        where('userId', '==', userId),
-        where('type', '==', type)
-      );
+        const { data: existingStreak, error: fetchError } = await supabase
+        .from('user_streaks')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('type', type)
+        .single();
 
-      const snapshot = await getDocs(q);
+      if (fetchError && fetchError.code !== 'PGRST116') throw fetchError; // PGRST116 means no rows found
+
       let streak: UserStreak;
 
-      if (snapshot.empty) {
+      if (!existingStreak) {
         // Create new streak
         streak = {
           id: '',
@@ -278,30 +259,53 @@ export class ProgressService {
           version: 1
         };
 
-        await addDoc(collection(db, 'user_streaks'), {
-          ...streak,
-          lastActivityDate: Timestamp.fromDate(streak.lastActivityDate),
-          startDate: Timestamp.fromDate(streak.startDate),
-          streakSnapshots: streak.streakSnapshots.map(s => ({
-            ...s,
-            date: Timestamp.fromDate(s.date)
-          })),
-          lastModified: Timestamp.fromDate(streak.lastModified)
-        });
+        const { error: insertError } = await supabase
+          .from('user_streaks')
+          .insert({
+            user_id: streak.userId,
+            type: streak.type,
+            current_streak: streak.currentStreak,
+            longest_streak: streak.longestStreak,
+            last_activity_date: streak.lastActivityDate.toISOString(),
+            start_date: streak.startDate.toISOString(),
+            is_active: streak.isActive,
+            streak_snapshots: streak.streakSnapshots.map(s => ({
+              date: s.date.toISOString(),
+              streak_count: s.streakCount,
+              activities: s.activities,
+              mood: s.mood
+            })),
+            motivation_level: streak.motivationLevel,
+            next_milestone: streak.nextMilestone,
+            sync_status: streak.syncStatus,
+            last_modified: streak.lastModified.toISOString(),
+            version: streak.version
+          });
+
+        if (insertError) throw insertError;
       } else {
         // Update existing streak
-        const doc = snapshot.docs[0];
         streak = {
-          id: doc.id,
-          ...doc.data(),
-          lastActivityDate: doc.data().lastActivityDate.toDate(),
-          startDate: doc.data().startDate.toDate(),
-          streakSnapshots: doc.data().streakSnapshots.map((s: any) => ({
-            ...s,
-            date: s.date.toDate()
+          id: existingStreak.id,
+          userId: existingStreak.user_id,
+          type: existingStreak.type,
+          currentStreak: existingStreak.current_streak,
+          longestStreak: existingStreak.longest_streak,
+          lastActivityDate: new Date(existingStreak.last_activity_date),
+          startDate: new Date(existingStreak.start_date),
+          isActive: existingStreak.is_active,
+          streakSnapshots: existingStreak.streak_snapshots.map((s: any) => ({
+            date: new Date(s.date),
+            streakCount: s.streak_count,
+            activities: s.activities,
+            mood: s.mood
           })),
-          lastModified: doc.data().lastModified.toDate()
-        } as UserStreak;
+          motivationLevel: existingStreak.motivation_level,
+          nextMilestone: existingStreak.next_milestone,
+          syncStatus: existingStreak.sync_status,
+          lastModified: new Date(existingStreak.last_modified),
+          version: existingStreak.version
+        };
 
         const daysSinceLastActivity = Math.floor(
           (activityDate.getTime() - streak.lastActivityDate.getTime()) / (1000 * 60 * 60 * 24)
@@ -335,40 +339,57 @@ export class ProgressService {
           streak.streakSnapshots = streak.streakSnapshots.slice(-100);
         }
 
-        await updateDoc(doc.ref, {
-          ...streak,
-          lastActivityDate: Timestamp.fromDate(streak.lastActivityDate),
-          startDate: Timestamp.fromDate(streak.startDate),
-          streakSnapshots: streak.streakSnapshots.map(s => ({
-            ...s,
-            date: Timestamp.fromDate(s.date)
-          })),
-          lastModified: Timestamp.fromDate(streak.lastModified)
-        });
+        const { error: updateError } = await supabase
+          .from('user_streaks')
+          .update({
+            current_streak: streak.currentStreak,
+            longest_streak: streak.longestStreak,
+            last_activity_date: streak.lastActivityDate.toISOString(),
+            start_date: streak.startDate.toISOString(),
+            is_active: streak.isActive,
+            streak_snapshots: streak.streakSnapshots.map(s => ({
+              date: s.date.toISOString(),
+              streak_count: s.streakCount,
+              activities: s.activities,
+              mood: s.mood
+            })),
+            last_modified: streak.lastModified.toISOString(),
+            version: streak.version
+          })
+          .eq('id', streak.id);
+
+        if (updateError) throw updateError;
       }
-    } catch (error) {
-      console.error('Error updating user streaks:', error);
-    }
-  }
 
   async getUserStreaks(userId: string): Promise<UserStreak[]> {
     try {
-      const q = query(
-        collection(db, 'user_streaks'),
-        where('userId', '==', userId)
-      );
+      const { data, error } = await supabase
+        .from('user_streaks')
+        .select('*')
+        .eq('user_id', userId);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        lastActivityDate: doc.data().lastActivityDate.toDate(),
-        startDate: doc.data().startDate.toDate(),
-        streakSnapshots: doc.data().streakSnapshots.map((s: any) => ({
-          ...s,
-          date: s.date.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        type: row.type,
+        currentStreak: row.current_streak,
+        longestStreak: row.longest_streak,
+        lastActivityDate: new Date(row.last_activity_date),
+        startDate: new Date(row.start_date),
+        isActive: row.is_active,
+        streakSnapshots: row.streak_snapshots.map((s: any) => ({
+          date: new Date(s.date),
+          streakCount: s.streak_count,
+          activities: s.activities,
+          mood: s.mood
         })),
-        lastModified: doc.data().lastModified.toDate()
+        motivationLevel: row.motivation_level,
+        nextMilestone: row.next_milestone,
+        syncStatus: row.sync_status,
+        lastModified: new Date(row.last_modified),
+        version: row.version
       })) as UserStreak[];
     } catch (error) {
       console.error('Error fetching user streaks:', error);
@@ -379,35 +400,38 @@ export class ProgressService {
   // Cairn Progress Management
   async updateCairnProgress(userId: string, unit: 'sessions' | 'minutes' | 'days' | 'courses', increment: number): Promise<void> {
     try {
-      const q = query(
-        collection(db, 'cairn_progress'),
-        where('userId', '==', userId),
-        where('unit', '==', unit),
-        where('isCompleted', '==', false)
-      );
+      const { data: existingCairns, error: fetchError } = await supabase
+        .from('cairn_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('unit', unit)
+        .eq('is_completed', false);
 
-      const snapshot = await getDocs(q);
-      const batch = writeBatch(db);
+      if (fetchError) throw fetchError;
 
-      snapshot.docs.forEach(doc => {
-        const cairn = doc.data() as CairnProgress;
-        const newValue = Math.min(cairn.targetValue, cairn.currentValue + increment);
-        
-        const updates: any = {
-          currentValue: newValue,
-          lastModified: Timestamp.fromDate(new Date()),
-          version: cairn.version + 1
-        };
+      if (existingCairns && existingCairns.length > 0) {
+        for (const cairn of existingCairns) {
+          const newValue = Math.min(cairn.target_value, cairn.current_value + increment);
+          
+          const updates: any = {
+            current_value: newValue,
+            last_modified: new Date().toISOString(),
+            version: cairn.version + 1
+          };
 
-        if (newValue >= cairn.targetValue && !cairn.isCompleted) {
-          updates.isCompleted = true;
-          updates.completedAt = Timestamp.fromDate(new Date());
+          if (newValue >= cairn.target_value && !cairn.is_completed) {
+            updates.is_completed = true;
+            updates.completed_at = new Date().toISOString();
+          }
+
+          const { error: updateError } = await supabase
+            .from('cairn_progress')
+            .update(updates)
+            .eq('id', cairn.id);
+
+          if (updateError) throw updateError;
         }
-
-        batch.update(doc.ref, updates);
-      });
-
-      await batch.commit();
+      }
     } catch (error) {
       console.error('Error updating cairn progress:', error);
     }
@@ -460,19 +484,29 @@ export class ProgressService {
   // Course Progress (placeholder for full implementation)
   async getUserCourseProgress(userId: string): Promise<CourseProgress[]> {
     try {
-      const q = query(
-        collection(db, 'course_progress'),
-        where('userId', '==', userId)
-      );
+      const { data, error } = await supabase
+        .from('course_progress')
+        .select('*')
+        .eq('user_id', userId);
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        startedAt: doc.data().startedAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt.toDate(),
-        completedAt: doc.data().completedAt?.toDate(),
-        lastModified: doc.data().lastModified.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        courseId: row.course_id,
+        courseTitle: row.course_title,
+        progress: row.progress,
+        isCompleted: row.is_completed,
+        startedAt: new Date(row.started_at),
+        lastAccessedAt: new Date(row.last_accessed_at),
+        timeSpent: row.time_spent,
+        completedLessons: row.completed_lessons,
+        certificates: row.certificates,
+        syncStatus: row.sync_status,
+        lastModified: new Date(row.last_modified),
+        version: row.version,
+        completedAt: row.completed_at ? new Date(row.completed_at) : undefined
       })) as CourseProgress[];
     } catch (error) {
       console.error('Error fetching course progress:', error);
@@ -549,31 +583,63 @@ export class ProgressService {
     const listenerId = `${userId}_${Date.now()}`;
     this.syncListeners.set(listenerId, callback);
 
-    // Set up Firestore listeners for real-time updates
-    const unsubscribes: (() => void)[] = [];
+    // Supabase Realtime listeners
+    const channels: any[] = [];
 
     // Listen to sessions
-    const sessionQuery = query(
-      collection(db, 'meditation_sessions'),
-      where('userId', '==', userId)
-    );
-    unsubscribes.push(
-      onSnapshot(sessionQuery, () => callback())
-    );
+    const sessionChannel = supabase.channel(`meditation_sessions:${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'meditation_sessions', filter: `user_id=eq.${userId}` },
+        () => callback()
+      )
+      .subscribe();
+    channels.push(sessionChannel);
 
     // Listen to moods
-    const moodQuery = query(
-      collection(db, 'mood_entries'),
-      where('userId', '==', userId)
-    );
-    unsubscribes.push(
-      onSnapshot(moodQuery, () => callback())
-    );
+    const moodChannel = supabase.channel(`mood_entries:${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'mood_entries', filter: `user_id=eq.${userId}` },
+        () => callback()
+      )
+      .subscribe();
+    channels.push(moodChannel);
+
+    // Listen to streaks
+    const streakChannel = supabase.channel(`user_streaks:${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'user_streaks', filter: `user_id=eq.${userId}` },
+        () => callback()
+      )
+      .subscribe();
+    channels.push(streakChannel);
+
+    // Listen to cairn progress
+    const cairnChannel = supabase.channel(`cairn_progress:${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'cairn_progress', filter: `user_id=eq.${userId}` },
+        () => callback()
+      )
+      .subscribe();
+    channels.push(cairnChannel);
+
+    // Listen to course progress
+    const courseChannel = supabase.channel(`course_progress:${userId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'course_progress', filter: `user_id=eq.${userId}` },
+        () => callback()
+      )
+      .subscribe();
+    channels.push(courseChannel);
 
     // Return cleanup function
     return () => {
       this.syncListeners.delete(listenerId);
-      unsubscribes.forEach(unsubscribe => unsubscribe());
+      channels.forEach(channel => supabase.removeChannel(channel));
     };
   }
 }

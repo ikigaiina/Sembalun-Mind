@@ -1,23 +1,12 @@
 import { openDB, type IDBPDatabase } from 'idb';
-import { 
-  collection, 
-  doc, 
-  getDocs, 
-  setDoc, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  orderBy, 
-  Timestamp 
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { supabase } from '../config/supabaseClient';
+
 
 interface OfflineData {
   id: string;
   type: 'session' | 'progress' | 'preference' | 'journal' | 'audio' | 'achievement';
   data: any;
-  lastModified: number;
+  last_modified: number;
   syncStatus: 'pending' | 'synced' | 'conflict' | 'error';
   userId: string;
   cloudVersion?: number;
@@ -158,7 +147,7 @@ class EnhancedOfflineService {
         id,
         type,
         data,
-        lastModified: Date.now(),
+        last_modified: Date.now(),
         syncStatus: markForSync ? 'pending' : syncStatus,
         userId,
         cloudVersion,
@@ -213,7 +202,7 @@ class EnhancedOfflineService {
     options: {
       syncStatus?: OfflineData['syncStatus'];
       limit?: number;
-      sortBy?: 'lastModified' | 'id';
+      sortBy?: 'last_modified' | 'id';
       sortOrder?: 'asc' | 'desc';
     } = {}
   ): Promise<OfflineData[]> {
@@ -240,8 +229,8 @@ class EnhancedOfflineService {
 
       // Sort results
       results.sort((a, b) => {
-        const aValue = a[sortBy as keyof OfflineData];
-        const bValue = b[sortBy as keyof OfflineData];
+        const aValue = a[sortBy === 'last_modified' ? 'last_modified' : 'id'];
+        const bValue = b[sortBy === 'last_modified' ? 'last_modified' : 'id'];
         
         if (typeof aValue === 'string' && typeof bValue === 'string') {
           return sortOrder === 'asc' ? aValue.localeCompare(bValue) : bValue.localeCompare(aValue);
@@ -339,16 +328,22 @@ class EnhancedOfflineService {
 
   private async syncSingleItem(item: OfflineData): Promise<void> {
     const collectionName = this.getCollectionName(item.type);
-    const docRef = doc(db, collectionName, item.id);
-
+    // Assuming supabase is imported and initialized as 'supabase'
+    // You'll need to import { supabase } from '../config/supabaseClient'; at the top of this file
+    
     try {
       if (item.localChanges) {
         // Upload local changes to cloud
-        await setDoc(docRef, {
-          ...item.data,
-          lastModified: Timestamp.now(),
-          version: (item.cloudVersion || 0) + 1
-        }, { merge: true });
+        const { error } = await supabase
+          .from(collectionName)
+          .upsert({
+            ...item.data,
+            id: item.id, // Ensure the ID is part of the upsert data
+            last_modified: new Date().toISOString(), // Supabase uses ISO strings for timestamps
+            version: (item.cloudVersion || 0) + 1
+          }, { onConflict: 'id' }); // Specify conflict key for upsert
+
+        if (error) throw error;
 
         // Update local status
         await this.updateOfflineDataStatus(item.id, 'synced', {
@@ -367,15 +362,19 @@ class EnhancedOfflineService {
     // In a more sophisticated system, you'd present options to the user
     
     const collectionName = this.getCollectionName(item.type);
-    const docRef = doc(db, collectionName, item.id);
 
     try {
       // Force upload local version
-      await setDoc(docRef, {
-        ...item.data,
-        lastModified: Timestamp.now(),
-        version: Date.now() // Use timestamp as version for conflicts
-      });
+      const { error } = await supabase
+        .from(collectionName)
+        .upsert({
+          ...item.data,
+          id: item.id,
+          last_modified: new Date().toISOString(),
+          version: Date.now() // Use timestamp as version for conflicts
+        }, { onConflict: 'id' });
+
+      if (error) throw error;
 
       await this.updateOfflineDataStatus(item.id, 'synced', {
         cloudVersion: Date.now(),
@@ -392,29 +391,30 @@ class EnhancedOfflineService {
     
     for (const collectionName of collections) {
       try {
-        const q = query(
-          collection(db, collectionName),
-          where('userId', '==', userId),
-          orderBy('lastModified', 'desc')
-        );
+        const { data, error } = await supabase
+          .from(collectionName)
+          .select('*')
+          .eq('userId', userId)
+          .order('last_modified', { ascending: false });
+
+        if (error) throw error;
         
-        const snapshot = await getDocs(q);
-        
-        for (const docSnapshot of snapshot.docs) {
-          const data = docSnapshot.data();
-          const type = this.getTypeFromCollection(collectionName);
-          
-          await this.storeOfflineData(
-            docSnapshot.id,
-            type,
-            data,
-            userId,
-            {
-              markForSync: false,
-              overwriteLocal: false,
-              cloudVersion: data.version || 1
-            }
-          );
+        if (data) {
+          for (const item of data) {
+            const type = this.getTypeFromCollection(collectionName);
+            
+            await this.storeOfflineData(
+              item.id,
+              type,
+              item,
+              userId,
+              {
+                markForSync: false,
+                overwriteLocal: false,
+                cloudVersion: item.version || 1
+              }
+            );
+          }
         }
       } catch (error) {
         console.warn(`Failed to download ${collectionName}:`, error);
@@ -686,7 +686,7 @@ class EnhancedOfflineService {
       const tx = this.db.transaction(storeName, 'readwrite');
       const store = tx.objectStore(storeName);
       
-      const index = storeName === 'offline_data' ? 'lastModified' : 
+      const index = storeName === 'offline_data' ? 'last_modified' : 
                    storeName === 'cached_content' ? 'downloadDate' : 'timestamp';
       
       let cursor = await store.index(index).openCursor(IDBKeyRange.upperBound(cutoffTime));

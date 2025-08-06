@@ -1,17 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp,
-  writeBatch
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { offlineStorageService } from './offlineStorageService';
 import type { 
   OfflineProgress, 
@@ -386,28 +373,31 @@ export class OfflineSyncService {
 
   private async uploadProgress(progress: OfflineProgress): Promise<void> {
     try {
-      const firebaseData = {
-        userId: progress.userId,
-        sessionId: progress.sessionId,
-        startTime: Timestamp.fromDate(progress.startTime),
-        endTime: progress.endTime ? Timestamp.fromDate(progress.endTime) : null,
-        duration: progress.duration,
-        quality: progress.quality,
-        moodBefore: progress.moodBefore,
-        moodAfter: progress.moodAfter,
-        stressLevel: progress.stressLevel,
-        energyLevel: progress.energyLevel,
-        techniques: progress.techniques,
-        notes: progress.notes,
-        completionPercentage: progress.completionPercentage,
-        interruptions: progress.interruptions,
-        environment: progress.environment,
-        createdAt: Timestamp.fromDate(progress.createdAt),
-        lastModified: Timestamp.fromDate(progress.lastModified),
-        version: progress.version
-      };
+      const { error } = await supabase
+        .from('meditation_sessions')
+        .upsert({
+          id: progress.id,
+          user_id: progress.userId,
+          session_id: progress.sessionId,
+          start_time: progress.startTime.toISOString(),
+          end_time: progress.endTime ? progress.endTime.toISOString() : null,
+          duration: progress.duration,
+          quality: progress.quality,
+          mood_before: progress.moodBefore,
+          mood_after: progress.moodAfter,
+          stress_level: progress.stressLevel,
+          energy_level: progress.energyLevel,
+          techniques: progress.techniques,
+          notes: progress.notes,
+          completion_percentage: progress.completionPercentage,
+          interruptions: progress.interruptions,
+          environment: progress.environment,
+          created_at: progress.createdAt.toISOString(),
+          last_modified: progress.lastModified.toISOString(),
+          version: progress.version
+        }, { onConflict: 'id' });
 
-      await addDoc(collection(db, 'meditation_sessions'), firebaseData);
+      if (error) throw error;
     } catch (error) {
       console.error('Error uploading progress:', error);
       throw error;
@@ -416,24 +406,27 @@ export class OfflineSyncService {
 
   private async uploadMood(mood: OfflineMoodEntry): Promise<void> {
     try {
-      const firebaseData = {
-        userId: mood.userId,
-        date: Timestamp.fromDate(mood.date),
-        overall: mood.overall,
-        energy: mood.energy,
-        anxiety: mood.anxiety,
-        happiness: mood.happiness,
-        stress: mood.stress,
-        focus: mood.focus,
-        tags: mood.tags,
-        notes: mood.notes,
-        relatedSessionId: mood.relatedSessionId,
-        createdAt: Timestamp.fromDate(mood.createdAt),
-        lastModified: Timestamp.fromDate(mood.lastModified),
-        version: mood.version
-      };
+      const { error } = await supabase
+        .from('mood_entries')
+        .upsert({
+          id: mood.id,
+          user_id: mood.userId,
+          date: mood.date.toISOString(),
+          overall: mood.overall,
+          energy: mood.energy,
+          anxiety: mood.anxiety,
+          happiness: mood.happiness,
+          stress: mood.stress,
+          focus: mood.focus,
+          tags: mood.tags,
+          notes: mood.notes,
+          related_session_id: mood.relatedSessionId,
+          created_at: mood.createdAt.toISOString(),
+          last_modified: mood.lastModified.toISOString(),
+          version: mood.version
+        }, { onConflict: 'id' });
 
-      await addDoc(collection(db, 'mood_entries'), firebaseData);
+      if (error) throw error;
     } catch (error) {
       console.error('Error uploading mood:', error);
       throw error;
@@ -442,24 +435,27 @@ export class OfflineSyncService {
 
   private async uploadJournal(journal: OfflineJournalEntry): Promise<void> {
     try {
-      const firebaseData = {
-        userId: journal.userId,
-        date: Timestamp.fromDate(journal.date),
-        title: journal.title,
-        content: journal.content,
-        mood: journal.mood,
-        gratitude: journal.gratitude,
-        insights: journal.insights,
-        challenges: journal.challenges,
-        intentions: journal.intentions,
-        tags: journal.tags,
-        relatedSessionId: journal.relatedSessionId,
-        createdAt: Timestamp.fromDate(journal.createdAt),
-        lastModified: Timestamp.fromDate(journal.lastModified),
-        version: journal.version
-      };
+      const { error } = await supabase
+        .from('journal_entries')
+        .upsert({
+          id: journal.id,
+          user_id: journal.userId,
+          date: journal.date.toISOString(),
+          title: journal.title,
+          content: journal.content,
+          mood: journal.mood,
+          gratitude: journal.gratitude,
+          insights: journal.insights,
+          challenges: journal.challenges,
+          intentions: journal.intentions,
+          tags: journal.tags,
+          related_session_id: journal.relatedSessionId,
+          created_at: journal.createdAt.toISOString(),
+          last_modified: journal.lastModified.toISOString(),
+          version: journal.version
+        }, { onConflict: 'id' });
 
-      await addDoc(collection(db, 'journal_entries'), firebaseData);
+      if (error) throw error;
     } catch (error) {
       console.error('Error uploading journal:', error);
       throw error;
@@ -470,43 +466,43 @@ export class OfflineSyncService {
     try {
       const lastSync = await this.getLastSyncTimestamp(userId);
       
-      const q = query(
-        collection(db, 'meditation_sessions'),
-        where('userId', '==', userId),
-        where('lastModified', '>', Timestamp.fromDate(lastSync)),
-        orderBy('lastModified', 'desc'),
-        limit(100)
-      );
+      const { data, error } = await supabase
+        .from('meditation_sessions')
+        .select('*')
+        .eq('user_id', userId)
+        .gt('last_modified', lastSync.toISOString())
+        .order('last_modified', { ascending: false })
+        .limit(100);
 
-      const snapshot = await getDocs(q);
+      if (error) throw error;
       
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        
-        const offlineProgress: OfflineProgress = {
-          id: doc.id,
-          userId: data.userId,
-          sessionId: data.sessionId,
-          startTime: data.startTime.toDate(),
-          endTime: data.endTime?.toDate(),
-          duration: data.duration,
-          quality: data.quality,
-          moodBefore: data.moodBefore,
-          moodAfter: data.moodAfter,
-          stressLevel: data.stressLevel,
-          energyLevel: data.energyLevel,
-          techniques: data.techniques,
-          notes: data.notes,
-          completionPercentage: data.completionPercentage,
-          interruptions: data.interruptions,
-          environment: data.environment,
-          syncStatus: 'synced',
-          createdAt: data.createdAt.toDate(),
-          lastModified: data.lastModified.toDate(),
-          version: data.version
-        };
+      if (data) {
+        for (const row of data) {
+          const offlineProgress: OfflineProgress = {
+            id: row.id,
+            userId: row.user_id,
+            sessionId: row.session_id,
+            startTime: new Date(row.start_time),
+            endTime: row.end_time ? new Date(row.end_time) : undefined,
+            duration: row.duration,
+            quality: row.quality,
+            moodBefore: row.mood_before,
+            moodAfter: row.mood_after,
+            stressLevel: row.stress_level,
+            energyLevel: row.energy_level,
+            techniques: row.techniques,
+            notes: row.notes,
+            completionPercentage: row.completion_percentage,
+            interruptions: row.interruptions,
+            environment: row.environment,
+            syncStatus: 'synced',
+            createdAt: new Date(row.created_at),
+            lastModified: new Date(row.last_modified),
+            version: row.version
+          };
 
-        await offlineStorageService.saveProgress(offlineProgress);
+          await offlineStorageService.saveProgress(offlineProgress);
+        }
       }
     } catch (error) {
       console.error('Error downloading remote progress:', error);
@@ -517,39 +513,39 @@ export class OfflineSyncService {
     try {
       const lastSync = await this.getLastSyncTimestamp(userId);
       
-      const q = query(
-        collection(db, 'mood_entries'),
-        where('userId', '==', userId),
-        where('lastModified', '>', Timestamp.fromDate(lastSync)),
-        orderBy('lastModified', 'desc'),
-        limit(100)
-      );
+      const { data, error } = await supabase
+        .from('mood_entries')
+        .select('*')
+        .eq('user_id', userId)
+        .gt('last_modified', lastSync.toISOString())
+        .order('last_modified', { ascending: false })
+        .limit(100);
 
-      const snapshot = await getDocs(q);
+      if (error) throw error;
       
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        
-        const offlineMood: OfflineMoodEntry = {
-          id: doc.id,
-          userId: data.userId,
-          date: data.date.toDate(),
-          overall: data.overall,
-          energy: data.energy,
-          anxiety: data.anxiety,
-          happiness: data.happiness,
-          stress: data.stress,
-          focus: data.focus,
-          tags: data.tags,
-          notes: data.notes,
-          relatedSessionId: data.relatedSessionId,
-          syncStatus: 'synced',
-          createdAt: data.createdAt.toDate(),
-          lastModified: data.lastModified.toDate(),
-          version: data.version
-        };
+      if (data) {
+        for (const row of data) {
+          const offlineMood: OfflineMoodEntry = {
+            id: row.id,
+            userId: row.user_id,
+            date: new Date(row.date),
+            overall: row.overall,
+            energy: row.energy,
+            anxiety: row.anxiety,
+            happiness: row.happiness,
+            stress: row.stress,
+            focus: row.focus,
+            tags: row.tags,
+            notes: row.notes,
+            relatedSessionId: row.related_session_id,
+            syncStatus: 'synced',
+            createdAt: new Date(row.created_at),
+            lastModified: new Date(row.last_modified),
+            version: row.version
+          };
 
-        await offlineStorageService.saveMoodEntry(offlineMood);
+          await offlineStorageService.saveMoodEntry(offlineMood);
+        }
       }
     } catch (error) {
       console.error('Error downloading remote moods:', error);
@@ -560,39 +556,39 @@ export class OfflineSyncService {
     try {
       const lastSync = await this.getLastSyncTimestamp(userId);
       
-      const q = query(
-        collection(db, 'journal_entries'),
-        where('userId', '==', userId),
-        where('lastModified', '>', Timestamp.fromDate(lastSync)),
-        orderBy('lastModified', 'desc'),
-        limit(100)
-      );
+      const { data, error } = await supabase
+        .from('journal_entries')
+        .select('*')
+        .eq('user_id', userId)
+        .gt('last_modified', lastSync.toISOString())
+        .order('last_modified', { ascending: false })
+        .limit(100);
 
-      const snapshot = await getDocs(q);
+      if (error) throw error;
       
-      for (const doc of snapshot.docs) {
-        const data = doc.data();
-        
-        const offlineJournal: OfflineJournalEntry = {
-          id: doc.id,
-          userId: data.userId,
-          date: data.date.toDate(),
-          title: data.title,
-          content: data.content,
-          mood: data.mood,
-          gratitude: data.gratitude,
-          insights: data.insights,
-          challenges: data.challenges,
-          intentions: data.intentions,
-          tags: data.tags,
-          relatedSessionId: data.relatedSessionId,
-          syncStatus: 'synced',
-          createdAt: data.createdAt.toDate(),
-          lastModified: data.lastModified.toDate(),
-          version: data.version
-        };
+      if (data) {
+        for (const row of data) {
+          const offlineJournal: OfflineJournalEntry = {
+            id: row.id,
+            userId: row.user_id,
+            date: new Date(row.date),
+            title: row.title,
+            content: row.content,
+            mood: row.mood,
+            gratitude: row.gratitude,
+            insights: row.insights,
+            challenges: row.challenges,
+            intentions: row.intentions,
+            tags: row.tags,
+            relatedSessionId: row.related_session_id,
+            syncStatus: 'synced',
+            createdAt: new Date(row.created_at),
+            lastModified: new Date(row.last_modified),
+            version: row.version
+          };
 
-        await offlineStorageService.saveJournalEntry(offlineJournal);
+          await offlineStorageService.saveJournalEntry(offlineJournal);
+        }
       }
     } catch (error) {
       console.error('Error downloading remote journals:', error);
@@ -601,24 +597,26 @@ export class OfflineSyncService {
 
   private async checkForConflicts(type: string, localData: any): Promise<SyncConflict | null> {
     try {
-      // Check if remote version exists and differs
       const collectionName = type === 'progress' ? 'meditation_sessions' :
                             type === 'mood' ? 'mood_entries' : 'journal_entries';
       
-      const q = query(
-        collection(db, collectionName),
-        where('userId', '==', localData.userId),
-        where('id', '==', localData.id)
-      );
+      const { data, error } = await supabase
+        .from(collectionName)
+        .select('*')
+        .eq('id', localData.id)
+        .single();
 
-      const snapshot = await getDocs(q);
+      if (error) {
+        if (error.code === 'PGRST116') return null; // No rows found
+        throw error;
+      }
       
-      if (!snapshot.empty) {
-        const remoteData = snapshot.docs[0].data();
+      if (data) {
+        const remoteData = data;
         
         // Check for version conflicts
         if (remoteData.version !== localData.version || 
-            remoteData.lastModified.toDate() !== localData.lastModified) {
+            new Date(remoteData.last_modified).getTime() !== localData.lastModified) {
           
           const conflictFields = this.identifyConflictFields(localData, remoteData);
           
@@ -658,7 +656,7 @@ export class OfflineSyncService {
   private suggestResolution(localData: any, remoteData: any): ConflictResolution {
     // Suggest resolution based on timestamps
     const localTime = new Date(localData.lastModified);
-    const remoteTime = remoteData.lastModified.toDate ? remoteData.lastModified.toDate() : new Date(remoteData.lastModified);
+    const remoteTime = new Date(remoteData.last_modified);
     
     if (localTime > remoteTime) {
       return { type: 'local_wins', strategy: 'latest_timestamp' };
@@ -696,8 +694,8 @@ export class OfflineSyncService {
     const merged = { ...localData };
     
     // Use latest timestamp for version
-    if (new Date(remoteData.lastModified) > new Date(localData.lastModified)) {
-      merged.lastModified = remoteData.lastModified;
+    if (new Date(remoteData.last_modified) > new Date(localData.lastModified)) {
+      merged.lastModified = new Date(remoteData.last_modified).getTime();
       merged.version = Math.max(localData.version, remoteData.version) + 1;
     }
     

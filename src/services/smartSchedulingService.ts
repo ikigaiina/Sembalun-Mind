@@ -1,16 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 import { smartNotificationService } from './smartNotificationService';
 import { contextualMonitoringService } from './contextualMonitoringService';
@@ -199,11 +187,19 @@ export class SmartSchedulingService {
 
       // Save to database
       for (const slot of optimalSlots) {
-        await addDoc(collection(db, 'optimal_time_slots'), {
-          ...slot,
-          createdAt: Timestamp.fromDate(slot.createdAt),
-          lastUpdated: Timestamp.fromDate(slot.lastUpdated)
+        const { error } = await supabase.from('optimal_time_slots').insert({
+          user_id: slot.userId,
+          time_slot: slot.timeSlot,
+          day_of_week: slot.dayOfWeek,
+          confidence: slot.confidence,
+          effectiveness: slot.effectiveness,
+          based_on_sessions: slot.basedOnSessions,
+          environmental: slot.environmental,
+          personal_factors: slot.personalFactors,
+          created_at: slot.createdAt.toISOString(),
+          last_updated: slot.lastUpdated.toISOString()
         });
+        if (error) throw error;
       }
 
       return optimalSlots;
@@ -253,11 +249,21 @@ export class SmartSchedulingService {
         updatedAt: new Date()
       };
 
-      const docRef = await addDoc(collection(db, 'smart_schedules'), {
-        ...schedule,
-        createdAt: Timestamp.fromDate(schedule.createdAt),
-        updatedAt: Timestamp.fromDate(schedule.updatedAt)
-      });
+      const { data, error } = await supabase.from('smart_schedules').insert({
+        user_id: schedule.userId,
+        schedule_type: schedule.scheduleType,
+        time_slots: schedule.timeSlots,
+        adaptive_settings: schedule.adaptiveSettings,
+        personal_preferences: schedule.personalPreferences,
+        effectiveness: schedule.effectiveness,
+        next_recommendations: schedule.nextRecommendations,
+        created_at: schedule.createdAt.toISOString(),
+        updated_at: schedule.updatedAt.toISOString()
+      }).select();
+
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create smart schedule');
+      const docRef = data[0];
 
       const savedSchedule = { id: docRef.id, ...schedule };
 
@@ -854,11 +860,11 @@ export class SmartSchedulingService {
     };
 
     // Update in database
-    const docRef = doc(db, 'smart_schedules', schedule.id);
-    await updateDoc(docRef, {
-      timeSlots: updatedSchedule.timeSlots,
-      updatedAt: Timestamp.fromDate(updatedSchedule.updatedAt)
-    });
+    const { error } = await supabase.from('smart_schedules').update({
+      time_slots: updatedSchedule.timeSlots,
+      updated_at: updatedSchedule.updatedAt.toISOString()
+    }).eq('id', schedule.id);
+    if (error) throw error;
 
     return updatedSchedule;
   }

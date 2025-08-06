@@ -1,11 +1,10 @@
-import type { User as FirebaseUser } from 'firebase/auth';
 import type { UserProfile } from '../types/auth';
 
 /**
  * Get a proper display name for the user, avoiding generic templates
  */
 export const getUserDisplayName = (
-  user: FirebaseUser | null, 
+  user: any | null, 
   userProfile: UserProfile | null, 
   isGuest: boolean = false
 ): string => {
@@ -40,7 +39,7 @@ export const getUserDisplayName = (
  * Get a personalized greeting with user's name
  */
 export const getPersonalizedGreeting = (
-  user: FirebaseUser | null, 
+  user: any | null, 
   userProfile: UserProfile | null, 
   isGuest: boolean = false,
   useIndonesian: boolean = true
@@ -86,7 +85,7 @@ export const getUserPreferredLanguage = (userProfile: UserProfile | null): 'en' 
  * Get a contextual welcome message based on user's progress
  */
 export const getContextualWelcomeMessage = (
-  user: FirebaseUser | null,
+  user: any | null,
   userProfile: UserProfile | null,
   isGuest: boolean = false
 ): string => {

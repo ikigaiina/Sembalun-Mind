@@ -1,273 +1,611 @@
-# Sembalun - Indonesian Meditation App
+# Sembalun - Meditation & Mindfulness App
 
-A calm, mindful Indonesian meditation experience with cairn (stone stack) progress tracking.
+[![Production Status](https://img.shields.io/badge/status-production-green.svg)](https://sembalun-app.vercel.app)
+[![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
+[![Supabase](https://img.shields.io/badge/Supabase-2.53.0-green.svg)](https://supabase.com/)
+[![Vite](https://img.shields.io/badge/Vite-7.0.4-purple.svg)](https://vitejs.dev/)
+[![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-blue.svg)](https://tailwindcss.com/)
 
-## Features
+## 🧘‍♀️ Overview
 
-- 🧘‍♀️ **Indonesian-themed meditation app** with peaceful, mindful design
-- 📱 **Mobile-first responsive design** optimized for all screen sizes
-- 🏔️ **Cairn progress tracking** using stone stack metaphor for meditation progress
-- 🎨 **Indonesian nature-inspired color palette**:
-  - Primary: `#6A8F6F` (hijau-perbukitan - hill green)
-  - Accent: `#A9C1D9` (biru-langit - sky blue)
-  - Background: `#E1E8F0` (biru-kabut - mist blue)
-  - Warm: `#C56C3E` (tanah-terakota - terracotta earth)
-- 📚 **Typography**: Lora for headings, Inter for UI text
-- ⚡ **PWA capabilities** for offline access and app-like experience
-- 🛣️ **React Router** for smooth navigation
+Sembalun is a comprehensive meditation and mindfulness application designed to help users develop a consistent meditation practice through guided sessions, breathing exercises, progress tracking, and personalized insights. The app combines traditional meditation wisdom with modern technology to create an accessible and engaging mindfulness experience.
 
-## Tech Stack
+### ✨ Key Features
 
-- **React 19** with TypeScript
-- **Vite** for fast development and building
-- **Tailwind CSS v4** for styling
-- **React Router DOM** for navigation
-- **PWA** with service worker support
-- **Google Fonts** (Lora & Inter)
+- **🎯 Guided Meditations**: Comprehensive library of guided meditation sessions
+- **🫁 Breathing Exercises**: Various breathing patterns and techniques
+- **📊 Progress Tracking**: Detailed analytics and streak monitoring
+- **🎨 Cultural Integration**: Indonesian-inspired design and content
+- **👤 User Profiles**: Personalized experience with preferences and goals
+- **📱 PWA Support**: Installable web app with offline capabilities
+- **🔐 Secure Authentication**: Supabase-powered authentication system
+- **🌙 Guest Mode**: Try the app without creating an account
+- **🔄 Real-time Sync**: Cross-device synchronization
+- **📈 Analytics Dashboard**: Comprehensive progress insights
 
-## Project Structure
+## 🏗️ Technical Architecture
+
+### Frontend Stack
+- **React 19.1.0** - Modern UI framework with concurrent features
+- **TypeScript 5.8.3** - Type-safe JavaScript
+- **Vite 7.0.4** - Fast build tool and dev server
+- **TailwindCSS 4.1.11** - Utility-first CSS framework
+- **React Router 7.7.1** - Client-side routing
+- **Lucide React** - Beautiful SVG icons
+
+### Backend & Services
+- **Supabase** - Backend-as-a-Service
+  - Authentication & User Management
+  - PostgreSQL Database
+  - Real-time subscriptions
+  - Row Level Security (RLS)
+  - Storage for media files
+- **Vercel** - Deployment and hosting platform
+
+### Testing & Quality
+- **Vitest** - Fast unit testing framework
+- **Testing Library** - React component testing
+- **ESLint** - Code linting and formatting
+- **TypeScript Compiler** - Static type checking
+
+## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── ui/           # Reusable UI components
-│   │   ├── Button.tsx          # Styled button with variants
-│   │   ├── Card.tsx            # Container card with blur backdrop
-│   │   ├── Cairn.tsx           # 3D stone stack progress component
-│   │   ├── CairnIcon.tsx       # Minimalist SVG cairn icon
-│   │   ├── BreathingCard.tsx   # Animated card for breathing exercises
-│   │   ├── MoodSelector.tsx    # Emoji-based mood tracking
-│   │   ├── FloatingButton.tsx  # Floating action button with shadows
-│   │   ├── DashboardLayout.tsx # Main app layout with bottom nav
-│   │   ├── Header.tsx          # Navigation header
-│   │   └── index.tsx           # Component exports
-│   └── Layout.tsx
-├── pages/            # Page components
-│   ├── Dashboard.tsx           # Main dashboard with personalized content
-│   ├── Home.tsx               # Original home (moved to /old-home)
-│   ├── Meditation.tsx
-│   ├── History.tsx
-│   ├── Explore.tsx            # Exploration & discovery
-│   ├── Journal.tsx            # Mindfulness journal
-│   ├── Profile.tsx            # User profile & settings
-│   ├── ComponentsDemo.tsx      # UI components showcase
-│   └── onboarding/             # Onboarding flow
-│       ├── SplashScreen.tsx    # App intro with cairn animation
-│       ├── OnboardingSlides.tsx # 3-slide intro with swipe gestures
-│       ├── PersonalizationScreen.tsx # Goal selection
-│       ├── WelcomeScreen.tsx   # Completion screen
-│       └── OnboardingFlow.tsx  # Flow orchestrator
-├── contexts/         # React contexts (for future state management)
-├── hooks/           # Custom React hooks
-└── utils/           # Utility functions
+sembalun/
+├── src/
+│   ├── components/          # Reusable UI components
+│   │   ├── ui/             # Base UI components
+│   │   ├── auth/           # Authentication components
+│   │   ├── admin/          # Admin panel components
+│   │   ├── analytics/      # Analytics and reporting
+│   │   ├── account/        # User account management
+│   │   ├── meditation/     # Meditation-specific components
+│   │   ├── notifications/  # Notification system
+│   │   ├── personalization/# User customization
+│   │   └── tracking/       # Progress tracking
+│   ├── pages/              # Page components (routes)
+│   ├── contexts/           # React contexts
+│   ├── hooks/              # Custom React hooks
+│   ├── services/           # Business logic and API calls
+│   ├── types/              # TypeScript type definitions
+│   ├── utils/              # Utility functions
+│   ├── config/             # Configuration files
+│   └── test/               # Test utilities and setup
+├── public/                 # Static assets
+├── supabase/               # Database schema and migrations
+├── docs/                   # Documentation
+└── scripts/                # Build and utility scripts
 ```
 
-## Development
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18.0 or later
+- npm or yarn package manager
+- Supabase account and project
+
+### Environment Setup
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-org/sembalun.git
+   cd sembalun
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Variables**
+   
+   Create `.env.local` file:
+   ```env
+   # Supabase Configuration
+   VITE_SUPABASE_URL=your_supabase_project_url
+   VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   
+   # App Configuration (Optional)
+   VITE_APP_NAME=Sembalun
+   VITE_APP_VERSION=1.0.0
+   ```
+
+4. **Database Setup**
+   
+   Run the Supabase migration:
+   ```bash
+   # Connect to your Supabase project
+   npx supabase init
+   npx supabase link --project-ref your-project-ref
+   
+   # Run migrations
+   npx supabase db push
+   ```
+
+5. **Start Development Server**
+   ```bash
+   npm run dev
+   ```
+
+## 🗄️ Database Schema
+
+### Core Tables
+
+#### Users (`users`)
+Extended user profiles with preferences and progress tracking.
+- `id` (UUID, Primary Key)
+- `email` (Text, Unique)
+- `display_name` (Text)
+- `avatar_url` (Text)
+- `preferences` (JSONB) - User settings and preferences
+- `progress` (JSONB) - Meditation progress and stats
+- `created_at`, `updated_at` (Timestamps)
+
+#### Meditation Sessions (`meditation_sessions`)
+Records of completed meditation sessions.
+- `id` (UUID, Primary Key)
+- `user_id` (UUID, Foreign Key)
+- `type` (Text) - 'breathing', 'guided', 'silent', 'walking'
+- `duration_minutes` (Integer)
+- `mood_before`, `mood_after` (Text)
+- `notes` (Text)
+- `completed_at` (Timestamp)
+
+#### Courses (`courses`)
+Available meditation courses and content.
+- `id` (UUID, Primary Key)
+- `title`, `description` (Text)
+- `category`, `difficulty` (Text)
+- `duration_minutes` (Integer)
+- `instructor` (Text)
+- `is_premium` (Boolean)
+- `order_index` (Integer)
+
+#### Journal Entries (`journal_entries`)
+User reflection and journaling entries.
+- `id` (UUID, Primary Key)
+- `user_id` (UUID, Foreign Key)
+- `title`, `content` (Text)
+- `mood` (Text)
+- `tags` (Text Array)
+- `created_at`, `updated_at` (Timestamps)
+
+### Security Features
+
+- **Row Level Security (RLS)** enabled on all tables
+- **User isolation** - Users can only access their own data
+- **Secure authentication** with email/password and OAuth
+- **Data validation** with database constraints
+- **Automatic timestamps** with triggers
+
+## 🔐 Authentication System
+
+### Authentication Flow
+
+The app uses Supabase Auth with multiple authentication methods:
+
+#### 1. Email/Password Authentication
+- User registration with email verification
+- Secure password-based login
+- Password reset functionality
+
+#### 2. OAuth Providers
+- **Google Sign-in** - Quick authentication with Google accounts
+- **Apple Sign-in** - iOS/macOS integration
+- Automatic profile creation from OAuth data
+
+#### 3. Guest Mode
+- Try the app without registration
+- Local storage for session data
+- Migration to full account available
+
+### Authentication Context
+
+```typescript
+interface SupabaseAuthContextType {
+  user: SupabaseUser | null;
+  session: Session | null;
+  userProfile: UserProfile | null;
+  loading: boolean;
+  isGuest: boolean;
+  
+  // Authentication methods
+  signInWithEmail: (email: string, password: string) => Promise<{error: AuthError | null}>;
+  signUpWithEmail: (email: string, password: string, displayName?: string) => Promise<{error: AuthError | null}>;
+  signInWithGoogle: () => Promise<{error: AuthError | null}>;
+  signInWithApple: () => Promise<{error: AuthError | null}>;
+  signOut: () => Promise<{error: AuthError | null}>;
+  
+  // Profile management
+  updateUserProfile: (updates: Partial<UserProfile>) => Promise<{error: AuthError | null}>;
+  deleteAccount: () => Promise<{error: AuthError | null}>;
+  
+  // Guest functionality
+  continueAsGuest: () => void;
+  migrateGuestData: () => Promise<void>;
+}
+```
+
+## 🎨 UI Components
+
+### Design System
+
+The app follows a consistent design system with:
+
+#### Core Components
+
+**Button (`src/components/ui/Button.tsx`)**
+- Multiple variants: primary, secondary, outline, ghost
+- Size options: sm, md, lg
+- Loading states and disabled states
+- Accessibility features
+
+**Card (`src/components/ui/Card.tsx`)**
+- Flexible container component
+- Shadow and border variants
+- Header, body, footer sections
+
+**Input (`src/components/ui/Input.tsx`)**
+- Form input with validation states
+- Error message display
+- Label and helper text support
+
+#### Specialized Components
+
+**MeditationTimer (`src/components/ui/MeditationTimer.tsx`)**
+- Customizable meditation timer
+- Multiple timer visualizations
+- Sound alerts and vibration
+
+**BreathingGuide (`src/components/ui/BreathingGuide.tsx`)**
+- Animated breathing visualization
+- Multiple breathing patterns
+- Customizable timing and guidance
+
+**AudioPlayer (`src/components/ui/AudioPlayer.tsx`)**
+- Media player for guided meditations
+- Playback speed control
+- Background audio support
+
+## 📱 Features & Functionality
+
+### 1. Meditation Sessions
+
+#### Session Types
+- **Guided Meditations**: Voice-guided sessions with various themes
+- **Breathing Exercises**: Different breathing patterns and techniques
+- **Silent Meditation**: Timer-based silent practice
+- **Walking Meditation**: Mindful movement practices
+
+#### Session Management
+- Progress tracking during sessions
+- Mood logging before/after sessions
+- Personal notes and reflections
+- Session history and analytics
+
+### 2. Progress Tracking
+
+#### Metrics Tracked
+- Total meditation minutes
+- Session streaks (current and longest)
+- Favorite meditation categories
+- Completion rates
+- Mood trends over time
+
+#### Visualizations
+- Progress charts and graphs
+- Streak calendars
+- Category breakdowns
+- Time-based analytics
+
+### 3. User Personalization
+
+#### Preferences System
+```typescript
+interface UserPreferences {
+  theme: 'auto' | 'light' | 'dark';
+  language: 'en' | 'id';
+  notifications: {
+    daily: boolean;
+    reminders: boolean;
+    achievements: boolean;
+    weeklyProgress: boolean;
+  };
+  meditation: {
+    defaultDuration: number;
+    preferredVoice: string;
+    backgroundSounds: boolean;
+    guidanceLevel: 'minimal' | 'moderate' | 'detailed';
+    musicVolume: number;
+    voiceVolume: number;
+  };
+  accessibility: {
+    reducedMotion: boolean;
+    highContrast: boolean;
+    fontSize: 'small' | 'medium' | 'large';
+  };
+}
+```
+
+### 4. Offline Capabilities
+
+#### PWA Features
+- Installable web app
+- Offline session tracking
+- Cached meditation content
+- Background sync when online
+
+#### Offline Storage
+- IndexedDB for session data
+- Local storage for preferences
+- Service worker for caching
+
+## 🛠️ Development Workflows
+
+### Available Scripts
 
 ```bash
-# Install dependencies
-npm install
+# Development
+npm run dev                 # Start development server
+npm run build              # Production build
+npm run build:fast         # Fast production build
+npm run preview            # Preview production build
 
-# Start development server
-npm run dev
+# Code Quality
+npm run lint               # Run ESLint
+npm run lint:fix           # Fix ESLint issues
+npm run typecheck          # TypeScript type checking
 
-# Build for production
-npm run build
+# Testing
+npm run test               # Run tests
+npm run test:ui            # Run tests with UI
+npm run test:coverage      # Generate coverage report
 
-# Preview production build
-npm run preview
+# Deployment
+npm run build:vercel       # Build for Vercel deployment
+npm run deploy:vercel      # Deploy to Vercel
 ```
 
-## Features Overview
+### Development Guidelines
 
-### Home Page
-- Welcome interface with cairn progress visualization
-- Quick access to meditation sessions
-- Navigation to history and settings
+#### Code Style
+- Use TypeScript for all new files
+- Follow React functional component patterns
+- Implement proper error handling
+- Add JSDoc comments for complex functions
+- Use meaningful variable and function names
 
-### Meditation Page
-- Timer display with Indonesian meditation guidance
-- Live cairn progress tracking
-- Pause/resume functionality
+#### Component Structure
+```typescript
+// Component template
+interface ComponentProps {
+  // Props definition
+}
 
-### History Page
-- Track meditation streaks and completed sessions
-- Visual progress with cairn symbols
-- Session details and statistics
-
-### PWA Features
-- Installable as mobile app
-- Offline functionality
-- Indonesian meditation theme colors
-- Optimized for mobile devices
-
-## Color Theme
-
-The app uses colors inspired by Indonesian natural landscapes:
-- **Hill Green** (`#6A8F6F`): Primary buttons and accents
-- **Sky Blue** (`#A9C1D9`): Secondary elements
-- **Mist Blue** (`#E1E8F0`): Background and subtle elements
-- **Terracotta Earth** (`#C56C3E`): Warm accents and highlights
-
-## Core UI Components
-
-### CairnIcon
-Minimalist SVG stone stack icon with progress states (0-100%). Perfect for meditation progress indicators.
-
-### BreathingCard  
-Interactive card with subtle breathing animations. Features:
-- Gentle scale transitions (inhale/exhale)
-- Soft glow effects with primary colors
-- Breathing guide circle
-- Configurable duration (default 4s cycle)
-
-### MoodSelector
-Emoji-based mood tracking component:
-- 5 mood states: 😢😔😐😊😄
-- Smooth hover animations
-- Indonesian labels
-- Color-coded selection states
-
-### FloatingButton
-Primary action button with soft shadows:  
-- 3 variants: primary, secondary, accent
-- 3 sizes: small, medium, large
-- Positioning: fixed or static
-- Breathing glow effect for primary variant
-
-### DashboardLayout
-Main app layout with bottom navigation:
-- Frosted glass navigation bar
-- Smooth page transitions  
-- Safe area support for mobile devices
-- Active state indicators
-
-Visit `/demo` route to see all components in action!
-
-## Onboarding Experience
-
-### 🌟 **Complete User Journey**
-1. **SplashScreen**: Animated cairn building with tagline "Perjalanan ke Dalam Diri"
-2. **Three Swipeable Slides**:
-   - "Temukan Jeda di Dunia yang Riuh" with misty hills illustration
-   - "Pahami Emosi, Kenali Diri" with heart/journal imagery  
-   - "Tumbuh Setiap Hari, Selangkah Demi Selangkah" with cairn visual
-3. **Personalization**: Goal selection (Stress, Focus, Sleep, Curiosity)
-4. **Welcome Screen**: Personalized completion with tailored suggestions
-
-### 🎯 **Features**
-- **Touch Gestures**: Swipe navigation for mobile optimization
-- **Progress Indicators**: Dots showing current slide position
-- **Skip Options**: Allow users to bypass steps
-- **State Persistence**: Remember completion status in localStorage
-- **Gentle Transitions**: 300ms animations with cubic-bezier easing
-- **Indonesian Content**: Culturally appropriate language and imagery
-
-## Dashboard Experience
-
-### 🏠 **Main Dashboard Features**
-1. **Personal Greeting**: Dynamic time-based greetings (pagi/siang/sore/malam)
-2. **Daily Mood Check-in**: Integrated MoodSelector for emotional tracking
-3. **Jeda Hari Ini Card**: 
-   - Time-aware meditation recommendations
-   - Personalized based on onboarding goals
-   - Breathing animation hints on CTA button
-4. **Streak Counter**: Cairn visualization growing with consistency
-5. **Quick Access Cards**: Meditasi, Napas, Jelajah, Profil
-6. **Cultural Touches**: Indonesian quotes, warm language, peaceful imagery
-
-### 🎯 **Smart Recommendations**
-- **Morning**: Pernapasan Pagi (5 min breathing)
-- **Midday**: Jeda Siang (10 min mindfulness)  
-- **Evening**: Refleksi Sore (15 min reflection)
-- **Night**: Ketenangan Malam (20 min sleep prep)
-
-### 📊 **Progress Tracking**
-- **Streak visualization** with cairn stones
-- **Session statistics** (days, sessions, minutes)
-- **Achievement celebrations** for completed goals
-- **Motivational content** with Indonesian wisdom
-
-### 🗂️ **Navigation Structure**
-- **Home**: Main dashboard with personalized content
-- **Jelajah**: Exploration and discovery of techniques
-- **Jurnal**: Mindfulness journal and reflections
-- **Profil**: Settings, statistics, and preferences
-
-## Design System
-
-All components follow the Sembalun design principles:
-- **Rounded corners**: 12px (rounded-xl in Tailwind)
-- **Gentle animations**: 300ms cubic-bezier easing
-- **Mobile-first**: Optimized for touch interactions
-- **Accessibility**: Proper focus states and ARIA support
-
-## Deployment
-
-### Production Build
-```bash
-# Build optimized production version
-npm run build:prod
-
-# Analyze bundle size
-npm run build:analyze
-
-# Preview production build locally
-npm run serve
+export const Component: React.FC<ComponentProps> = ({
+  // Destructured props
+}) => {
+  // Hooks
+  // State
+  // Effects
+  // Event handlers
+  // Render
+  return (
+    <div>
+      {/* JSX */}
+    </div>
+  );
+};
 ```
 
-### Hosting Options
+#### Testing Strategy
+- Unit tests for utility functions
+- Component tests for UI components
+- Integration tests for complex workflows
+- E2E tests for critical user paths
 
-#### Netlify (Recommended)
-```bash
-# Install Netlify CLI
-npm install -g netlify-cli
+## 🚀 Deployment
 
-# Deploy to Netlify
-npm run deploy:netlify
+### Production Deployment
+
+The app is deployed on Vercel with the following configuration:
+
+#### Build Configuration
+```typescript
+// vite.config.deploy.ts
+export default defineConfig({
+  plugins: [react(), vitePWA(pwaConfig)],
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    minify: 'terser',
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          supabase: ['@supabase/supabase-js'],
+          router: ['react-router-dom']
+        }
+      }
+    }
+  }
+});
 ```
 
-#### Vercel
-```bash
-# Install Vercel CLI
-npm install -g vercel
+#### Environment Variables
+Production requires the following environment variables:
+- `VITE_SUPABASE_URL`
+- `VITE_SUPABASE_ANON_KEY`
 
-# Deploy to Vercel
-npm run deploy:vercel
+#### Deployment Steps
+1. **Build optimization**
+   ```bash
+   npm run build:vercel
+   ```
+
+2. **Deploy to Vercel**
+   ```bash
+   npm run deploy:vercel
+   ```
+
+3. **Post-deployment checks**
+   - Health check endpoints
+   - Authentication flow testing
+   - Database connectivity verification
+
+### Performance Optimizations
+
+#### Bundle Optimization
+- Code splitting by route
+- Dynamic imports for heavy components
+- Tree shaking for unused code
+- Asset optimization
+
+#### Runtime Performance
+- React 19 concurrent features
+- Memoization for expensive calculations
+- Virtual scrolling for large lists
+- Image lazy loading
+
+#### PWA Optimizations
+- Service worker caching
+- Background sync
+- Push notifications
+- Install prompts
+
+## 📊 Monitoring & Analytics
+
+### Error Tracking
+- Client-side error boundaries
+- Supabase error monitoring
+- Performance monitoring
+
+### User Analytics
+- Session tracking
+- Feature usage analytics
+- Performance metrics
+- User engagement tracking
+
+## 🔧 Configuration
+
+### Build Configurations
+
+The project includes multiple Vite configurations:
+
+- `vite.config.ts` - Development configuration
+- `vite.config.production.ts` - Production optimization
+- `vite.config.deploy.ts` - Deployment-specific settings
+- `vite.config.minimal.ts` - Minimal build for testing
+
+### PWA Configuration
+
+```typescript
+const pwaConfig: VitePWAOptions = {
+  registerType: 'autoUpdate',
+  includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
+  manifest: {
+    name: 'Sembalun - Meditation & Mindfulness',
+    short_name: 'Sembalun',
+    description: 'Your personal meditation and mindfulness companion',
+    theme_color: '#4f46e5',
+    icons: [
+      {
+        src: 'pwa-192x192.png',
+        sizes: '192x192',
+        type: 'image/png'
+      }
+    ]
+  }
+};
 ```
 
-### Environment Variables
-Copy `.env.example` to `.env.production` and configure:
-- `VITE_ENABLE_ANALYTICS`: Enable Google Analytics tracking
-- `VITE_GTM_ID`: Google Tag Manager ID for analytics
-- `VITE_APP_VERSION`: App version for PWA manifest
+## 📚 API Reference
 
-### Domain & SSL
-Both Netlify and Vercel provide:
-- Free SSL certificates
-- Custom domain support
-- CDN distribution
-- Automatic deployments from Git
+### Supabase Services
 
-### PWA Features
-The app includes complete PWA functionality:
-- Service worker for offline access
-- App manifest for mobile installation
-- Optimized icons for all platforms
-- Background sync capabilities
+#### Authentication Service (`src/services/supabaseAuthService.ts`)
+```typescript
+class SupabaseAuthService {
+  static async signUp(data: SignUpData): Promise<AuthResponse>
+  static async signIn(data: SignInData): Promise<AuthResponse>
+  static async signOut(): Promise<{error: AuthError | null}>
+  static async resetPassword(data: ResetPasswordData): Promise<{error: AuthError | null}>
+}
+```
 
-## Performance Optimizations
+#### Database Service (`src/services/supabaseDatabaseService.ts`)
+```typescript
+class SupabaseDatabaseService {
+  static async getUser(userId: string): Promise<UserProfile | null>
+  static async updateUser(userId: string, updates: UserUpdate): Promise<{error: any}>
+  static async getMeditationSessions(userId: string): Promise<MeditationSession[]>
+  static async createMeditationSession(session: MeditationSessionInsert): Promise<{error: any}>
+}
+```
 
-- **Code splitting**: Vendor and router chunks separated
-- **Bundle optimization**: Terser minification enabled
-- **Cache strategies**: Long-term caching for static assets
-- **Image optimization**: SVG icons for scalability
-- **Font loading**: Google Fonts with display swap
+### Hooks API
 
-## Contributing
+#### useAuth
+```typescript
+const {
+  user,
+  userProfile,
+  loading,
+  isGuest,
+  signIn,
+  signOut,
+  updateProfile
+} = useAuth();
+```
 
-This meditation app embodies the peaceful, mindful spirit of Indonesian culture. When contributing, please maintain the calm, centered aesthetic and ensure all new features align with the meditation and mindfulness theme.
+#### useProgress
+```typescript
+const {
+  totalSessions,
+  totalMinutes,
+  currentStreak,
+  addSession,
+  getWeeklyProgress
+} = useProgress();
+```
 
-## License
+## 🤝 Contributing
 
-MIT License - Feel free to use this for your own meditation app projects.
+### Development Setup
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests for new functionality
+5. Run the test suite
+6. Submit a pull request
+
+### Code Review Process
+- All PRs require review from maintainers
+- Automated testing must pass
+- Code must follow established patterns
+- Documentation updates required for new features
+
+## 📄 License
+
+This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **Design Inspiration**: Indonesian meditation traditions and Mount Rinjani
+- **Icons**: Lucide React icon library
+- **Backend**: Supabase for providing excellent BaaS platform
+- **Hosting**: Vercel for reliable deployment platform
+- **Community**: React and TypeScript communities for excellent tooling
+
+## 📞 Support
+
+For support and questions:
+- 📧 Email: support@sembalun.app
+- 🐛 Issues: [GitHub Issues](https://github.com/your-org/sembalun/issues)
+- 📖 Documentation: [Project Wiki](https://github.com/your-org/sembalun/wiki)
+- 💬 Discussions: [GitHub Discussions](https://github.com/your-org/sembalun/discussions)
+
+---
+
+Built with ❤️ for mindfulness practitioners everywhere.

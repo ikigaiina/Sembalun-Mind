@@ -1,16 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { CourseProgress, MeditationSession } from '../types/progress';
 import { progressService } from './progressService';
 
@@ -531,24 +519,28 @@ export class AdaptiveLearningService {
 
   private async getUserCourseProgress(userId: string, courseId: string): Promise<CourseProgress | null> {
     try {
-      const q = query(
-        collection(db, 'course_progress'),
-        where('userId', '==', userId),
-        where('courseId', '==', courseId),
-        limit(1)
-      );
+      const { data, error } = await supabase
+        .from('course_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .limit(1);
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
 
-      const doc = snapshot.docs[0];
+      const row = data[0];
       return {
-        id: doc.id,
-        ...doc.data(),
-        startedAt: doc.data().startedAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt.toDate(),
-        completedAt: doc.data().completedAt?.toDate(),
-        lastModified: doc.data().lastModified.toDate()
+        id: row.id,
+        userId: row.user_id,
+        courseId: row.course_id,
+        progress: row.progress,
+        startedAt: new Date(row.started_at),
+        lastAccessedAt: new Date(row.last_accessed_at),
+        completedAt: row.completed_at ? new Date(row.completed_at) : null,
+        lastModified: new Date(row.last_modified),
+        completedLessons: row.completed_lessons,
+        timeSpent: row.time_spent
       } as CourseProgress;
     } catch (error) {
       console.error('Error fetching course progress:', error);
@@ -558,24 +550,35 @@ export class AdaptiveLearningService {
 
   private async getExistingAnalytics(userId: string, courseId: string): Promise<LearningAnalytics | null> {
     try {
-      const q = query(
-        collection(db, 'learning_analytics'),
-        where('userId', '==', userId),
-        where('courseId', '==', courseId),
-        limit(1)
-      );
+      const { data, error } = await supabase
+        .from('learning_analytics')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .limit(1);
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
 
-      const doc = snapshot.docs[0];
+      const row = data[0];
       return {
-        id: doc.id,
-        ...doc.data(),
-        lastAssessment: doc.data().lastAssessment.toDate(),
-        adjustmentHistory: doc.data().adjustmentHistory.map((adj: any) => ({
+        id: row.id,
+        userId: row.user_id,
+        courseId: row.course_id,
+        currentDifficulty: row.current_difficulty,
+        comprehensionScore: row.comprehension_score,
+        completionRate: row.completion_rate,
+        averageSessionTime: row.average_session_time,
+        strugglingAreas: row.struggling_areas,
+        strengths: row.strengths,
+        learningVelocity: row.learning_velocity,
+        retentionRate: row.retention_rate,
+        engagementLevel: row.engagement_level,
+        recommendedDifficulty: row.recommended_difficulty,
+        lastAssessment: new Date(row.last_assessment),
+        adjustmentHistory: row.adjustment_history.map((adj: any) => ({
           ...adj,
-          date: adj.date.toDate()
+          date: new Date(adj.date)
         }))
       } as LearningAnalytics;
     } catch (error) {
@@ -587,21 +590,33 @@ export class AdaptiveLearningService {
   private async saveAnalytics(analytics: LearningAnalytics): Promise<void> {
     try {
       const analyticsData = {
-        ...analytics,
-        lastAssessment: Timestamp.fromDate(analytics.lastAssessment),
-        adjustmentHistory: analytics.adjustmentHistory.map(adj => ({
+        user_id: analytics.userId,
+        course_id: analytics.courseId,
+        current_difficulty: analytics.currentDifficulty,
+        comprehension_score: analytics.comprehensionScore,
+        completion_rate: analytics.completionRate,
+        average_session_time: analytics.averageSessionTime,
+        struggling_areas: analytics.strugglingAreas,
+        strengths: analytics.strengths,
+        learning_velocity: analytics.learningVelocity,
+        retention_rate: analytics.retentionRate,
+        engagement_level: analytics.engagementLevel,
+        recommended_difficulty: analytics.recommendedDifficulty,
+        last_assessment: analytics.lastAssessment.toISOString(),
+        adjustment_history: analytics.adjustmentHistory.map(adj => ({
           ...adj,
-          date: Timestamp.fromDate(adj.date)
+          date: adj.date.toISOString()
         }))
       };
 
       if (analytics.id.startsWith('analytics_')) {
         // New analytics
-        await addDoc(collection(db, 'learning_analytics'), analyticsData);
+        const { error } = await supabase.from('learning_analytics').insert(analyticsData);
+        if (error) throw error;
       } else {
         // Update existing
-        const docRef = doc(db, 'learning_analytics', analytics.id);
-        await updateDoc(docRef, analyticsData);
+        const { error } = await supabase.from('learning_analytics').update(analyticsData).eq('id', analytics.id);
+        if (error) throw error;
       }
     } catch (error) {
       console.error('Error saving analytics:', error);
@@ -610,10 +625,18 @@ export class AdaptiveLearningService {
 
   private async saveLearningPath(path: LearningPath): Promise<void> {
     try {
-      await addDoc(collection(db, 'learning_paths'), {
-        ...path,
-        estimatedCompletion: Timestamp.fromDate(path.estimatedCompletion)
+      const { error } = await supabase.from('learning_paths').insert({
+        user_id: path.userId,
+        course_id: path.courseId,
+        current_level: path.currentLevel,
+        customized_lessons: path.customizedLessons,
+        skip_recommendations: path.skipRecommendations,
+        additional_resources: path.additionalResources,
+        estimated_completion: path.estimatedCompletion.toISOString(),
+        personalized_objectives: path.personalizedObjectives,
+        adaptation_reason: path.adaptationReason
       });
+      if (error) throw error;
     } catch (error) {
       console.error('Error saving learning path:', error);
     }
@@ -621,22 +644,29 @@ export class AdaptiveLearningService {
 
   async getLearningPath(userId: string, courseId: string): Promise<LearningPath | null> {
     try {
-      const q = query(
-        collection(db, 'learning_paths'),
-        where('userId', '==', userId),
-        where('courseId', '==', courseId),
-        orderBy('estimatedCompletion', 'desc'),
-        limit(1)
-      );
+      const { data, error } = await supabase
+        .from('learning_paths')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .order('estimated_completion', { ascending: false })
+        .limit(1);
 
-      const snapshot = await getDocs(q);
-      if (snapshot.empty) return null;
+      if (error) throw error;
+      if (!data || data.length === 0) return null;
 
-      const doc = snapshot.docs[0];
+      const row = data[0];
       return {
-        id: doc.id,
-        ...doc.data(),
-        estimatedCompletion: doc.data().estimatedCompletion.toDate()
+        id: row.id,
+        userId: row.user_id,
+        courseId: row.course_id,
+        currentLevel: row.current_level,
+        customizedLessons: row.customized_lessons,
+        skipRecommendations: row.skip_recommendations,
+        additionalResources: row.additional_resources,
+        estimatedCompletion: new Date(row.estimated_completion),
+        personalizedObjectives: row.personalized_objectives,
+        adaptationReason: row.adaptation_reason
       } as LearningPath;
     } catch (error) {
       console.error('Error fetching learning path:', error);

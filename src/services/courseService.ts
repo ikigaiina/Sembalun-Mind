@@ -1,18 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs, 
-  getDoc,
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  writeBatch,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import type { CourseProgress, Certificate } from '../types/progress';
 
 export interface Course {
@@ -195,20 +181,30 @@ export class CourseService {
 
   async getUserCourseProgress(userId: string): Promise<CourseProgress[]> {
     try {
-      const q = query(
-        collection(db, 'course_progress'),
-        where('userId', '==', userId),
-        orderBy('lastAccessedAt', 'desc')
-      );
+      const { data, error } = await supabase
+        .from('course_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .order('last_accessed_at', { ascending: false });
 
-      const snapshot = await getDocs(q);
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        startedAt: doc.data().startedAt.toDate(),
-        lastAccessedAt: doc.data().lastAccessedAt.toDate(),
-        completedAt: doc.data().completedAt?.toDate(),
-        lastModified: doc.data().lastModified.toDate()
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        courseId: row.course_id,
+        courseTitle: row.course_title,
+        progress: row.progress,
+        isCompleted: row.is_completed,
+        startedAt: new Date(row.started_at),
+        lastAccessedAt: new Date(row.last_accessed_at),
+        timeSpent: row.time_spent,
+        completedLessons: row.completed_lessons,
+        certificates: row.certificates,
+        syncStatus: row.sync_status,
+        lastModified: new Date(row.last_modified),
+        version: row.version,
+        completedAt: row.completed_at ? new Date(row.completed_at) : undefined
       })) as CourseProgress[];
     } catch (error) {
       console.error('Error fetching course progress:', error);
@@ -219,15 +215,16 @@ export class CourseService {
   async startCourse(userId: string, courseId: string): Promise<string> {
     try {
       // Check if course already started
-      const existingQuery = query(
-        collection(db, 'course_progress'),
-        where('userId', '==', userId),
-        where('courseId', '==', courseId)
-      );
+      const { data: existingProgress, error: existingError } = await supabase
+        .from('course_progress')
+        .select('id')
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .limit(1);
 
-      const existingSnapshot = await getDocs(existingQuery);
-      if (!existingSnapshot.empty) {
-        return existingSnapshot.docs[0].id;
+      if (existingError) throw existingError;
+      if (existingProgress && existingProgress.length > 0) {
+        return existingProgress[0].id;
       }
 
       // Get course info
@@ -237,31 +234,32 @@ export class CourseService {
       }
 
       // Create new course progress
-      const courseProgress: Omit<CourseProgress, 'id'> = {
-        userId,
-        courseId,
-        courseTitle: course.title,
+      const now = new Date().toISOString();
+      const courseProgress = {
+        user_id: userId,
+        course_id: courseId,
+        course_title: course.title,
         progress: 0,
-        isCompleted: false,
-        startedAt: new Date(),
-        lastAccessedAt: new Date(),
-        timeSpent: 0,
-        completedLessons: [],
+        is_completed: false,
+        started_at: now,
+        last_accessed_at: now,
+        time_spent: 0,
+        completed_lessons: [],
         certificates: [],
-        syncStatus: 'synced',
-        lastModified: new Date(),
+        sync_status: 'synced',
+        last_modified: now,
         version: 1
       };
 
-      const docRef = await addDoc(collection(db, 'course_progress'), {
-        ...courseProgress,
-        startedAt: Timestamp.fromDate(courseProgress.startedAt),
-        lastAccessedAt: Timestamp.fromDate(courseProgress.lastAccessedAt),
-        completedAt: null,
-        lastModified: Timestamp.fromDate(courseProgress.lastModified)
-      });
+      const { data, error } = await supabase
+        .from('course_progress')
+        .insert(courseProgress)
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to start course');
+      return data.id;
     } catch (error) {
       console.error('Error starting course:', error);
       throw error;
@@ -277,26 +275,33 @@ export class CourseService {
   ): Promise<{ progressUpdated: boolean; courseCompleted: boolean; certificate?: Certificate }> {
     try {
       // Get current progress
-      const progressQuery = query(
-        collection(db, 'course_progress'),
-        where('userId', '==', userId),
-        where('courseId', '==', courseId)
-      );
+      const { data: progressData, error: fetchError } = await supabase
+        .from('course_progress')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('course_id', courseId)
+        .single();
 
-      const progressSnapshot = await getDocs(progressQuery);
-      if (progressSnapshot.empty) {
-        throw new Error('Course progress not found');
-      }
+      if (fetchError) throw fetchError;
+      if (!progressData) throw new Error('Course progress not found');
 
-      const progressDoc = progressSnapshot.docs[0];
-      const progress = {
-        id: progressDoc.id,
-        ...progressDoc.data(),
-        startedAt: progressDoc.data().startedAt.toDate(),
-        lastAccessedAt: progressDoc.data().lastAccessedAt.toDate(),
-        completedAt: progressDoc.data().completedAt?.toDate(),
-        lastModified: progressDoc.data().lastModified.toDate()
-      } as CourseProgress;
+      const progress: CourseProgress = {
+        id: progressData.id,
+        userId: progressData.user_id,
+        courseId: progressData.course_id,
+        courseTitle: progressData.course_title,
+        progress: progressData.progress,
+        isCompleted: progressData.is_completed,
+        startedAt: new Date(progressData.started_at),
+        lastAccessedAt: new Date(progressData.last_accessed_at),
+        timeSpent: progressData.time_spent,
+        completedLessons: progressData.completed_lessons,
+        certificates: progressData.certificates,
+        syncStatus: progressData.sync_status,
+        lastModified: new Date(progressData.last_modified),
+        version: progressData.version,
+        completedAt: progressData.completed_at ? new Date(progressData.completed_at) : undefined
+      };
 
       // Get course info
       const course = this.sampleCourses.find(c => c.id === courseId);
@@ -337,14 +342,23 @@ export class CourseService {
         progress.certificates = [certificate];
       }
 
-      // Update progress in Firestore
-      await updateDoc(progressDoc.ref, {
-        ...progress,
-        startedAt: Timestamp.fromDate(progress.startedAt),
-        lastAccessedAt: Timestamp.fromDate(progress.lastAccessedAt),
-        completedAt: progress.completedAt ? Timestamp.fromDate(progress.completedAt) : null,
-        lastModified: Timestamp.fromDate(progress.lastModified)
-      });
+      // Update progress in Supabase
+      const { error: updateError } = await supabase
+        .from('course_progress')
+        .update({
+          progress: progress.progress,
+          is_completed: progress.isCompleted,
+          last_accessed_at: progress.lastAccessedAt.toISOString(),
+          time_spent: progress.timeSpent,
+          completed_lessons: progress.completedLessons,
+          certificates: progress.certificates,
+          completed_at: progress.completedAt ? progress.completedAt.toISOString() : null,
+          last_modified: progress.lastModified.toISOString(),
+          version: progress.version
+        })
+        .eq('id', progress.id);
+
+      if (updateError) throw updateError;
 
       return { progressUpdated, courseCompleted, certificate };
     } catch (error) {
@@ -367,7 +381,7 @@ export class CourseService {
     };
 
     // In a real implementation, you might generate a PDF certificate here
-    // and upload it to Firebase Storage
+    
     // certificate.certificateUrl = await this.generateCertificatePDF(certificate);
 
     return certificate;

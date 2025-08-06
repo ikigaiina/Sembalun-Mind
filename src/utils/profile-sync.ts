@@ -1,4 +1,3 @@
-import type { User as FirebaseUser } from 'firebase/auth';
 import type { UserProfile } from '../types/auth';
 
 export interface ProfileSyncResult {
@@ -7,39 +6,30 @@ export interface ProfileSyncResult {
 }
 
 export const syncProfileFromProvider = async (
-  firebaseUser: FirebaseUser, 
+  providerUser: any, 
   existingProfile?: UserProfile | null
 ): Promise<ProfileSyncResult> => {
   const updates: Partial<UserProfile> = {};
   let hasChanges = false;
 
   // Sync display name if available from provider
-  if (firebaseUser.displayName && 
-      firebaseUser.displayName !== existingProfile?.displayName) {
-    updates.displayName = firebaseUser.displayName;
+  if (providerUser.user_metadata?.full_name && 
+      providerUser.user_metadata.full_name !== existingProfile?.displayName) {
+    updates.displayName = providerUser.user_metadata.full_name;
     hasChanges = true;
   }
 
   // Sync email if available from provider
-  if (firebaseUser.email && 
-      firebaseUser.email !== existingProfile?.email) {
-    updates.email = firebaseUser.email;
+  if (providerUser.email && 
+      providerUser.email !== existingProfile?.email) {
+    updates.email = providerUser.email;
     hasChanges = true;
   }
 
-  // Sync profile picture from provider if available and no custom picture is set
-  if (firebaseUser.photoURL) {
-    // Only update if:
-    // 1. No existing photo URL, OR
-    // 2. Existing photo is from a provider (contains 'googleusercontent' or 'platform.lookaside'), OR
-    // 3. This is a new user (no existing profile)
-    const isProviderPhoto = existingProfile?.photoURL?.includes('googleusercontent') ||
-                           existingProfile?.photoURL?.includes('platform.lookaside') ||
-                           existingProfile?.photoURL?.includes('graph.facebook') ||
-                           existingProfile?.photoURL?.includes('twimg.com');
-    
-    if (!existingProfile?.photoURL || isProviderPhoto || !existingProfile) {
-      updates.photoURL = firebaseUser.photoURL;
+  // Sync profile picture from provider if available
+  if (providerUser.user_metadata?.avatar_url) {
+    if (!existingProfile?.photoURL || existingProfile.photoURL !== providerUser.user_metadata.avatar_url) {
+      updates.photoURL = providerUser.user_metadata.avatar_url;
       hasChanges = true;
     }
   }

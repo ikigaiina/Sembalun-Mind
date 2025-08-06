@@ -1,17 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  getDocs,
-  getDoc, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 import { smartNotificationService } from './smartNotificationService';
 import { emotionalIntelligenceService } from './emotionalIntelligenceService';
@@ -220,11 +207,21 @@ export class EncouragementService {
       };
 
       // Save to database
-      const docRef = await addDoc(collection(db, 'weekly_summaries'), {
-        ...summary,
-        weekOf: Timestamp.fromDate(summary.weekOf),
-        generatedAt: Timestamp.fromDate(summary.generatedAt)
-      });
+      const { data, error } = await supabase.from('weekly_summaries').insert({
+        user_id: summary.userId,
+        week_of: summary.weekOf.toISOString(),
+        week_number: summary.weekNumber,
+        year: summary.year,
+        metrics: summary.metrics,
+        comparisons: summary.comparisons,
+        insights: summary.insights,
+        encouragement: summary.encouragement,
+        generated_at: summary.generatedAt.toISOString(),
+        user_engagement: summary.userEngagement
+      }).select();
+
+      if (error) throw error;
+      const docRef = data[0];
 
       const savedSummary = { id: docRef.id, ...summary };
 
@@ -278,11 +275,20 @@ export class EncouragementService {
       };
 
       // Save message
-      const docRef = await addDoc(collection(db, 'encouragement_messages'), {
-        ...message,
-        deliveryTime: Timestamp.fromDate(message.deliveryTime),
-        createdAt: Timestamp.fromDate(message.createdAt)
-      });
+      const { data, error } = await supabase.from('encouragement_messages').insert({
+        user_id: message.userId,
+        type: message.type,
+        context: message.context,
+        message: message.message,
+        triggers: message.triggers,
+        delivery_time: message.deliveryTime.toISOString(),
+        personalized_elements: message.personalizedElements,
+        effectiveness: message.effectiveness,
+        created_at: message.createdAt.toISOString()
+      }).select();
+
+      if (error) throw error;
+      const docRef = data[0];
 
       const savedMessage = { id: docRef.id, ...message };
 
@@ -380,10 +386,8 @@ export class EncouragementService {
     engagement: Partial<EncouragementMessage['effectiveness']>
   ): Promise<void> {
     try {
-      const docRef = doc(db, 'encouragement_messages', messageId);
-      await updateDoc(docRef, {
-        effectiveness: engagement
-      });
+      const { error } = await supabase.from('encouragement_messages').update({ effectiveness: engagement }).eq('id', messageId);
+      if (error) throw error;
 
       // Update user profile based on engagement
       if (engagement.rating) {
@@ -750,14 +754,15 @@ export class EncouragementService {
 
   private async getUserEncouragementProfile(userId: string): Promise<UserEncouragementProfile> {
     try {
-      const q = query(
-        collection(db, 'encouragement_profiles'),
-        where('userId', '==', userId)
-      );
+      const { data, error } = await supabase
+        .from('encouragement_profiles')
+        .select('*')
+        .eq('user_id', userId)
+        .single();
 
-      const snapshot = await getDocs(q);
-      
-      if (snapshot.empty) {
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 means no rows found
+
+      if (!data) {
         // Create default profile
         const defaultProfile: UserEncouragementProfile = {
           userId,
@@ -783,18 +788,22 @@ export class EncouragementService {
           lastUpdated: new Date()
         };
 
-        await addDoc(collection(db, 'encouragement_profiles'), {
-          ...defaultProfile,
-          lastUpdated: Timestamp.fromDate(defaultProfile.lastUpdated)
+        await supabase.from('encouragement_profiles').insert({
+          user_id: defaultProfile.userId,
+          motivational_style: defaultProfile.motivationalStyle,
+          response_to_encouragement: defaultProfile.responseToEncouragement,
+          preferred_timing: defaultProfile.preferredTiming,
+          personal_context: defaultProfile.personalContext,
+          engagement: defaultProfile.engagement,
+          last_updated: defaultProfile.lastUpdated.toISOString()
         });
 
         return defaultProfile;
       }
 
-      const data = snapshot.docs[0].data();
       return {
         ...data,
-        lastUpdated: data.lastUpdated.toDate()
+        lastUpdated: new Date(data.last_updated)
       } as UserEncouragementProfile;
     } catch (error) {
       console.error('Error fetching encouragement profile:', error);
@@ -999,10 +1008,7 @@ export class EncouragementService {
       );
 
       // Mark as delivered
-      const docRef = doc(db, 'encouragement_messages', message.id);
-      await updateDoc(docRef, {
-        'effectiveness.delivered': true
-      });
+      await supabase.from('encouragement_messages').update({ 'effectiveness.delivered': true }).eq('id', message.id);
     } catch (error) {
       console.error('Error delivering encouragement message:', error);
     }
@@ -1013,19 +1019,19 @@ export class EncouragementService {
     updates: Partial<UserEncouragementProfile>
   ): Promise<void> {
     try {
-      const q = query(
-        collection(db, 'encouragement_profiles'),
-        where('userId', '==', userId)
-      );
+      const { data, error } = await supabase
+        .from('encouragement_profiles')
+        .select('id')
+        .eq('userId', userId)
+        .single();
 
-      const snapshot = await getDocs(q);
-      
-      if (!snapshot.empty) {
-        const docRef = doc(db, 'encouragement_profiles', snapshot.docs[0].id);
-        await updateDoc(docRef, {
+      if (error && error.code !== 'PGRST116') throw error; // PGRST116 means no rows found
+
+      if (data) {
+        await supabase.from('encouragement_profiles').update({
           ...updates,
-          lastUpdated: Timestamp.fromDate(new Date())
-        });
+          last_updated: new Date().toISOString()
+        }).eq('id', data.id);
       }
     } catch (error) {
       console.error('Error updating encouragement profile:', error);
@@ -1040,18 +1046,23 @@ export class EncouragementService {
 
   private async getUserName(userId: string): Promise<string> {
     try {
-      // Fetch actual user profile from Firestore
-      const userDoc = await getDoc(doc(db, 'users', userId));
-      if (userDoc.exists()) {
-        const userData = userDoc.data();
-        const displayName = userData.displayName;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('display_name, email')
+        .eq('id', userId)
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        const displayName = data.display_name;
         if (displayName && displayName.trim()) {
           // Return first name only
           return displayName.split(' ')[0];
         }
         
         // Try email prefix if no display name
-        const email = userData.email;
+        const email = data.email;
         if (email) {
           const emailPrefix = email.split('@')[0];
           if (emailPrefix && /^[a-zA-Z]/.test(emailPrefix)) {

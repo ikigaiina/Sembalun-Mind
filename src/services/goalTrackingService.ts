@@ -1,17 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  updateDoc, 
-  deleteDoc,
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 import { progressService } from './progressService';
 
 export interface MeditationGoal {
@@ -119,15 +106,38 @@ export class GoalTrackingService {
         updatedAt: new Date()
       };
 
-      const docRef = await addDoc(collection(db, 'meditation_goals'), {
-        ...goal,
-        startDate: Timestamp.fromDate(goal.startDate),
-        deadline: goal.deadline ? Timestamp.fromDate(goal.deadline) : null,
-        createdAt: Timestamp.fromDate(goal.createdAt),
-        updatedAt: Timestamp.fromDate(goal.updatedAt)
-      });
+      const { data, error } = await supabase
+        .from('meditation_goals')
+        .insert({
+          user_id: goal.userId,
+          title: goal.title,
+          description: goal.description,
+          category: goal.category,
+          type: goal.type,
+          target_value: goal.targetValue,
+          current_value: goal.currentValue,
+          unit: goal.unit,
+          progress: goal.progress,
+          status: goal.status,
+          priority: goal.priority,
+          deadline: goal.deadline?.toISOString(),
+          start_date: goal.startDate.toISOString(),
+          completed_date: goal.completedDate?.toISOString(),
+          is_repeating: goal.isRepeating,
+          streak: goal.streak,
+          best_streak: goal.bestStreak,
+          rewards: goal.rewards,
+          milestones: goal.milestones,
+          adjustment_history: goal.adjustmentHistory,
+          created_at: goal.createdAt.toISOString(),
+          updated_at: goal.updatedAt.toISOString()
+        })
+        .select('id')
+        .single();
 
-      return docRef.id;
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create goal');
+      return data.id;
     } catch (error) {
       console.error('Error creating goal:', error);
       throw error;
@@ -188,17 +198,21 @@ export class GoalTrackingService {
       };
 
       // Update in database
-      const docRef = doc(db, 'meditation_goals', goalId);
-      await updateDoc(docRef, {
-        currentValue: updatedGoal.currentValue,
-        progress: updatedGoal.progress,
-        status: updatedGoal.status,
-        streak: updatedGoal.streak,
-        bestStreak: updatedGoal.bestStreak,
-        milestones: updatedGoal.milestones,
-        completedDate: updatedGoal.completedDate ? Timestamp.fromDate(updatedGoal.completedDate) : null,
-        updatedAt: Timestamp.fromDate(updatedGoal.updatedAt)
-      });
+      const { error: updateError } = await supabase
+        .from('meditation_goals')
+        .update({
+          current_value: updatedGoal.currentValue,
+          progress: updatedGoal.progress,
+          status: updatedGoal.status,
+          streak: updatedGoal.streak,
+          best_streak: updatedGoal.bestStreak,
+          milestones: updatedGoal.milestones,
+          completed_date: updatedGoal.completedDate ? updatedGoal.completedDate.toISOString() : null,
+          updated_at: updatedGoal.updatedAt.toISOString()
+        })
+        .eq('id', goalId);
+
+      if (updateError) throw updateError;
 
       return {
         goal: updatedGoal,
@@ -251,15 +265,19 @@ export class GoalTrackingService {
       updatedGoal.updatedAt = new Date();
 
       // Update in database
-      const docRef = doc(db, 'meditation_goals', goalId);
-      await updateDoc(docRef, {
-        targetValue: updatedGoal.targetValue,
-        progress: updatedGoal.progress,
-        deadline: updatedGoal.deadline ? Timestamp.fromDate(updatedGoal.deadline) : null,
-        status: updatedGoal.status,
-        adjustmentHistory: updatedGoal.adjustmentHistory,
-        updatedAt: Timestamp.fromDate(updatedGoal.updatedAt)
-      });
+      const { error: updateError } = await supabase
+        .from('meditation_goals')
+        .update({
+          target_value: updatedGoal.targetValue,
+          progress: updatedGoal.progress,
+          deadline: updatedGoal.deadline ? updatedGoal.deadline.toISOString() : null,
+          status: updatedGoal.status,
+          adjustment_history: updatedGoal.adjustmentHistory,
+          updated_at: updatedGoal.updatedAt.toISOString()
+        })
+        .eq('id', goalId);
+
+      if (updateError) throw updateError;
     } catch (error) {
       console.error('Error adjusting goal:', error);
       throw error;
@@ -268,34 +286,43 @@ export class GoalTrackingService {
 
   async getUserGoals(userId: string, status?: 'active' | 'completed' | 'paused' | 'failed'): Promise<MeditationGoal[]> {
     try {
-      const constraints = [
-        where('userId', '==', userId),
-        orderBy('createdAt', 'desc')
-      ];
+      let queryBuilder = supabase
+        .from('meditation_goals')
+        .select('*')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false });
 
       if (status) {
-        constraints.splice(1, 0, where('status', '==', status));
+        queryBuilder = queryBuilder.eq('status', status);
       }
 
-      const q = query(collection(db, 'meditation_goals'), ...constraints);
-      const snapshot = await getDocs(q);
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
 
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data(),
-        startDate: doc.data().startDate.toDate(),
-        deadline: doc.data().deadline?.toDate(),
-        completedDate: doc.data().completedDate?.toDate(),
-        milestones: doc.data().milestones.map((m: any) => ({
-          ...m,
-          reachedDate: m.reachedDate?.toDate()
-        })),
-        adjustmentHistory: doc.data().adjustmentHistory.map((a: any) => ({
-          ...a,
-          date: a.date.toDate()
-        })),
-        createdAt: doc.data().createdAt.toDate(),
-        updatedAt: doc.data().updatedAt.toDate()
+      return data.map(row => ({
+        id: row.id,
+        userId: row.user_id,
+        title: row.title,
+        description: row.description,
+        category: row.category,
+        type: row.type,
+        targetValue: row.target_value,
+        currentValue: row.current_value,
+        unit: row.unit,
+        progress: row.progress,
+        status: row.status,
+        priority: row.priority,
+        deadline: row.deadline ? new Date(row.deadline) : undefined,
+        startDate: new Date(row.start_date),
+        completedDate: row.completed_date ? new Date(row.completed_date) : undefined,
+        isRepeating: row.is_repeating,
+        streak: row.streak,
+        bestStreak: row.best_streak,
+        rewards: row.rewards,
+        milestones: row.milestones,
+        adjustmentHistory: row.adjustment_history,
+        createdAt: new Date(row.created_at),
+        updatedAt: new Date(row.updated_at)
       })) as MeditationGoal[];
     } catch (error) {
       console.error('Error fetching user goals:', error);
@@ -589,7 +616,11 @@ export class GoalTrackingService {
 
   async deleteGoal(goalId: string): Promise<void> {
     try {
-      await deleteDoc(doc(db, 'meditation_goals', goalId));
+      const { error } = await supabase
+        .from('meditation_goals')
+        .delete()
+        .eq('id', goalId);
+      if (error) throw error;
     } catch (error) {
       console.error('Error deleting goal:', error);
       throw error;

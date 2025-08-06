@@ -29,7 +29,11 @@
       "Bash(npm run preview:*)",
       "Bash(timeout 60 npm run build:deploy)",
       "Bash(find:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Bash(touch:*)",
+      "Bash(start test-simple.html)",
+      "Bash(start:*)",
+      "Bash(copy fauzan-clean.html fauzan-developer-bridge.html)"
     ],
     "deny": []
   }

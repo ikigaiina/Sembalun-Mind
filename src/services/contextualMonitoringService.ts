@@ -1,15 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  addDoc, 
-  getDocs, 
-  query, 
-  where, 
-  orderBy, 
-  limit,
-  Timestamp
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { supabase } from '../config/supabaseClient';
 import { progressService } from './progressService';
 import { smartNotificationService } from './smartNotificationService';
 
@@ -207,14 +196,15 @@ export class ContextualMonitoringService {
       );
 
       // Log intervention for tracking
-      await addDoc(collection(db, 'contextual_interventions'), {
-        userId,
+      const { error } = await supabase.from('contextual_interventions').insert({
+        user_id: userId,
         context,
         urgency,
         intervention,
-        createdAt: Timestamp.fromDate(new Date()),
+        created_at: new Date().toISOString(),
         completed: false
       });
+      if (error) throw error;
     } catch (error) {
       console.error('Error creating contextual intervention:', error);
       throw error;
@@ -232,8 +222,9 @@ export class ContextualMonitoringService {
   ): Promise<void> {
     try {
       // Update intervention record with feedback
-      const docRef = doc(db, 'contextual_interventions', interventionId);
-      // In production, you'd update the document with feedback
+      
+      const { error } = await supabase.from('contextual_interventions').update(userFeedback).eq('id', interventionId);
+      if (error) throw error;
       
       // Analyze effectiveness for future improvements
       await this.analyzeInterventionEffectiveness(userFeedback);
@@ -378,10 +369,19 @@ export class ContextualMonitoringService {
         userResponded: false
       };
 
-      const docRef = await addDoc(collection(db, 'contextual_alerts'), {
-        ...alert,
-        detectedAt: Timestamp.fromDate(alert.detectedAt)
-      });
+      const { data, error } = await supabase.from('contextual_alerts').insert({
+        user_id: alert.userId,
+        type: alert.type,
+        severity: alert.severity,
+        detected_at: alert.detectedAt.toISOString(),
+        pattern: alert.pattern,
+        intervention_suggested: alert.interventionSuggested,
+        notification_sent: alert.notificationSent,
+        user_responded: alert.userResponded
+      }).select();
+
+      if (error) throw error;
+      const docRef = data[0];
 
       // Send notification if severity warrants it
       if (severity === 'high' || severity === 'critical') {
@@ -391,9 +391,7 @@ export class ContextualMonitoringService {
         );
         
         // Update alert to mark notification as sent
-        // await updateDoc(doc(db, 'contextual_alerts', docRef.id), {
-        //   notificationSent: true
-        // });
+        await supabase.from('contextual_alerts').update({ notification_sent: true }).eq('id', docRef.id);
       }
     } catch (error) {
       console.error('Error creating contextual alert:', error);

@@ -1,17 +1,4 @@
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  updateDoc, 
-  query, 
-  where, 
-  orderBy, 
-  getDocs, 
-  Timestamp,
-  writeBatch
-} from 'firebase/firestore';
-import { db } from '../config/firebase';
+import { typedSupabase as supabase } from '../config/supabase';
 
 export interface MeditationSession {
   id: string;
@@ -111,17 +98,21 @@ class ProgressTrackingService {
   // Record a new meditation session
   async recordSession(sessionData: Omit<MeditationSession, 'id' | 'created_at'>): Promise<string> {
     try {
-      const sessionId = doc(collection(db, this.SESSIONS_COLLECTION)).id;
-      const session: MeditationSession = {
-        ...sessionData,
-        id: sessionId,
-        created_at: Timestamp.now()
-      };
+      const { data, error } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .insert({
+          ...sessionData,
+          created_at: new Date().toISOString()
+        })
+        .select('id')
+        .single();
 
-      await setDoc(doc(db, this.SESSIONS_COLLECTION, sessionId), session);
+      if (error) throw error;
+      if (!data) throw new Error('Failed to create session');
+      const sessionId = data.id;
       
       // Update user progress
-      await this.updateUserProgress(sessionData.userId, session);
+      await this.updateUserProgress(sessionData.userId, sessionData as MeditationSession);
       
       return sessionId;
     } catch (error) {
@@ -144,23 +135,30 @@ class ProgressTrackingService {
     }
   ): Promise<void> {
     try {
-      const sessionRef = doc(db, this.SESSIONS_COLLECTION, sessionId);
-      const sessionDoc = await getDoc(sessionRef);
-      
-      if (!sessionDoc.exists()) {
+      const { data: sessionData, error: fetchError } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .select('*')
+        .eq('id', sessionId)
+        .single();
+
+      if (fetchError || !sessionData) {
         throw new Error('Session not found');
       }
 
       const updates = {
         ...completionData,
         completed: true,
-        completed_at: Timestamp.now()
+        completed_at: new Date().toISOString()
       };
 
-      await updateDoc(sessionRef, updates);
+      const { error: updateError } = await supabase
+        .from(this.SESSIONS_COLLECTION)
+        .update(updates)
+        .eq('id', sessionId);
 
-      // Update progress with completion
-      const session = { ...sessionDoc.data(), ...updates } as MeditationSession;
+      if (updateError) throw updateError;
+
+      const session = { ...sessionData, ...updates } as MeditationSession;
       await this.updateUserProgress(session.userId, session);
     } catch (error) {
       console.error('Error completing session:', error);
@@ -170,12 +168,17 @@ class ProgressTrackingService {
 
   // Update user progress after a session
   private async updateUserProgress(userId: string, session: MeditationSession): Promise<void> {
-    const progressRef = doc(db, this.PROGRESS_COLLECTION, userId);
-    const progressDoc = await getDoc(progressRef);
+    const { data: progressData, error: fetchError } = await supabase
+      .from(this.PROGRESS_COLLECTION)
+      .select('*')
+      .eq('user_id', userId)
+      .single();
+
+    if (fetchError && fetchError.code !== 'PGRST116') throw fetchError; // PGRST116 means no rows found
 
     let progress: UserProgress;
-    
-    if (!progressDoc.exists()) {
+
+    if (!progressData) {
       // Create new progress record
       progress = {
         userId,
@@ -196,10 +199,46 @@ class ProgressTrackingService {
         },
         weekly_stats: [],
         monthly_stats: [],
-        updated_at: Timestamp.now()
+        updated_at: new Date()
       };
+      const { error: insertError } = await supabase.from(this.PROGRESS_COLLECTION).insert({
+        user_id: progress.userId,
+        total_sessions: progress.total_sessions,
+        total_minutes: progress.total_minutes,
+        current_streak: progress.current_streak,
+        longest_streak: progress.longest_streak,
+        weekly_goal: progress.weekly_goal,
+        daily_goal: progress.daily_goal,
+        average_session_duration: progress.average_session_duration,
+        mood_trend: progress.mood_trend,
+        consistency_score: progress.consistency_score,
+        achievements: progress.achievements,
+        milestones: progress.milestones,
+        weekly_stats: progress.weekly_stats,
+        monthly_stats: progress.monthly_stats,
+        updated_at: progress.updated_at.toISOString()
+      });
+      if (insertError) throw insertError;
     } else {
-      progress = progressDoc.data() as UserProgress;
+      progress = {
+        userId: progressData.user_id,
+        total_sessions: progressData.total_sessions,
+        total_minutes: progressData.total_minutes,
+        current_streak: progressData.current_streak,
+        longest_streak: progressData.longest_streak,
+        last_session_date: progressData.last_session_date ? new Date(progressData.last_session_date) : undefined,
+        weekly_goal: progressData.weekly_goal,
+        daily_goal: progressData.daily_goal,
+        favorite_session_type: progressData.favorite_session_type,
+        average_session_duration: progressData.average_session_duration,
+        mood_trend: progressData.mood_trend,
+        consistency_score: progressData.consistency_score,
+        achievements: progressData.achievements,
+        milestones: progressData.milestones,
+        weekly_stats: progressData.weekly_stats,
+        monthly_stats: progressData.monthly_stats,
+        updated_at: new Date(progressData.updated_at)
+      };
     }
 
     // Update basic stats
@@ -210,7 +249,7 @@ class ProgressTrackingService {
       
       // Update streak
       const now = new Date();
-      const lastSession = progress.last_session_date?.toDate();
+      const lastSession = progress.last_session_date;
       
       if (lastSession) {
         const daysDiff = Math.floor((now.getTime() - lastSession.getTime()) / (1000 * 60 * 60 * 24));
@@ -253,19 +292,65 @@ class ProgressTrackingService {
     // Calculate consistency score
     progress.consistency_score = await this.calculateConsistencyScore(userId);
     
-    progress.updated_at = Timestamp.now();
+    progress.updated_at = new Date();
     
-    await setDoc(progressRef, progress);
+    const { error: updateError } = await supabase.from(this.PROGRESS_COLLECTION).update({
+      total_sessions: progress.total_sessions,
+      total_minutes: progress.total_minutes,
+      current_streak: progress.current_streak,
+      longest_streak: progress.longest_streak,
+      last_session_date: progress.last_session_date?.toISOString(),
+      average_session_duration: progress.average_session_duration,
+      mood_trend: progress.mood_trend,
+      consistency_score: progress.consistency_score,
+      achievements: progress.achievements,
+      milestones: progress.milestones,
+      weekly_goal: progress.weekly_goal,
+      daily_goal: progress.daily_goal,
+      favorite_session_type: progress.favorite_session_type,
+      weekly_stats: progress.weekly_stats,
+      monthly_stats: progress.monthly_stats,
+      updated_at: progress.updated_at.toISOString()
+    }).eq('user_id', userId);
+    if (updateError) throw updateError;
   }
 
   // Get user progress
   async getUserProgress(userId: string): Promise<UserProgress | null> {
     try {
-      const progressDoc = await getDoc(doc(db, this.PROGRESS_COLLECTION, userId));
-      return progressDoc.exists() ? progressDoc.data() as UserProgress : null;
+      const { data, error } = await supabase
+        .from(this.PROGRESS_COLLECTION)
+        .select('*')
+        .eq('user_id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') return null; // No rows found
+      if (error) throw error;
+
+      if (!data) return null;
+
+      return {
+        userId: data.user_id,
+        total_sessions: data.total_sessions,
+        total_minutes: data.total_minutes,
+        current_streak: data.current_streak,
+        longest_streak: data.longest_streak,
+        last_session_date: data.last_session_date ? new Date(data.last_session_date) : undefined,
+        weekly_goal: data.weekly_goal,
+        daily_goal: data.daily_goal,
+        favorite_session_type: data.favorite_session_type,
+        average_session_duration: data.average_session_duration,
+        mood_trend: data.mood_trend,
+        consistency_score: data.consistency_score,
+        achievements: data.achievements,
+        milestones: data.milestones,
+        weekly_stats: data.weekly_stats,
+        monthly_stats: data.monthly_stats,
+        updated_at: new Date(data.updated_at)
+      } as UserProgress;
     } catch (error) {
       console.error('Error getting user progress:', error);
-      throw new Error('Failed to get user progress');
+      return null;
     }
   }
 
@@ -281,39 +366,55 @@ class ProgressTrackingService {
     } = {}
   ): Promise<MeditationSession[]> {
     try {
-      let q = query(
-        collection(db, this.SESSIONS_COLLECTION),
-        where('userId', '==', userId),
-        orderBy('created_at', 'desc')
-      );
+      let queryBuilder = supabase
+        .from(this.SESSIONS_COLLECTION)
+        .select('*')
+        .eq('userId', userId)
+        .order('created_at', { ascending: false });
 
       if (options.sessionType) {
-        q = query(q, where('type', '==', options.sessionType));
+        queryBuilder = queryBuilder.eq('type', options.sessionType);
       }
 
       if (options.completed !== undefined) {
-        q = query(q, where('completed', '==', options.completed));
+        queryBuilder = queryBuilder.eq('completed', options.completed);
       }
 
-      const snapshot = await getDocs(q);
-      let sessions = snapshot.docs.map(doc => doc.data() as MeditationSession);
-
-      // Filter by date range if provided
-      if (options.startDate || options.endDate) {
-        sessions = sessions.filter(session => {
-          const sessionDate = session.created_at.toDate();
-          if (options.startDate && sessionDate < options.startDate) return false;
-          if (options.endDate && sessionDate > options.endDate) return false;
-          return true;
-        });
+      if (options.startDate) {
+        queryBuilder = queryBuilder.gte('created_at', options.startDate.toISOString());
       }
 
-      // Apply limit
+      if (options.endDate) {
+        queryBuilder = queryBuilder.lte('created_at', options.endDate.toISOString());
+      }
+
       if (options.limit) {
-        sessions = sessions.slice(0, options.limit);
+        queryBuilder = queryBuilder.limit(options.limit);
       }
 
-      return sessions;
+      const { data, error } = await queryBuilder;
+      if (error) throw error;
+
+      return data.map(row => ({
+        id: row.id,
+        userId: row.userId,
+        type: row.type,
+        duration: row.duration,
+        completed: row.completed,
+        mood_before: row.mood_before,
+        mood_after: row.mood_after,
+        focus_level: row.focus_level,
+        calmness_level: row.calmness_level,
+        energy_level: row.energy_level,
+        notes: row.notes,
+        goals_achieved: row.goals_achieved,
+        interruptions: row.interruptions,
+        location: row.location,
+        weather: row.weather,
+        time_of_day: row.time_of_day,
+        created_at: new Date(row.created_at),
+        completed_at: row.completed_at ? new Date(row.completed_at) : undefined
+      })) as MeditationSession[];
     } catch (error) {
       console.error('Error getting user sessions:', error);
       throw new Error('Failed to get user sessions');
@@ -344,7 +445,7 @@ class ProgressTrackingService {
       const hourlyData: { [hour: string]: { sessions: number; total_duration: number; mood_improvements: number[]; } } = {};
       
       sessions.forEach(session => {
-        const hour = session.created_at.toDate().getHours().toString();
+        const hour = session.created_at.getHours().toString();
         
         if (!hourlyData[hour]) {
           hourlyData[hour] = { sessions: 0, total_duration: 0, mood_improvements: [] };
@@ -376,7 +477,7 @@ class ProgressTrackingService {
       const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       
       sessions.forEach(session => {
-        const dayName = dayNames[session.created_at.toDate().getDay()];
+        const dayName = dayNames[session.created_at.getDay()];
         
         if (!weeklyData[dayName]) {
           weeklyData[dayName] = { sessions: 0, total_duration: 0, types: [] };

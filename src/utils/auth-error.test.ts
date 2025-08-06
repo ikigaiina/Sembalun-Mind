@@ -221,15 +221,7 @@ describe('Auth Error Utilities', () => {
       expect(isAuthError(regularError)).toBe(false);
     });
 
-    it('identifies Firebase auth errors correctly', () => {
-      const firebaseError = {
-        name: 'FirebaseError',
-        code: 'auth/invalid-email',
-        message: 'Invalid email'
-      };
-      
-      expect(isAuthError(firebaseError)).toBe(true);
-    });
+    
 
     it('identifies objects with auth error structure', () => {
       const errorLikeObject = {
@@ -284,17 +276,7 @@ describe('Auth Error Utilities', () => {
       expect(error.message).toBe('Custom error message');
     });
 
-    it('creates AuthError from Firebase error object', () => {
-      const firebaseError = {
-        code: 'auth/user-not-found',
-        message: 'Firebase: User not found'
-      };
-      
-      const error = createAuthError(firebaseError.code, firebaseError.message);
-      
-      expect(error.code).toBe('auth/user-not-found');
-      expect(error.message).toBe('Firebase: User not found');
-    });
+    
 
     it('handles invalid inputs gracefully', () => {
       const error1 = createAuthError('');

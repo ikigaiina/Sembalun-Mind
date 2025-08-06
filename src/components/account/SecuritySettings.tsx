@@ -3,7 +3,7 @@ import { useAuth } from '../../hooks/useAuth';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
 import { authService } from '../../services/authService';
-import { multiFactor, PhoneAuthProvider, PhoneMultiFactorGenerator } from 'firebase/auth';
+
 
 export const SecuritySettings: React.FC = () => {
   const { user, userProfile, sendVerificationEmail, reauthenticateUser } = useAuth();
