@@ -5,13 +5,17 @@ import { OnboardingSlides } from './OnboardingSlides';
 import { PersonalizationScreen, type PersonalizationGoal } from './PersonalizationScreen';
 import { WelcomeScreen } from './WelcomeScreen';
 import { CulturalPersonalizationScreen, type CulturalData } from '../../components/onboarding/CulturalPersonalizationScreen';
+import ExperienceFirstOnboardingFlow, { type OnboardingCompletionData } from '../../components/onboarding/ExperienceFirstOnboardingFlow';
 import { CairnIcon } from '../../components/ui';
 import type { MoodType } from '../../types/mood';
 
 export type OnboardingStep = 'splash' | 'slides' | 'cultural' | 'personalization' | 'welcome' | 'complete';
+export type OnboardingFlowType = 'traditional' | 'experience-first';
 
 interface OnboardingFlowProps {
   onComplete: (data: OnboardingData) => void;
+  flowType?: OnboardingFlowType;
+  culturalHints?: Partial<CulturalData>;
 }
 
 export interface OnboardingData {
@@ -24,7 +28,11 @@ export interface OnboardingData {
   completedSteps: number;
 }
 
-export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
+export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ 
+  onComplete, 
+  flowType = 'experience-first', // Default to experience-first for better conversion
+  culturalHints 
+}) => {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('splash');
   const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({
     skippedSteps: [],
@@ -32,6 +40,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     completedSteps: 0
   });
   const [isTransitioning, setIsTransitioning] = useState(false);
+  const [useExperienceFirst, setUseExperienceFirst] = useState(flowType === 'experience-first');
   
   // Step configuration for progress tracking
   const stepConfig = {
@@ -137,6 +146,22 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       skippedSteps: onboardingData.skippedSteps || [],
       totalSteps: onboardingData.totalSteps || 5,
       completedSteps: 5
+    };
+    
+    onComplete(finalData);
+  };
+
+  // Handle experience-first flow completion
+  const handleExperienceFirstComplete = (completionData: OnboardingCompletionData) => {
+    // Convert to traditional OnboardingData format
+    const finalData: OnboardingData = {
+      selectedGoal: completionData.stepData.goal,
+      selectedMood: completionData.stepData.moodAfter,
+      culturalData: completionData.stepData.cultural,
+      completedAt: completionData.completedAt,
+      skippedSteps: [], // Experience-first flow has built-in skip logic
+      totalSteps: 5,
+      completedSteps: completionData.completedSteps.length
     };
     
     onComplete(finalData);
@@ -302,8 +327,32 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     }
   };
 
+  // Render experience-first flow if selected
+  if (useExperienceFirst) {
+    return (
+      <ExperienceFirstOnboardingFlow
+        onComplete={handleExperienceFirstComplete}
+        culturalHints={culturalHints}
+      />
+    );
+  }
+
+  // Traditional onboarding flow
   return (
     <div className="onboarding-flow relative min-h-screen bg-gradient-to-br from-primary-50 via-accent-50 to-meditation-zen-50">
+      {/* Flow Switch Toggle (for development/testing) */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="fixed top-4 left-4 z-50">
+          <button
+            onClick={() => setUseExperienceFirst(!useExperienceFirst)}
+            className="bg-white rounded-lg px-3 py-2 text-xs shadow-lg border border-gray-200 hover:bg-gray-50 transition-colors"
+            title="Switch onboarding flow"
+          >
+            {useExperienceFirst ? '📊 Experience-First' : '📋 Traditional'}
+          </button>
+        </div>
+      )}
+
       {/* Progress Indicator */}
       <ProgressIndicator />
       

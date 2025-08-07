@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AestheticCairnLogo } from '../ui/AestheticCairnLogo';
 import { Button } from '../ui/Button';
@@ -79,15 +79,14 @@ export const BreathingCairnSession: React.FC<BreathingCairnSessionProps> = ({
 
   const sessionDurationSeconds = duration * 60;
   const progress = (sessionTimer / sessionDurationSeconds) * 100;
-  const totalCycles = Math.floor(sessionDurationSeconds / (pattern.inhale + pattern.hold + pattern.exhale + pattern.pause));
 
-  // Phase durations in seconds
-  const phaseDurations = {
+  // Phase durations in seconds - memoized to prevent useEffect dependencies from changing
+  const phaseDurations = useMemo(() => ({
     inhale: pattern.inhale,
     hold: pattern.hold,
     exhale: pattern.exhale,
     pause: pattern.pause
-  };
+  }), [pattern.inhale, pattern.hold, pattern.exhale, pattern.pause]);
 
   // Main breathing cycle timer
   useEffect(() => {
