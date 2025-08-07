@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext'
+import { useAuth } from '../hooks/useAuth'
+import { Button } from '../components/ui/Button'
 
 export const SignInPage: React.FC = () => {
   const [email, setEmail] = useState('')
@@ -12,7 +13,7 @@ export const SignInPage: React.FC = () => {
   const [error, setError] = useState('')
   const [message, setMessage] = useState('')
   
-  const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword } = useSupabaseAuth()
+  const { signIn, signUp, signInWithGoogle, signInWithApple, resetPassword } = useAuth()
   const navigate = useNavigate()
   const [searchParams] = useSearchParams()
 
@@ -148,13 +149,16 @@ export const SignInPage: React.FC = () => {
               />
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="breathing"
+              size="md"
+              className="w-full"
               disabled={loading}
-              className="w-full bg-primary text-white py-2 px-4 rounded-lg hover:bg-opacity-90 transition-colors disabled:opacity-50"
+              isLoading={loading}
             >
-              {loading ? 'Mengirim...' : 'Kirim Link Reset'}
-            </button>
+              Kirim Link Reset
+            </Button>
           </form>
 
           <div className="text-center">

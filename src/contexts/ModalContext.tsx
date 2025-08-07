@@ -1,11 +1,11 @@
-import React, { createContext, useContext, useState, useCallback, useMemo, useRef } from 'react';
+import React, { createContext, useState, useCallback, useMemo, useRef } from 'react';
 import type { ReactNode } from 'react';
 
 // Modal types and configurations
 export interface ModalConfig {
   id: string;
   type: ModalType;
-  props?: Record<string, any>;
+  props?: Record<string, unknown>;
   persistent?: boolean;
   closable?: boolean;
   backdrop?: boolean;
@@ -79,15 +79,10 @@ const createDefaultState = (): ModalState => ({
 });
 
 // Create context
-const ModalContext = createContext<ModalContextType | null>(null);
+export const ModalContext = createContext<ModalContextType | null>(null);
 
-export const useModal = (): ModalContextType => {
-  const context = useContext(ModalContext);
-  if (!context) {
-    throw new Error('useModal must be used within a ModalProvider');
-  }
-  return context;
-};
+// Export the provider component only to satisfy React Fast Refresh
+export { useModal } from '../hooks/useModal';
 
 interface ModalProviderProps {
   children: ReactNode;

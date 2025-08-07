@@ -178,7 +178,11 @@ export const Settings: React.FC = () => {
                 <p className="text-gray-600 mb-8">
                   You're currently using Sembalun as a guest. Sign up to save your preferences and access all features.
                 </p>
-                <Button onClick={() => setShowAuthModal(true)}>
+                <Button 
+                  onClick={() => setShowAuthModal(true)}
+                  variant="breathing"
+                  size="lg"
+                >
                   Create Account
                 </Button>
               </div>
@@ -358,13 +362,16 @@ export const Settings: React.FC = () => {
               </div>
             </div>
 
-            <button
+            <Button
               type="submit"
+              variant="breathing"
+              size="lg"
               disabled={loading}
-              className="w-full bg-primary text-white px-6 py-3 rounded-2xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
+              isLoading={loading}
+              className="w-full"
             >
-              {loading ? 'Saving...' : 'Save Settings'}
-            </button>
+              Save Settings
+            </Button>
           </form>
         </div>
 
@@ -405,9 +412,8 @@ export const Settings: React.FC = () => {
               Once you delete your account, there is no going back. Please be certain.
             </p>
             <Button
-              variant="outline"
+              variant="destructive"
               onClick={() => setShowDeleteConfirm(true)}
-              className="border-red-300 text-red-600 hover:bg-red-50"
             >
               Delete Account
             </Button>
@@ -439,10 +445,12 @@ export const Settings: React.FC = () => {
                 </Button>
                 <Button
                   onClick={handleDeleteAccount}
+                  variant="destructive"
                   disabled={loading}
-                  className="flex-1 bg-red-600 hover:bg-red-700"
+                  isLoading={loading}
+                  className="flex-1"
                 >
-                  {loading ? 'Deleting...' : 'Delete Account'}
+                  Delete Account
                 </Button>
               </div>
             </div>
@@ -492,10 +500,12 @@ export const Settings: React.FC = () => {
                 </Button>
                 <Button
                   onClick={handleReauthenticate}
+                  variant="breathing"
                   disabled={loading || !reauthPassword.trim()}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700"
+                  isLoading={loading}
+                  className="flex-1"
                 >
-                  {loading ? 'Confirming...' : 'Confirm'}
+                  Confirm
                 </Button>
               </div>
             </div>

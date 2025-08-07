@@ -6,7 +6,8 @@ import { Button } from '../components/ui/Button';
 import { Cairn } from '../components/ui/Cairn';
 import { CairnIcon } from '../components/ui/CairnIcon';
 import { BreathingCard } from '../components/ui/BreathingCard';
-import { MoodSelector, type MoodType } from '../components/ui/MoodSelector';
+import { MoodSelector } from '../components/ui/MoodSelector';
+import type { MoodType } from '../types/mood';
 import { FloatingButton } from '../components/ui/FloatingButton';
 
 export const Home: React.FC = () => {

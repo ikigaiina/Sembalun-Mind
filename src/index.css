@@ -1,24 +1,184 @@
-@import url('https://fonts.googleapis.com/css2?family=Lora:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
+/* 2025 Enhanced Variable Fonts for Meditation */
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Lora:ital,wght@0,400..700;1,400..700&display=swap');
 @import "tailwindcss";
+@import "./styles/design-system.css";
 
 @theme {
+  /* 2025 Enhanced Color System - Light Theme (Default) */
   --color-primary: #6A8F6F;
   --color-accent: #A9C1D9;
   --color-background: #E1E8F0;
   --color-warm: #C56C3E;
   
-  --font-family-heading: Lora, serif;
-  --font-family-body: Inter, sans-serif;
+  /* Meditation-specific colors - Light */
+  --color-meditation-zen: #7C9885;
+  --color-meditation-focus: #6B9BD1;
+  --color-meditation-calm: #A8B8C8;
+  --color-meditation-energy: #D4A574;
+  --color-meditation-healing: #85A887;
+  
+  /* Glassmorphism variables - Light */
+  --glassmorphism-light: rgba(255, 255, 255, 0.1);
+  --glassmorphism-medium: rgba(255, 255, 255, 0.15);
+  --glassmorphism-heavy: rgba(255, 255, 255, 0.25);
+  --glassmorphism-meditation: rgba(106, 143, 111, 0.15);
+  
+  /* Neomorphism variables - Light */
+  --neomorphism-bg: #E8EEF2;
+  --neomorphism-highlight: #F5F8FA;
+  --neomorphism-shadow: #B8C5D1;
+  --neomorphism-light-shadow: #FFFFFF;
+  
+  /* Sembalun Brand Typography */
+  --font-family-primary: 'Inter', system-ui, sans-serif;
+  --font-family-heading: 'Lora', Georgia, serif;
+  --font-family-body: 'Inter', system-ui, sans-serif;
+  --font-family-mono: 'Inter', monospace;
+  
+  /* Sembalun meditation font weights */
+  --font-weight-calm: 300;
+  --font-weight-focus: 500;
+  --font-weight-energy: 600;
+  --font-weight-zen: 400;
+  --font-weight-wisdom: 500;
+  
+  /* Advanced spacing system */
+  --spacing-meditation: 1.2rem;
+  --spacing-breathing: 2rem;
+  --border-radius-soft: 1.5rem;
+  --border-radius-meditation: 2rem;
+}
+
+/* 2025 Enhanced Dark Theme */
+.dark {
+  /* Dark Theme Color System - Updated to match specified palette */
+  --color-primary: #6A8F6F;
+  --color-accent: #A9C1D9;
+  --color-background: #1a1f1d;
+  --color-warm: #C56C3E;
+  
+  /* Meditation-specific colors - Dark */
+  --color-meditation-zen: #9CAA9F;
+  --color-meditation-focus: #8CABDB;
+  --color-meditation-calm: #B5C5D5;
+  --color-meditation-energy: #E4B584;
+  --color-meditation-healing: #95B897;
+  
+  /* Glassmorphism variables - Dark */
+  --glassmorphism-light: rgba(255, 255, 255, 0.05);
+  --glassmorphism-medium: rgba(255, 255, 255, 0.08);
+  --glassmorphism-heavy: rgba(255, 255, 255, 0.12);
+  --glassmorphism-meditation: rgba(143, 176, 148, 0.08);
+  
+  /* Neomorphism variables - Dark */
+  --neomorphism-bg: #1e2422;
+  --neomorphism-highlight: #252b28;
+  --neomorphism-shadow: #15191a;
+  --neomorphism-light-shadow: rgba(255, 255, 255, 0.02);
+}
+
+/* Enhanced theme transitions */
+* {
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              border-color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              color 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              fill 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              stroke 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              box-shadow 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Preserve animation performance */
+.animate-spin,
+.animate-pulse,
+.animate-bounce,
+[data-framer-motion] * {
+  transition: none !important;
+}
+
+/* 2025 Enhanced Body Styles - Default Light Theme */
+body {
+  background-color: #E1E8F0; /* Default light background */
+  transition: background-color 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark body {
+  background-color: #1a1f1d;
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(106, 143, 111, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 75% 75%, rgba(169, 193, 217, 0.03) 0%, transparent 40%);
+}
+
+/* Background patterns for both themes */
+body {
+  background-image:
+    radial-gradient(circle at 25% 25%, rgba(106, 143, 111, 0.05) 0%, transparent 40%),
+    radial-gradient(circle at 75% 75%, rgba(169, 193, 217, 0.05) 0%, transparent 40%);
+  font-family: var(--font-family-primary);
+  font-variation-settings: var(--font-variation-calm);
+  color: rgb(31 41 55);
+  font-feature-settings: "liga" 1, "kern" 1;
+  text-rendering: optimizeLegibility;
+}
+
+.dark body {
+  color: rgb(229 231 235);
 }
 
 body {
-  background-color: var(--color-background);
-  font-family: var(--font-family-body);
-  color: rgb(31 41 55);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.7;
+  letter-spacing: 0.01em;
 }
 
+/* Sembalun Brand Typography */
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-family-heading);
+  font-weight: var(--font-weight-zen);
+  text-wrap: balance;
+  line-height: 1.3;
+  letter-spacing: -0.02em;
+}
+
+h1 {
+  font-variation-settings: var(--font-variation-wisdom);
+  font-size: clamp(2rem, 5vw, 4rem);
+  line-height: 1.1;
+}
+
+h2 {
+  font-variation-settings: var(--font-variation-zen);
+  font-size: clamp(1.5rem, 4vw, 3rem);
+}
+
+h3 {
+  font-variation-settings: var(--font-variation-focus);
+  font-size: clamp(1.25rem, 3vw, 2rem);
+}
+
+/* Meditation-specific text styles */
+.meditation-body {
+  font-family: var(--font-family-body);
+  font-variation-settings: var(--font-variation-calm);
+  line-height: 1.8;
+  letter-spacing: 0.015em;
+  word-spacing: 0.05em;
+  text-rendering: optimizeLegibility;
+}
+
+.meditation-wisdom {
+  font-family: var(--font-family-heading);
+  font-variation-settings: var(--font-variation-wisdom);
+  font-style: italic;
+  text-align: center;
+  line-height: 1.6;
+}
+
+.meditation-guidance {
+  font-family: var(--font-family-body);
+  font-variation-settings: 'wght' 450, 'opsz' 14;
+  line-height: 1.7;
+  letter-spacing: 0.015em;
 }
 
 /* Custom animations for UI components */
@@ -85,11 +245,65 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Enhanced focus styles for accessibility */
+/* 2025 Enhanced Focus & Interaction Styles */
 button:focus-visible,
 [role="button"]:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+  transition: outline-offset 0.2s ease;
+}
+
+/* Glassmorphism Focus Enhancement */
+.glassmorphic:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline-offset: 4px;
+  box-shadow: 
+    0 0 0 4px rgba(255, 255, 255, 0.1),
+    0 8px 32px rgba(0, 0, 0, 0.12);
+}
+
+/* Neomorphism Focus Enhancement */
+.neomorphic:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
+  box-shadow: 
+    inset 0 0 0 2px var(--color-primary),
+    8px 8px 16px var(--neomorphism-shadow),
+    -8px -8px 16px var(--neomorphism-light-shadow);
+}
+
+/* 2025 Interaction States */
+.interactive-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.interactive-hover:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.05);
+}
+
+.meditation-hover:hover {
+  transform: translateY(-1px) scale(1.01);
+  transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Breathing Animation States */
+.breathing-slow {
+  animation: breathe-slow 6s ease-in-out infinite;
+}
+
+.breathing-fast {
+  animation: breathe-fast 3s ease-in-out infinite;
+}
+
+@keyframes breathe-slow {
+  0%, 100% { transform: scale(1); opacity: 0.7; }
+  50% { transform: scale(1.05); opacity: 1; }
+}
+
+@keyframes breathe-fast {
+  0%, 100% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.08); opacity: 1; }
 }
 
 /* Utility classes for colors */
@@ -272,6 +486,29 @@ button:focus-visible,
   white-space: nowrap;
   border: 0;
 }
+
+/* 2025 Enhanced Dark Mode with Intelligent Color Adaptation */
+/* System preference dark mode - only applies when .dark class is present */
+@media (prefers-color-scheme: dark) {
+  .dark {
+    --color-background: #1a1f1d;
+    --color-primary: #6A8F6F;
+    --color-accent: #A9C1D9;
+    --color-warm: #C56C3E;
+  }
+
+  .dark body {
+    background-color: #1a1f1d;
+    background-image:
+      radial-gradient(circle at 25% 25%, rgba(106, 143, 111, 0.03) 0%, transparent 40%),
+      radial-gradient(circle at 75% 75%, rgba(169, 193, 217, 0.03) 0%, transparent 40%);
+    color: #F8FAFC;
+  }
+}
+
+/* Manual dark mode class - consolidated with proper dark theme colors */
+
+/* Removed duplicate - already defined above */
 
 /* High contrast mode */
 .high-contrast {

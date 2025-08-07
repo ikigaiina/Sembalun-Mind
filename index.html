@@ -3,13 +3,86 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#6A8F6F" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    
+    <!-- Indonesian Mobile Optimization Meta Tags -->
+    <meta name="theme-color" content="#25D366" />
+    <meta name="msapplication-navbutton-color" content="#25D366" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    
+    <!-- Indonesian App Identity -->
+    <meta name="application-name" content="Sembalun" />
+    <meta name="apple-mobile-web-app-title" content="Sembalun" />
+    <meta name="description" content="Aplikasi meditasi Indonesia dengan kearifan lokal dan teknologi AI. Temukan kedamaian dengan panduan spiritual yang sesuai budaya Anda." />
+    <meta name="keywords" content="meditasi Indonesia, mindfulness, spiritualitas, Islam, Hindu, Buddha, Jawa, Bali, dzikir, sholat, contemplation, kearifan lokal" />
+    
+    <!-- Indonesian Cultural Context -->
+    <meta name="author" content="Sembalun Team" />
+    <meta name="language" content="Indonesian" />
+    <meta name="geo.region" content="ID" />
+    <meta name="geo.country" content="Indonesia" />
+    <meta name="geo.placename" content="Indonesia" />
+    
+    <!-- Social Media & Sharing (Indonesian Context) -->
+    <meta property="og:title" content="Sembalun - Meditasi Indonesia dengan Kearifan Lokal" />
+    <meta property="og:description" content="Aplikasi meditasi pertama di Indonesia yang memahami keragaman budaya dan spiritual Anda. Dari dzikir hingga meditasi Jawa, temukan kedamaian yang sesuai dengan nilai-nilai Anda." />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="id_ID" />
+    <meta property="og:site_name" content="Sembalun" />
+    
+    <!-- Performance & Indonesian Mobile Network Optimization -->
+    <meta name="robots" content="index, follow" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="format-detection" content="address=no" />
+    
+    <!-- Indonesian Mobile Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://api.sembalun.app" />
+    
+    <!-- PWA Configuration -->
     <link rel="manifest" href="/manifest.json" />
-    <meta name="description" content="Pengalaman meditasi Indonesia yang tenang dengan pelacakan kemajuan cairn" />
-    <title>Sembalun - Indonesian Meditation</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-touch-fullscreen" content="yes" />
+    
+    <!-- Indonesian Mobile CSS Integration -->
+    <link rel="preload" href="/src/styles/indonesian-mobile.css" as="style" />
+    <link rel="stylesheet" href="/src/styles/indonesian-mobile.css" />
+    
+    <!-- App Icons for Indonesian Mobile Devices -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    
+    <title>Sembalun - Meditasi Indonesia dengan Kearifan Lokal</title>
   </head>
   <body>
+    <!-- Theme initialization script to prevent flash -->
+    <script>
+      // Initialize theme before React loads
+      try {
+        const savedTheme = localStorage.getItem('sembalun-theme');
+        const theme = savedTheme || 'light';
+        
+        // Apply theme class immediately
+        if (theme === 'dark' || (theme === 'auto' && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+          document.documentElement.classList.add('dark');
+          document.body.classList.add('dark');
+        } else {
+          document.documentElement.classList.add('light');
+          document.body.classList.add('light');
+        }
+      } catch (e) {
+        // Fallback to light theme
+        document.documentElement.classList.add('light');
+        document.body.classList.add('light');
+      }
+    </script>
+    
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

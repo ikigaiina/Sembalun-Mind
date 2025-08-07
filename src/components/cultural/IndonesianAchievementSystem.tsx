@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 
@@ -346,7 +346,7 @@ const virtualGardens: VirtualGarden[] = [
 ];
 
 export const IndonesianAchievementSystem: React.FC<IndonesianAchievementSystemProps> = ({
-  userStats,
+  userStats, // eslint-disable-line @typescript-eslint/no-unused-vars
   onBadgeClick,
   onGardenSelect,
   onJoinChallenge
@@ -371,7 +371,7 @@ export const IndonesianAchievementSystem: React.FC<IndonesianAchievementSystemPr
     }
   };
 
-  const getCategoryIcon = (category: string) => {
+  const getCategoryIcon = (_category: string) => { // eslint-disable-line @typescript-eslint/no-unused-vars
     switch (category) {
       case 'historical': return '🏛️';
       case 'natural': return '🌿';
@@ -394,7 +394,7 @@ export const IndonesianAchievementSystem: React.FC<IndonesianAchievementSystemPr
         ].map((tab) => (
           <button
             key={tab.id}
-            onClick={() => setActiveTab(tab.id as any)}
+            onClick={() => setActiveTab(tab.id as 'badges' | 'challenges' | 'gardens')}
             className={`flex-1 flex items-center justify-center space-x-2 py-2 px-3 rounded-md text-sm font-medium transition-colors ${
               activeTab === tab.id
                 ? 'bg-white text-purple-700 shadow-sm'

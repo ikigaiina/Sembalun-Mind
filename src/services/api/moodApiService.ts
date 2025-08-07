@@ -944,7 +944,7 @@ export class MoodApiService {
   // Mood Streaks
   private async updateMoodStreak(userId: string): Promise<void> {
     try {
-      let { data: streak, error } = await supabase
+      const { data: streak, error } = await supabase
         .from('mood_streaks')
         .select('*')
         .eq('user_id', userId)

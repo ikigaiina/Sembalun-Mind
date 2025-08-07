@@ -91,7 +91,7 @@ export const AdvancedMeditationPlayer: React.FC<AdvancedMeditationPlayerProps> =
       disconnectBiometrics()
       disconnectSocial()
     }
-  }, [])
+  }, [enableBiometrics, enableSocial])
   
   const initializeBiometricMonitoring = async () => {
     // TODO: Implement biometric device connection
@@ -215,7 +215,7 @@ export const AdvancedMeditationPlayer: React.FC<AdvancedMeditationPlayerProps> =
             <div className="text-xs text-blue-600">Stress</div>
             {targets?.stressLevel && (
               <div className="text-xs text-gray-500">
-                Target: <{targets.stressLevel.target}%
+                Target: &lt;{targets.stressLevel.target}%
               </div>
             )}
           </div>
@@ -233,7 +233,7 @@ export const AdvancedMeditationPlayer: React.FC<AdvancedMeditationPlayerProps> =
           Meditating Together ({socialParticipants.length})
         </h4>
         <div className="flex -space-x-2">
-          {socialParticipants.slice(0, 5).map((participant, index) => (
+          {socialParticipants.slice(0, 5).map((participant) => (
             <div
               key={participant}
               className="w-8 h-8 rounded-full bg-green-200 border-2 border-white flex items-center justify-center text-xs font-medium text-green-700"

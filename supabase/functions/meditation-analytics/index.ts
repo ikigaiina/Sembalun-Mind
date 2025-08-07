@@ -281,7 +281,7 @@ function calculateStreaks(sessions: any[]): {
   
   // Check if there's a session today or yesterday
   if (sessionsByDate[today] || sessionsByDate[yesterday]) {
-    let checkDate = new Date()
+    const checkDate = new Date()
     
     while (true) {
       const dateStr = checkDate.toDateString()
@@ -348,16 +348,18 @@ function calculateProgressTrend(
       case 'week':
         key = date.toISOString().split('T')[0] // Daily
         break
-      case 'month':
+      case 'month': {
         // Weekly grouping
         const weekStart = new Date(date)
         weekStart.setDate(date.getDate() - date.getDay())
         key = weekStart.toISOString().split('T')[0]
         break
-      case 'year':
+      }
+      case 'year': {
         // Monthly grouping
         key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         break
+      }
     }
 
     if (!groupedData[key]) {

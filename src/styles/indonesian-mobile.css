@@ -1,0 +1,427 @@
+/* Indonesian Mobile Optimization Styles */
+/* Optimized for Indonesian mobile patterns and device characteristics */
+
+/* Base mobile optimizations */
+.reduce-motion * {
+  animation-duration: 0.15s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0.15s !important;
+  transition-delay: 0s !important;
+}
+
+.reduce-motion .motion-reduce\:transform-none {
+  transform: none !important;
+}
+
+.disable-parallax {
+  transform: none !important;
+  will-change: auto !important;
+}
+
+/* Simplified UI for low-end devices */
+.simplified-ui .shadow-lg,
+.simplified-ui .shadow-xl,
+.simplified-ui .shadow-2xl {
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1) !important;
+}
+
+.minimal-shadows * {
+  box-shadow: none !important;
+  text-shadow: none !important;
+}
+
+.reduced-gradients {
+  background-image: none !important;
+  background: var(--fallback-bg, #ffffff) !important;
+}
+
+/* Compact layout for small screens */
+.compact-layout {
+  padding: var(--indonesian-spacing-base, 12px) !important;
+  margin: calc(var(--indonesian-spacing-base, 12px) / 2) !important;
+}
+
+.compact-layout .space-y-6 > * + * {
+  margin-top: var(--indonesian-spacing-base, 12px) !important;
+}
+
+.compact-layout .space-y-4 > * + * {
+  margin-top: calc(var(--indonesian-spacing-base, 12px) / 1.5) !important;
+}
+
+/* Large touch targets for thumb navigation */
+.large-touch-targets button,
+.large-touch-targets .btn,
+.large-touch-targets [role="button"],
+.large-touch-targets input,
+.large-touch-targets select,
+.large-touch-targets textarea {
+  min-height: var(--indonesian-spacing-touch, 48px) !important;
+  min-width: var(--indonesian-spacing-touch, 48px) !important;
+  padding: 12px 16px !important;
+}
+
+.large-touch-targets .btn-sm {
+  min-height: 40px !important;
+  min-width: 40px !important;
+  padding: 8px 12px !important;
+}
+
+/* WhatsApp-style navigation patterns */
+.whatsapp-style-nav {
+  --nav-bg: #ffffff;
+  --nav-active: var(--indonesian-nav-color, #25D366);
+  --nav-inactive: #8696a0;
+  --nav-shadow: 0 -1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.whatsapp-style-nav .bottom-nav {
+  background-color: var(--nav-bg);
+  border-top: 1px solid #e5e7eb;
+  box-shadow: var(--nav-shadow);
+}
+
+.whatsapp-style-nav .nav-item.active {
+  color: var(--nav-active);
+}
+
+.whatsapp-style-nav .nav-item:not(.active) {
+  color: var(--nav-inactive);
+}
+
+/* Familiar interactions (Indonesian mobile patterns) */
+.familiar-interactions {
+  /* WhatsApp-like long press menus */
+  -webkit-touch-callout: default;
+  -webkit-user-select: text;
+}
+
+.familiar-interactions .long-press-menu {
+  background: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  border: 1px solid #e5e7eb;
+}
+
+.familiar-interactions .swipe-back {
+  /* Android-style back swipe */
+  touch-action: pan-x;
+}
+
+/* Indonesian typography optimizations */
+.indonesian-text {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  line-height: 1.6;
+  letter-spacing: 0.01em;
+}
+
+.indonesian-text.formal {
+  /* More formal Indonesian text styling */
+  font-weight: 400;
+  letter-spacing: 0.02em;
+}
+
+.indonesian-text.casual {
+  /* Casual Indonesian text styling */
+  font-weight: 350;
+  letter-spacing: 0;
+}
+
+/* Indonesian number and date formatting */
+.indonesian-number {
+  font-family: 'Inter', monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.indonesian-currency::before {
+  content: 'Rp ';
+  font-weight: 500;
+}
+
+/* Cultural color scheme */
+.indonesian-colors {
+  --success: #25D366; /* WhatsApp green */
+  --warning: #FFB020; /* Indonesian orange */
+  --error: #E74C3C; /* Clear red */
+  --primary: #2E7D32; /* Nature green */
+  --secondary: #1976D2; /* Indonesian blue */
+}
+
+/* Prayer time awareness */
+.prayer-time-aware {
+  transition: all var(--indonesian-animation-duration, 0.3s) ease;
+}
+
+.prayer-time-aware.muted {
+  opacity: 0.7;
+  filter: grayscale(20%);
+}
+
+.prayer-time-aware.prayer-active {
+  border-left: 4px solid #25D366;
+  background: linear-gradient(90deg, rgba(37, 211, 102, 0.05) 0%, transparent 20%);
+}
+
+/* Indonesian modal patterns */
+.indonesian-modal {
+  /* Bottom sheet style (common in Indonesian apps) */
+  border-radius: 20px 20px 0 0;
+  max-width: 100vw;
+  max-height: 85vh;
+}
+
+.indonesian-modal .modal-handle {
+  width: 48px;
+  height: 4px;
+  background: #d1d5db;
+  border-radius: 2px;
+  margin: 8px auto 16px;
+}
+
+/* Cultural greeting styles */
+.cultural-greeting {
+  position: relative;
+}
+
+.cultural-greeting.islamic::before {
+  content: '☪️';
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.cultural-greeting.hindu::before {
+  content: '🕉️';
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+.cultural-greeting.javanese::before {
+  content: '🎭';
+  margin-right: 8px;
+  opacity: 0.7;
+}
+
+/* Indonesian form patterns */
+.indonesian-form input,
+.indonesian-form select,
+.indonesian-form textarea {
+  border-radius: 8px;
+  padding: 12px 16px;
+  border: 2px solid #e5e7eb;
+  background: #ffffff;
+  font-size: 16px; /* Prevents zoom on iOS */
+}
+
+.indonesian-form input:focus,
+.indonesian-form select:focus,
+.indonesian-form textarea:focus {
+  border-color: var(--indonesian-nav-color, #25D366);
+  box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+}
+
+/* Indonesian loading states */
+.indonesian-loading {
+  /* Familiar loading pattern (like WhatsApp) */
+  background: linear-gradient(90deg, #f3f4f6 25%, #e5e7eb 50%, #f3f4f6 75%);
+  background-size: 200% 100%;
+  animation: indonesian-shimmer 1.5s infinite;
+}
+
+@keyframes indonesian-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Indonesian button styles */
+.indonesian-btn {
+  border-radius: 8px;
+  font-weight: 500;
+  padding: 12px 24px;
+  min-height: var(--indonesian-spacing-touch, 48px);
+  font-family: inherit;
+  letter-spacing: 0.01em;
+  transition: all var(--indonesian-animation-duration, 0.3s) ease;
+}
+
+.indonesian-btn.respectful {
+  background: linear-gradient(135deg, #2E7D32 0%, #4CAF50 100%);
+  color: white;
+  border: none;
+}
+
+.indonesian-btn.community {
+  background: linear-gradient(135deg, #1976D2 0%, #2196F3 100%);
+  color: white;
+  border: none;
+}
+
+.indonesian-btn.spiritual {
+  background: linear-gradient(135deg, #7B1FA2 0%, #9C27B0 100%);
+  color: white;
+  border: none;
+}
+
+.indonesian-btn.gentle {
+  background: transparent;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+/* Indonesian toast/notification styles */
+.indonesian-toast {
+  border-radius: 8px;
+  padding: 12px 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(8px);
+  max-width: calc(100vw - 32px);
+}
+
+.indonesian-toast.success {
+  background: rgba(37, 211, 102, 0.95);
+  color: white;
+}
+
+.indonesian-toast.error {
+  background: rgba(231, 76, 60, 0.95);
+  color: white;
+}
+
+.indonesian-toast.info {
+  background: rgba(25, 118, 210, 0.95);
+  color: white;
+}
+
+/* Responsive breakpoints for Indonesian devices */
+@media (max-width: 360px) {
+  /* Budget phone optimization */
+  .compact-layout {
+    padding: 8px !important;
+  }
+  
+  .indonesian-btn {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+  
+  .large-touch-targets button {
+    min-height: 44px !important;
+  }
+}
+
+@media (max-width: 414px) and (orientation: portrait) {
+  /* Standard phone optimization */
+  .whatsapp-style-nav .bottom-nav {
+    padding: 8px 4px 12px; /* Account for home indicator */
+  }
+}
+
+@media (min-width: 768px) {
+  /* Tablet/large phone adjustments */
+  .compact-layout {
+    padding: var(--indonesian-spacing-base, 16px) !important;
+  }
+}
+
+/* Dark mode adaptations for Indonesian users */
+@media (prefers-color-scheme: dark) {
+  .whatsapp-style-nav {
+    --nav-bg: #1f1f1f;
+    --nav-shadow: 0 -1px 3px rgba(255, 255, 255, 0.1);
+  }
+  
+  .indonesian-modal {
+    background: #1f1f1f;
+    color: #ffffff;
+  }
+  
+  .indonesian-form input,
+  .indonesian-form select,
+  .indonesian-form textarea {
+    background: #2d2d2d;
+    border-color: #404040;
+    color: #ffffff;
+  }
+}
+
+/* Accessibility improvements for Indonesian context */
+.indonesian-accessibility {
+  /* High contrast mode */
+  --contrast-ratio: 4.5; /* WCAG AA compliance */
+}
+
+.indonesian-accessibility.high-contrast {
+  filter: contrast(1.2);
+}
+
+.indonesian-accessibility .focus-visible {
+  outline: 3px solid var(--indonesian-nav-color, #25D366);
+  outline-offset: 2px;
+}
+
+/* Print styles for Indonesian content */
+@media print {
+  .indonesian-text {
+    color: black !important;
+    background: white !important;
+  }
+  
+  .whatsapp-style-nav,
+  .indonesian-modal,
+  .prayer-time-aware {
+    display: none !important;
+  }
+}
+
+/* RTL support (for Arabic content in Islamic features) */
+.rtl {
+  direction: rtl;
+  text-align: right;
+}
+
+.rtl .indonesian-btn {
+  margin-left: 0;
+  margin-right: auto;
+}
+
+/* Performance optimizations */
+.will-change-auto {
+  will-change: auto;
+}
+
+.gpu-optimized {
+  transform: translate3d(0, 0, 0);
+  -webkit-transform: translate3d(0, 0, 0);
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  .reduce-motion,
+  .reduce-motion *,
+  .reduce-motion *::before,
+  .reduce-motion *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Indonesian cultural elements */
+.cultural-border {
+  border-image: linear-gradient(45deg, #2E7D32, #4CAF50, #8BC34A) 1;
+}
+
+.batik-pattern {
+  background-image: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20"><circle cx="10" cy="10" r="1" fill="%23000000" opacity="0.1"/></svg>');
+}
+
+/* Indonesian spacing system */
+:root {
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-2xl: 32px;
+  --spacing-touch: 48px;
+}

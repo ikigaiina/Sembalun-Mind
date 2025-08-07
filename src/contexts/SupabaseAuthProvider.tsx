@@ -40,4 +40,4 @@ export const SupabaseAuthProvider = ({ children }: { children: React.ReactNode }
   );
 };
 
-export const useSupabaseAuth = () => useContext(AuthContext);
+// Custom hook moved to separate file for React Fast Refresh compliance

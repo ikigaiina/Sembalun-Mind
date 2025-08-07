@@ -405,7 +405,7 @@ export class SupabaseAnalyticsService {
 
     // Check if there's a session today or yesterday
     if (uniqueDates.includes(today) || uniqueDates.includes(yesterday)) {
-      let currentDate = new Date()
+      const currentDate = new Date()
       
       for (const sessionDate of uniqueDates) {
         const checkDate = currentDate.toDateString()

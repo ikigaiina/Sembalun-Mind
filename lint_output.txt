@@ -1,0 +1,1011 @@
+
+> sembalun@0.0.0 lint
+> eslint . --max-warnings 50
+
+
+D:\pengembangan siy\4\sembalun\src\components\auth\AuthProvider.tsx
+  131:33  warning  '_currentPassword' is defined but never used  @typescript-eslint/no-unused-vars
+  131:59  warning  '_newPassword' is defined but never used      @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\components\cultural\IndonesianAchievementSystem.tsx
+  349:3   warning  'userStats' is defined but never used                 @typescript-eslint/no-unused-vars
+  374:9   warning  'getCategoryIcon' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  397:51  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\cultural\IndonesianWisdomQuotes.tsx
+   33:11  warning  'RegionalCustomization' is defined but never used          @typescript-eslint/no-unused-vars
+  238:10  warning  'selectedQuote' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  240:10  warning  'currentQuoteIndex' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  240:29  warning  'setCurrentQuoteIndex' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\components\meditation\AdvancedMeditationPlayer.tsx
+  236:61  warning  'index' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\components\meditation\MeditationTimer.tsx
+  294:67  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\multiagent\TaskDashboard.tsx
+  112:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  255:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  454:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\onboarding\EnhancedOnboardingWizard.tsx
+  314:54  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\ui\Button.test.tsx
+  434:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\ui\EnhancedAuthModal.tsx
+  30:10  warning  'currentStep' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  30:23  warning  'setCurrentStep' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\components\ui\IndonesianSessionBuilderModal.tsx
+  4:50  warning  'Palette' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\components\ui\Input.test.tsx
+  503:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  557:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\ui\PerformanceDashboard.tsx
+  186:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\components\ui\modals\BreathingGuideModal.tsx
+  202:34  warning  'phase' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\components\ui\modals\ModalRenderer.tsx
+  2:43  warning  'ModalAnimation' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\config\supabaseClient.ts
+  42:44  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  63:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\config\supabaseSetup.ts
+  131:19  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  145:23  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  156:21  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  213:21  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\contexts\ModalContext.tsx
+  82:14  error  Fast refresh only works when a file only exports components. Move your React context(s) to a separate file  react-refresh/only-export-components
+
+D:\pengembangan siy\4\sembalun\src\contexts\OfflineContext.test.tsx
+  556:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  557:20  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  583:48  warning  'index' is defined but never used         @typescript-eslint/no-unused-vars
+  696:33  warning  'counter' is defined but never used       @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\contexts\OfflineContext.tsx
+  1:61  warning  'useContext' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\contexts\SupabaseAuthContext.tsx
+   92:14  error    Fast refresh only works when a file only exports components. Move your React context(s) to a separate file  react-refresh/only-export-components
+  111:10  warning  '_formErrors' is assigned a value but never used                                                            @typescript-eslint/no-unused-vars
+  111:23  warning  '_setFormErrors' is assigned a value but never used                                                         @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\contexts\SupabaseAuthProvider.tsx
+  1:25  warning  'useContext' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\hooks\useGestures.ts
+  180:39  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+  296:38  warning  'e' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\hooks\useOffline.test.tsx
+  102:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\hooks\usePerformanceOptimization.ts
+   44:63  warning  'dependencies' is assigned a value but never used                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   44:77  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+   45:9   warning  'monitor' is assigned a value but never used                                                                                                                                                                                                                             @typescript-eslint/no-unused-vars
+   77:17  error    The ref value 'timersRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'timersRef.current' to a variable inside the effect, and use that variable in the cleanup function        react-hooks/exhaustive-deps
+   83:20  error    The ref value 'listenersRef.current' will likely have changed by the time this effect cleanup function runs. If this ref points to a node rendered by React, copy 'listenersRef.current' to a variable inside the effect, and use that variable in the cleanup function  react-hooks/exhaustive-deps
+  112:64  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  384:42  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  385:64  warning  Unexpected any. Specify a different type                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\lib\supabase.ts
+    5:3    warning  'UserInsert' is defined but never used                @typescript-eslint/no-unused-vars
+    9:3    warning  'MeditationSessionUpdate' is defined but never used   @typescript-eslint/no-unused-vars
+   12:3    warning  'JournalEntryUpdate' is defined but never used        @typescript-eslint/no-unused-vars
+   13:3    warning  'Achievement' is defined but never used               @typescript-eslint/no-unused-vars
+   14:3    warning  'AchievementInsert' is defined but never used         @typescript-eslint/no-unused-vars
+   16:3    warning  'UserCourseProgress' is defined but never used        @typescript-eslint/no-unused-vars
+   17:3    warning  'UserCourseProgressInsert' is defined but never used  @typescript-eslint/no-unused-vars
+   18:3    warning  'Bookmark' is defined but never used                  @typescript-eslint/no-unused-vars
+   19:3    warning  'BookmarkInsert' is defined but never used            @typescript-eslint/no-unused-vars
+   22:3    warning  'UserProgress' is defined but never used              @typescript-eslint/no-unused-vars
+  400:102  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+  436:100  warning  Unexpected any. Specify a different type              @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\pages\AuthResetPassword.tsx
+  53:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\pages\Courses.tsx
+  40:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  41:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\pages\FrameworkDemo.tsx
+  111:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  143:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  146:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\pages\Help.tsx
+  206:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\pages\Login.tsx
+  29:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  42:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\pages\SignInPage.tsx
+   54:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+   69:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+   82:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+  102:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\pages\SignUp.tsx
+  54:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+  67:14  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\scripts\resetAchievements.ts
+  134:118  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\scripts\testSupabaseConnection.ts
+   79:13  warning  'currentUser' is assigned a value but never used          @typescript-eslint/no-unused-vars
+   83:13  warning  'currentSession' is assigned a value but never used       @typescript-eslint/no-unused-vars
+   87:82  warning  'session' is defined but never used                       @typescript-eslint/no-unused-vars
+  142:11  warning  'subscriptionWorking' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  204:23  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  224:16  warning  'error' is defined but never used                         @typescript-eslint/no-unused-vars
+  224:23  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  254:13  warning  'courses' is assigned a value but never used              @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\achievementResetService.ts
+    2:15  warning  'PostgrestFilterBuilder' is defined but never used  @typescript-eslint/no-unused-vars
+  208:46  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  223:22  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  283:40  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  283:46  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  306:18  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  319:25  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\achievementService.ts
+  406:13  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  448:43  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  647:58  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\adaptiveLearningService.ts
+  579:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\api\achievementApiService.ts
+  850:13  warning  'achievements' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  940:22  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\api\apiErrorService.ts
+    6:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   21:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   22:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   29:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   32:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   74:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   75:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  170:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:79  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  258:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  258:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  373:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  426:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  660:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  669:87  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  702:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  705:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\api\meditationApiService.ts
+  102:150  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  126:130  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  144:92   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  161:132  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  182:78   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  199:173  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  234:77   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  253:78   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  281:59   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  294:37   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  329:152  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  485:96   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\api\moodApiService.ts
+   129:20   warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   202:132  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   232:125  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   250:114  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   271:78   warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   288:158  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   545:13   warning  'firstHalfAvg' is assigned a value but never used   @typescript-eslint/no-unused-vars
+   546:13   warning  'secondHalfAvg' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   901:5    warning  'patterns' is defined but never used                @typescript-eslint/no-unused-vars
+  1011:84   warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  1058:55   warning  'entry' is defined but never used                   @typescript-eslint/no-unused-vars
+  1065:162  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\api\progressApiService.ts
+  181:90   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  206:121  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  227:96   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  260:201  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  360:81   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  377:126  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  426:91   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  435:13   warning  'currentLevelXP' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  503:152  warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  545:79   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  580:69   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  580:76   warning  'streaks' is defined but never used                  @typescript-eslint/no-unused-vars
+  613:43   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  613:50   warning  'period' is defined but never used                   @typescript-eslint/no-unused-vars
+  623:42   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  647:43   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  682:44   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  709:43   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  734:71   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  749:76   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  749:83   warning  'period' is defined but never used                   @typescript-eslint/no-unused-vars
+  786:55   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  816:71   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  816:78   warning  'streaks' is defined but never used                  @typescript-eslint/no-unused-vars
+  846:68   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+  846:75   warning  'streaks' is defined but never used                  @typescript-eslint/no-unused-vars
+  846:98   warning  'trends' is defined but never used                   @typescript-eslint/no-unused-vars
+  901:48   warning  Unexpected any. Specify a different type             @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\api\userApiService.ts
+  116:63   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  126:87   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  141:105  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  170:121  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  191:122  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  227:27   warning  'userId' is defined but never used        @typescript-eslint/no-unused-vars
+  227:79   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  242:67   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  289:103  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  377:89   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  436:57   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  436:69   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\audioBookmarkService.ts
+  351:26  warning  'userId' is defined but never used            @typescript-eslint/no-unused-vars
+  563:11  warning  'headers' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\audioCacheService.ts
+   65:66  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  233:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  237:16  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  339:37  warning  'userId' is defined but never used        @typescript-eslint/no-unused-vars
+  363:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  453:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  466:35  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  468:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\audioPerformanceService.ts
+  139:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  256:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  257:18  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  329:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\avatarService.ts
+  86:15  warning  'data' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\cairnService.ts
+  343:5   warning  'activityData' is defined but never used         @typescript-eslint/no-unused-vars
+  343:74  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  470:13  warning  'nextCairns' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\celebrationService.ts
+    24:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+    87:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   424:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   425:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   552:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   669:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   683:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   693:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   716:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   719:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   719:50  warning  'preferences' is defined but never used   @typescript-eslint/no-unused-vars
+   728:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   732:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   732:56  warning  'preferences' is defined but never used   @typescript-eslint/no-unused-vars
+   741:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   744:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   751:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   751:44  warning  'preferences' is defined but never used   @typescript-eslint/no-unused-vars
+   758:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   765:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   771:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   794:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   807:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   864:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   867:32  warning  'tone' is defined but never used          @typescript-eslint/no-unused-vars
+   875:27  warning  'tone' is defined but never used          @typescript-eslint/no-unused-vars
+   891:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   931:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   968:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   968:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   969:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   996:65  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   996:83  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   996:99  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1043:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1043:44  warning  'preferences' is defined but never used   @typescript-eslint/no-unused-vars
+  1052:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1055:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1055:50  warning  'preferences' is defined but never used   @typescript-eslint/no-unused-vars
+  1064:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  1067:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\communityProgressService.ts
+  289:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  351:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  365:64  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  369:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  389:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\contentDatabase.ts
+  894:88  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\contextualMonitoringService.ts
+  166:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  167:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  237:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  237:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  298:36  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  402:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  437:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  472:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  477:52  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  477:73  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  531:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  531:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  589:57  warning  'urgency' is defined but never used       @typescript-eslint/no-unused-vars
+  675:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  710:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  727:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  734:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  779:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  813:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  827:47  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  842:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  868:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  868:48  warning  'moods' is defined but never used         @typescript-eslint/no-unused-vars
+  868:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  895:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  895:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  923:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\emotionalIntelligenceService.ts
+  3:10  warning  'notesService' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\encouragementService.ts
+     4:10   warning  'emotionalIntelligenceService' is defined but never used  @typescript-eslint/no-unused-vars
+     5:10   warning  'habitAnalyticsService' is defined but never used         @typescript-eslint/no-unused-vars
+   337:13   warning  'profile' is assigned a value but never used              @typescript-eslint/no-unused-vars
+   401:44   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   401:51   warning  'moods' is defined but never used                         @typescript-eslint/no-unused-vars
+   401:58   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   473:74   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   507:66   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   507:82   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   507:100  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   554:70   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   554:75   warning  'insights' is defined but never used                      @typescript-eslint/no-unused-vars
+   554:85   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   554:90   warning  'comparisons' is defined but never used                   @typescript-eslint/no-unused-vars
+   554:103  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   555:11   warning  'profile' is assigned a value but never used              @typescript-eslint/no-unused-vars
+   616:21   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   659:21   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   664:77   warning  'profile' is defined but never used                       @typescript-eslint/no-unused-vars
+   679:5    warning  'profile' is defined but never used                       @typescript-eslint/no-unused-vars
+   680:5    warning  'recentSessions' is defined but never used                @typescript-eslint/no-unused-vars
+   680:21   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   693:53   warning  'profile' is defined but never used                       @typescript-eslint/no-unused-vars
+   703:54   warning  'profile' is defined but never used                       @typescript-eslint/no-unused-vars
+   713:55   warning  'profile' is defined but never used                       @typescript-eslint/no-unused-vars
+   814:45   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   814:52   warning  'moods' is defined but never used                         @typescript-eslint/no-unused-vars
+   814:59   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   843:43   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   843:57   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   858:5    warning  'factors' is defined but never used                       @typescript-eslint/no-unused-vars
+   922:60   warning  'factors' is defined but never used                       @typescript-eslint/no-unused-vars
+   922:69   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   932:46   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   941:40   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   958:41   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   958:55   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   971:47   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   983:46   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   983:60   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1081:39   warning  'userId' is defined but never used                        @typescript-eslint/no-unused-vars
+  1086:44   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1102:57   warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\enhancedOfflineService.ts
+    8:9   warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+   64:19  warning  'metadataStore' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  110:11  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  430:15  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  458:71  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  488:11  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  559:56  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\goalTrackingService.ts
+   52:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   53:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  147:82  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  476:41  warning  'index' is defined but never used         @typescript-eslint/no-unused-vars
+  548:70  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  551:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  552:16  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  589:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\gratitudeJournalService.ts
+    3:10  warning  'offlineMoodJournalService' is defined but never used  @typescript-eslint/no-unused-vars
+  288:52  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  640:70  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  650:72  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  655:39  warning  'insights' is defined but never used                   @typescript-eslint/no-unused-vars
+  655:68  warning  'preferences' is defined but never used                @typescript-eslint/no-unused-vars
+  655:81  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  660:61  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  665:55  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  665:60  warning  'userId' is defined but never used                     @typescript-eslint/no-unused-vars
+  685:42  warning  'userId' is defined but never used                     @typescript-eslint/no-unused-vars
+  736:38  warning  'userId' is defined but never used                     @typescript-eslint/no-unused-vars
+  736:54  warning  'entry' is defined but never used                      @typescript-eslint/no-unused-vars
+  825:29  warning  'entries' is defined but never used                    @typescript-eslint/no-unused-vars
+  881:36  warning  'entries' is defined but never used                    @typescript-eslint/no-unused-vars
+  891:35  warning  'entries' is defined but never used                    @typescript-eslint/no-unused-vars
+  891:62  warning  'stats' is defined but never used                      @typescript-eslint/no-unused-vars
+  891:85  warning  'patterns' is defined but never used                   @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\habitAnalyticsService.ts
+  124:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  176:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  215:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  276:48  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  323:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  490:50  warning  'consistency' is defined but never used   @typescript-eslint/no-unused-vars
+  549:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  565:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\journalExportService.ts
+   30:30  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  266:27  warning  'userId' is defined but never used        @typescript-eslint/no-unused-vars
+  324:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  332:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  382:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  406:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  412:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  443:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  473:41  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  502:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  537:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  574:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  587:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  593:59  warning  'filename' is defined but never used      @typescript-eslint/no-unused-vars
+  609:25  warning  'e' is defined but never used             @typescript-eslint/no-unused-vars
+  614:95  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  629:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  637:22  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  648:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  659:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  669:11  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  735:52  warning  'schedule' is defined but never used      @typescript-eslint/no-unused-vars
+  740:54  warning  'schedule' is defined but never used      @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\journalingService.ts
+    3:15  warning  'OfflineJournalEntry' is defined but never used  @typescript-eslint/no-unused-vars
+  683:40  warning  'userId' is defined but never used               @typescript-eslint/no-unused-vars
+  761:34  warning  'entries' is defined but never used              @typescript-eslint/no-unused-vars
+  781:39  warning  'entries' is defined but never used              @typescript-eslint/no-unused-vars
+  781:64  warning  'context' is defined but never used              @typescript-eslint/no-unused-vars
+  781:74  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  793:56  warning  'allTags' is defined but never used              @typescript-eslint/no-unused-vars
+  793:76  warning  'context' is defined but never used              @typescript-eslint/no-unused-vars
+  793:86  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  795:11  warning  'recentTags' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  803:35  warning  'entries' is defined but never used              @typescript-eslint/no-unused-vars
+  803:60  warning  'context' is defined but never used              @typescript-eslint/no-unused-vars
+  803:70  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+  807:37  warning  'entries' is defined but never used              @typescript-eslint/no-unused-vars
+  815:55  warning  'context' is defined but never used              @typescript-eslint/no-unused-vars
+  815:65  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\localMultiagentAgentService.ts
+   31:33  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  534:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\localMultiagentTaskService.ts
+    9:3   warning  'TaskContext' is defined but never used   @typescript-eslint/no-unused-vars
+   10:3   warning  'TaskMetadata' is defined but never used  @typescript-eslint/no-unused-vars
+   33:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  213:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  214:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  214:31  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\mobileDataOptimizationService.ts
+   58:50  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   74:40  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+   85:66  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  157:13  warning  'settings' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  180:28  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  180:76  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  204:13  warning  'settings' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  264:27  warning  'userId' is defined but never used             @typescript-eslint/no-unused-vars
+  269:28  warning  'userId' is defined but never used             @typescript-eslint/no-unused-vars
+  317:40  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  373:36  warning  'userId' is defined but never used             @typescript-eslint/no-unused-vars
+  400:54  warning  'network' is defined but never used            @typescript-eslint/no-unused-vars
+  432:62  warning  'quality' is defined but never used            @typescript-eslint/no-unused-vars
+  432:71  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  436:33  warning  'index' is defined but never used              @typescript-eslint/no-unused-vars
+  444:37  warning  'userId' is defined but never used             @typescript-eslint/no-unused-vars
+  466:30  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  466:35  warning  'level' is defined but never used              @typescript-eslint/no-unused-vars
+  466:59  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  471:35  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  475:34  warning  'metrics' is defined but never used            @typescript-eslint/no-unused-vars
+  547:40  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  555:40  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\multiagentAgentService.ts
+  268:11  warning  'subscription' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  568:55  warning  'taskId' is defined but never used                 @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\multiagentTaskService.ts
+   10:3   warning  'TaskContext' is defined but never used   @typescript-eslint/no-unused-vars
+   11:3   warning  'TaskMetadata' is defined but never used  @typescript-eslint/no-unused-vars
+   12:3   warning  'TaskResult' is defined but never used    @typescript-eslint/no-unused-vars
+   13:3   warning  'TaskError' is defined but never used     @typescript-eslint/no-unused-vars
+   91:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  324:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\offlineMoodJournalService.ts
+  539:5  warning  'themes' is defined but never used      @typescript-eslint/no-unused-vars
+  540:5  warning  'emotions' is defined but never used    @typescript-eslint/no-unused-vars
+  541:5  warning  'challenges' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\offlineStorageService.ts
+    2:29  warning  'IDBPTransaction' is defined but never used         @typescript-eslint/no-unused-vars
+  141:21  warning  'oldVersion' is defined but never used              @typescript-eslint/no-unused-vars
+  141:33  warning  'newVersion' is defined but never used              @typescript-eslint/no-unused-vars
+  141:45  warning  'transaction' is defined but never used             @typescript-eslint/no-unused-vars
+  197:19  warning  'settingsStore' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  647:42  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+  659:40  warning  Unexpected any. Specify a different type            @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\offlineSyncService.ts
+   35:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   36:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   67:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   69:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  598:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  626:29  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  643:45  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  643:62  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  656:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  656:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  670:98  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  692:32  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  692:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  692:55  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  743:34  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  898:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\paymentProcessingService.ts
+  324:36  warning  'subscriptionId' is defined but never used  @typescript-eslint/no-unused-vars
+  324:60  warning  'newPlanId' is defined but never used       @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\progressReportsService.ts
+    3:10  warning  'emotionalIntelligenceService' is defined but never used  @typescript-eslint/no-unused-vars
+    4:10  warning  'habitAnalyticsService' is defined but never used         @typescript-eslint/no-unused-vars
+  165:44  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  165:51  warning  'moodEntries' is defined but never used                   @typescript-eslint/no-unused-vars
+  165:64  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  234:15  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  235:14  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  236:5   warning  'reportType' is defined but never used                    @typescript-eslint/no-unused-vars
+  304:21  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  344:40  warning  'userId' is defined but never used                        @typescript-eslint/no-unused-vars
+  344:56  warning  'period' is defined but never used                        @typescript-eslint/no-unused-vars
+  514:44  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  548:44  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  567:34  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  587:39  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\progressService.ts
+  227:8  error  Parsing error: Unexpected token. A constructor, method, accessor, or property was expected
+
+D:\pengembangan siy\4\sembalun\src\services\recommendationService.ts
+    6:3   warning  'PersonalizedContent' is defined but never used  @typescript-eslint/no-unused-vars
+  184:5   warning  'patterns' is defined but never used             @typescript-eslint/no-unused-vars
+  358:5   warning  'sessions' is defined but never used             @typescript-eslint/no-unused-vars
+  365:11  warning  'dayOfWeek' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  602:22  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\reflectionPromptsService.ts
+  518:5   warning  'context' is defined but never used          @typescript-eslint/no-unused-vars
+  518:14  warning  Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  537:73  warning  'sessionDuration' is defined but never used  @typescript-eslint/no-unused-vars
+  544:73  warning  'context' is defined but never used          @typescript-eslint/no-unused-vars
+  544:82  warning  Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  551:14  warning  Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+  552:5   warning  'config' is defined but never used           @typescript-eslint/no-unused-vars
+  575:43  warning  'userId' is defined but never used           @typescript-eslint/no-unused-vars
+  575:59  warning  'sessionId' is defined but never used        @typescript-eslint/no-unused-vars
+  580:35  warning  'userId' is defined but never used           @typescript-eslint/no-unused-vars
+  634:44  warning  'userId' is defined but never used           @typescript-eslint/no-unused-vars
+  676:37  warning  'sessions' is defined but never used         @typescript-eslint/no-unused-vars
+  681:41  warning  'sessions' is defined but never used         @typescript-eslint/no-unused-vars
+  681:72  warning  'userId' is defined but never used           @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\sessionDownloadService.ts
+  383:17  warning  'id' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  583:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\siyContentService.ts
+   8:3  warning  'SIYJournalEntry' is defined but never used        @typescript-eslint/no-unused-vars
+   9:3  warning  'SIYAssessmentResult' is defined but never used    @typescript-eslint/no-unused-vars
+  10:3  warning  'SIYInstruction' is defined but never used         @typescript-eslint/no-unused-vars
+  11:3  warning  'SIYInteractiveElement' is defined but never used  @typescript-eslint/no-unused-vars
+  12:3  warning  'MeditationSession' is defined but never used      @typescript-eslint/no-unused-vars
+  13:3  warning  'GuidedScript' is defined but never used           @typescript-eslint/no-unused-vars
+  14:3  warning  'AudioFile' is defined but never used              @typescript-eslint/no-unused-vars
+  15:3  warning  'Difficulty' is defined but never used             @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\sleepTimerService.ts
+  518:79  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  564:59  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  573:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\smartNotificationService.ts
+     4:10  warning  'emotionalIntelligenceService' is defined but never used  @typescript-eslint/no-unused-vars
+    24:15  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+    41:10  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   117:65  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   234:52  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   250:16  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   534:19  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   598:18  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   717:65  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   738:41  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   738:61  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   738:76  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   766:49  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   774:35  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   774:63  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   777:49  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   876:53  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   904:55  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+   904:60  warning  'preferences' is defined but never used                   @typescript-eslint/no-unused-vars
+   943:25  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1032:45  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1032:50  warning  'preferences' is defined but never used                   @typescript-eslint/no-unused-vars
+  1058:51  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1058:56  warning  'preferences' is defined but never used                   @typescript-eslint/no-unused-vars
+  1070:40  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1070:48  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+  1086:41  warning  Unexpected any. Specify a different type                  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\smartSchedulingService.ts
+    16:11   warning  'SchedulePerformanceResult' is defined but never used  @typescript-eslint/no-unused-vars
+   424:62   warning  'moods' is defined but never used                      @typescript-eslint/no-unused-vars
+   433:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   447:79   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   470:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   474:43   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   545:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   559:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   700:5    warning  'circadian' is defined but never used                  @typescript-eslint/no-unused-vars
+   802:48   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   809:38   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   851:5    warning  'performance' is defined but never used                @typescript-eslint/no-unused-vars
+   909:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   910:54   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   932:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   951:68   warning  'moods' is defined but never used                      @typescript-eslint/no-unused-vars
+   957:41   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   964:115  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   969:121  warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   997:49   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+   999:38   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1001:66   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1002:37   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1002:55   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1003:39   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1003:63   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1006:49   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1045:67   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1061:48   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1068:38   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1070:25   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1070:56   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1071:42   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1071:71   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1075:25   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+  1075:57   warning  Unexpected any. Specify a different type               @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\supabaseAnalyticsService.ts
+   51:51  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+   84:12  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  155:12  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  252:12  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  305:22  error    Do not access Object.prototype method 'hasOwnProperty' from target object  no-prototype-builtins
+  365:33  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  366:23  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  427:17  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  428:21  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  429:17  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  430:24  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  432:12  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  490:28  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  491:26  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+  493:12  warning  Unexpected any. Specify a different type                                   @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\supabaseAuthService.ts
+    1:20  warning  'handleSupabaseError' is defined but never used  @typescript-eslint/no-unused-vars
+    3:15  warning  'UserInsert' is defined but never used           @typescript-eslint/no-unused-vars
+    3:27  warning  'UserUpdate' is defined but never used           @typescript-eslint/no-unused-vars
+  238:78  warning  Unexpected any. Specify a different type         @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\supabaseDatabaseService.ts
+   4:3  warning  'UserInsert' is defined but never used                @typescript-eslint/no-unused-vars
+  17:3  warning  'UserCourseProgressUpdate' is defined but never used  @typescript-eslint/no-unused-vars
+  20:3  warning  'UserSetting' is defined but never used               @typescript-eslint/no-unused-vars
+  21:3  warning  'UserSettingInsert' is defined but never used         @typescript-eslint/no-unused-vars
+  22:3  warning  'UserSettingUpdate' is defined but never used         @typescript-eslint/no-unused-vars
+  25:3  warning  'MoodUpdate' is defined but never used                @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\services\supabaseNotificationService.ts
+   25:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+   52:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+   66:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  131:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  178:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  207:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  280:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  320:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  357:23  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  467:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  497:85  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  532:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  567:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\supabaseRealtimeService.ts
+   77:24  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  104:27  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  149:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\supabaseStorageService.ts
+   74:102  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  112:65   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  135:100  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  173:64   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  196:100  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  234:64   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  257:119  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  296:67   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  308:125  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  321:74   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  321:95   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  333:78   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  333:99   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  337:93   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  349:93   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  391:125  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\services\weeklyReflectionService.ts
+   30:11  warning  'UserPatterns' is defined but never used  @typescript-eslint/no-unused-vars
+  690:39  warning  'userId' is defined but never used        @typescript-eslint/no-unused-vars
+  690:55  warning  'startDate' is defined but never used     @typescript-eslint/no-unused-vars
+  690:72  warning  'endDate' is defined but never used       @typescript-eslint/no-unused-vars
+  700:49  warning  'startDate' is defined but never used     @typescript-eslint/no-unused-vars
+  700:66  warning  'endDate' is defined but never used       @typescript-eslint/no-unused-vars
+  777:74  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  779:72  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  781:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  877:44  warning  'userId' is defined but never used        @typescript-eslint/no-unused-vars
+  882:34  warning  'sessions' is defined but never used      @typescript-eslint/no-unused-vars
+  887:34  warning  'sessions' is defined but never used      @typescript-eslint/no-unused-vars
+  892:36  warning  'sessions' is defined but never used      @typescript-eslint/no-unused-vars
+  908:37  warning  'userId' is defined but never used        @typescript-eslint/no-unused-vars
+  919:46  warning  'patterns' is defined but never used      @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\test\enterprise-test-strategy.ts
+    7:10  warning  'describe' is defined but never used               @typescript-eslint/no-unused-vars
+    7:20  warning  'test' is defined but never used                   @typescript-eslint/no-unused-vars
+    7:34  warning  'beforeEach' is defined but never used             @typescript-eslint/no-unused-vars
+    7:46  warning  'afterEach' is defined but never used              @typescript-eslint/no-unused-vars
+    7:57  warning  'vi' is defined but never used                     @typescript-eslint/no-unused-vars
+    8:10  warning  'render' is defined but never used                 @typescript-eslint/no-unused-vars
+    8:18  warning  'screen' is defined but never used                 @typescript-eslint/no-unused-vars
+    8:26  warning  'fireEvent' is defined but never used              @typescript-eslint/no-unused-vars
+    8:37  warning  'waitFor' is defined but never used                @typescript-eslint/no-unused-vars
+   10:8   warning  'userEvent' is defined but never used              @typescript-eslint/no-unused-vars
+   63:50  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  156:36  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  169:58  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  240:92  warning  Unexpected any. Specify a different type           @typescript-eslint/no-explicit-any
+  284:34  warning  'color1' is defined but never used                 @typescript-eslint/no-unused-vars
+  284:50  warning  'color2' is defined but never used                 @typescript-eslint/no-unused-vars
+  296:43  warning  'index' is defined but never used                  @typescript-eslint/no-unused-vars
+  319:13  warning  'ariaLabel' is assigned a value but never used     @typescript-eslint/no-unused-vars
+  478:16  warning  'error' is defined but never used                  @typescript-eslint/no-unused-vars
+  534:16  warning  'error' is defined but never used                  @typescript-eslint/no-unused-vars
+  680:45  warning  'componentName' is defined but never used          @typescript-eslint/no-unused-vars
+  704:13  warning  'visibleRange' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\test\integration\MeditationFlow.test.tsx
+    7:18  warning  'fireEvent' is defined but never used             @typescript-eslint/no-unused-vars
+    7:38  warning  'within' is defined but never used                @typescript-eslint/no-unused-vars
+  175:13  warning  'user' is assigned a value but never used         @typescript-eslint/no-unused-vars
+  178:13  warning  'sessionData' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\test\setup.ts
+  58:8  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  82:8  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\test\testUtils.ts
+  51:11  error  Parsing error: Unterminated regular expression literal
+
+D:\pengembangan siy\4\sembalun\src\types\supabase.ts
+   95:18  error    An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  116:18  error    An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  117:18  error    An interface declaring no members is equivalent to its supertype  @typescript-eslint/no-empty-object-type
+  405:18  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  414:18  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  419:19  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  493:33  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  495:49  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  515:31  warning  'T' is defined but never used                                     @typescript-eslint/no-unused-vars
+  515:35  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  529:10  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  535:25  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  538:39  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  559:35  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  569:41  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  575:20  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  674:9   warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  699:34  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  713:40  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  729:37  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  733:42  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  738:37  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  743:40  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+  747:37  warning  Unexpected any. Specify a different type                          @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\analytics.test.ts
+  168:63  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  179:60  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  299:61  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\auth-error.test.ts
+  179:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  184:58  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  283:46  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  284:51  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\enterprise-performance-monitor.ts
+    7:10  warning  'designTokens' is defined but never used       @typescript-eslint/no-unused-vars
+  228:13  warning  'response' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  232:14  warning  'error' is defined but never used              @typescript-eslint/no-unused-vars
+  241:13  warning  'response' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  253:42  warning  'violation' is defined but never used          @typescript-eslint/no-unused-vars
+  423:45  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  424:18  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  438:53  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  439:18  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  553:35  warning  'patterns' is defined but never used           @typescript-eslint/no-unused-vars
+  569:45  warning  'value' is defined but never used              @typescript-eslint/no-unused-vars
+  623:27  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  628:27  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  633:27  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  638:27  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  643:28  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  648:27  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  691:35  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  860:46  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+  863:40  warning  Unexpected any. Specify a different type       @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\enterprise-security.ts
+  426:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  426:99  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  839:44  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  859:50  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\performance-monitor.ts
+  18:23  warning  'id' is defined but never used             @typescript-eslint/no-unused-vars
+  18:35  warning  'duration' is defined but never used       @typescript-eslint/no-unused-vars
+  22:17  warning  Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  27:40  warning  'componentName' is defined but never used  @typescript-eslint/no-unused-vars
+  35:3   warning  'componentName' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\utils\performance.ts
+  114:38  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  162:34  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  419:24  warning  Unexpected any. Specify a different type                 @typescript-eslint/no-explicit-any
+  472:9   warning  'addPassiveListener' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\utils\profile-sync.ts
+  9:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\securityTesting.ts
+  323:14  warning  'error' is defined but never used  @typescript-eslint/no-unused-vars
+
+D:\pengembangan siy\4\sembalun\src\utils\securityValidation.ts
+  204:71  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  214:14  warning  'error' is defined but never used         @typescript-eslint/no-unused-vars
+  343:25  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  472:14  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  476:38  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\src\utils\user-display.ts
+   7:9  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  42:9  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  88:9  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\supabase\functions\_shared\auth.ts
+  51:20  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\supabase\functions\_shared\cors.ts
+  12:9   warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  39:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\supabase\functions\achievement-processor\index.ts
+   19:42  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  291:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  373:39  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  373:46  warning  'progress' is defined but never used      @typescript-eslint/no-unused-vars
+  373:56  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  420:10  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  421:13  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  476:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  505:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  531:49  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  570:53  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  599:37  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\supabase\functions\content-recommendation\index.ts
+  113:28  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  176:40  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  176:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  176:78  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  253:15  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  254:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  255:19  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  256:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  371:17  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  372:12  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  511:43  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  511:57  warning  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+D:\pengembangan siy\4\sembalun\supabase\functions\meditation-analytics\index.ts
+  255:37  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  334:13  warning  Unexpected any. Specify a different type      @typescript-eslint/no-explicit-any
+  353:9   error    Unexpected lexical declaration in case block  no-case-declarations
+
+D:\pengembangan siy\4\sembalun\supabase\functions\user-profile\index.ts
+    2:10  warning  'createAuthenticatedSupabaseClient' is defined but never used  @typescript-eslint/no-unused-vars
+    3:10  warning  'corsHeaders' is defined but never used                        @typescript-eslint/no-unused-vars
+    8:32  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+    9:29  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+   49:63  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+   93:65  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+   99:54  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  133:19  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  140:21  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+  187:66  warning  Unexpected any. Specify a different type                       @typescript-eslint/no-explicit-any
+
+✖ 792 problems (11 errors, 781 warnings)
+

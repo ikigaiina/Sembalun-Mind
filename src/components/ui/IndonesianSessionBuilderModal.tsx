@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { MeditationModal, INDONESIAN_COLORS } from './IndonesianModal';
 import { SessionPhase } from './CustomSessionBuilder';
-import { Plus, Trash2, Edit3, Play, Save, Clock, Palette, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Edit3, Play, Save, Clock, ChevronDown, ChevronUp } from 'lucide-react'; // Removed unused Palette
 import { Button } from './Button';
 import { Input } from './Input';
 

@@ -1,9 +1,19 @@
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Card } from '../components/ui/Card';
-import { Button } from '../components/ui/Button';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Search, Filter, Star, Clock, User, Heart, Target, Moon, Brain, Sparkles, Zap } from 'lucide-react';
+import { 
+  Card,
+  Button,
+  DashboardLayout,
+  CairnIcon,
+  BreathingCard,
+  MoodSelector,
+  MoodHistory
+} from '../components/ui';
 import { CourseCard, type Course } from '../components/ui/CourseCard';
 import { SessionLibrary, type Session } from '../components/ui/SessionLibrary';
+import type { MoodType } from '../types/mood';
 import { 
   getPersonalizedRecommendations, 
   getTimeBasedGreeting, 
@@ -11,6 +21,7 @@ import {
 } from '../utils/recommendations';
 import { useAuth } from '../hooks/useAuth';
 import { getUserDisplayName } from '../utils/user-display';
+import { usePersonalization } from '../contexts/PersonalizationContext';
 
 interface FilterOptions {
   duration: 'all' | 'short' | 'medium' | 'long';
@@ -249,13 +260,17 @@ const FilterModal: React.FC<{
 
         <div className="flex space-x-3 mt-6">
           <Button 
-            variant="outline" 
+            variant="control" 
             onClick={() => onFiltersChange({ duration: 'all', difficulty: 'all', type: 'all', category: 'all' })}
             className="flex-1"
           >
             Reset
           </Button>
-          <Button onClick={onClose} className="flex-1">
+          <Button 
+            onClick={onClose} 
+            variant="breathing"
+            className="flex-1"
+          >
             Terapkan
           </Button>
         </div>
@@ -267,9 +282,20 @@ const FilterModal: React.FC<{
 export const Explore: React.FC = () => {
   const { user, userProfile, isGuest } = useAuth();
   const navigate = useNavigate();
+  
+  // Personalization hooks
+  const { 
+    personalization, 
+    getPersonalizedRecommendations, 
+    getPersonalizedQuote,
+    getPersonalizedGreeting,
+    isPersonalized 
+  } = usePersonalization();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'courses' | 'sessions'>('courses');
   const [showFilterModal, setShowFilterModal] = useState(false);
+  const [selectedMood, setSelectedMood] = useState<MoodType>('happy');
+  const [showMoodHistory, setShowMoodHistory] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     duration: 'all',
     difficulty: 'all',
@@ -369,13 +395,67 @@ export const Explore: React.FC = () => {
 
   // Get personalized recommendations
   const recommendations = useMemo(() => {
-    // Create a user profile object for recommendations if user is logged in
+    if (isPersonalized) {
+      const personalizedRecs = getPersonalizedRecommendations();
+      return {
+        recommendedCourses: SAMPLE_COURSES.filter(course => 
+          personalizedRecs?.some(rec => rec.type === course.category.toLowerCase())
+        ) || [],
+        recommendedSessions: SAMPLE_SESSIONS.filter(session =>
+          personalizedRecs?.some(rec => rec.type === session.type)
+        ) || [],
+        dailyRecommendation: personalizedRecs?.[0] || null
+      };
+    }
+    
+    // Create a user profile object for recommendations if user is logged in but not personalized
     if (userProfile) {
-      return getPersonalizedRecommendations(SAMPLE_COURSES, SAMPLE_SESSIONS, userProfile);
+      const userRecs = getPersonalizedRecommendations(SAMPLE_COURSES, SAMPLE_SESSIONS, userProfile);
+      return userRecs || { recommendedCourses: [], recommendedSessions: [], dailyRecommendation: null };
     }
     // For guests, return empty recommendations
     return { recommendedCourses: [], recommendedSessions: [], dailyRecommendation: null };
-  }, [userProfile]);
+  }, [userProfile, isPersonalized, getPersonalizedRecommendations]);
+
+  // Personalized content based on user goals
+  const personalizedContent = useMemo(() => {
+    if (!isPersonalized || !personalization?.goal) {
+      return {
+        greeting: "Jelajahi dunia mindfulness",
+        subtitle: "Temukan berbagai praktik yang sesuai dengan kebutuhanmu",
+        goalFilter: null
+      };
+    }
+
+    const goalConfig = {
+      stress: {
+        greeting: "Temukan Ketenangan",
+        subtitle: "Praktik khusus untuk mengelola stres dan menemukan kedamaian",
+        filter: 'Stres',
+        icon: Zap
+      },
+      focus: {
+        greeting: "Tingkatkan Fokus",
+        subtitle: "Latihan konsentrasi dan kejernihan pikiran",
+        filter: 'Fokus',
+        icon: Target
+      },
+      sleep: {
+        greeting: "Tidur Lebih Baik",
+        subtitle: "Ritual dan praktik untuk istirahat berkualitas",
+        filter: 'Tidur',
+        icon: Moon
+      },
+      curious: {
+        greeting: "Eksplorasi Mindfulness",
+        subtitle: "Jelajahi berbagai teknik meditasi dan kesadaran",
+        filter: null,
+        icon: Sparkles
+      }
+    };
+
+    return goalConfig[personalization.goal];
+  }, [personalization, isPersonalized]);
 
   const handleSessionClick = (session: Session) => {
     // Navigate to appropriate page based on session type
@@ -439,100 +519,227 @@ export const Explore: React.FC = () => {
     });
   };
 
+  const handleMoodSelect = (mood: MoodType) => {
+    setSelectedMood(mood);
+    console.log('Mood selected:', mood);
+  };
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
-    <div className="px-4 py-6 space-y-6 max-w-md mx-auto">
-      {/* Personalized Header */}
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-heading text-gray-800 mb-2">
-          {getTimeBasedGreeting()}, {getUserDisplayName(user, userProfile, isGuest)}! 👋
-        </h1>
-        <p className="text-gray-600 font-body text-sm">
-          {getTimeBasedRecommendation()}
-        </p>
-        
-        {/* User progress indicators */}
-        <div className="flex items-center justify-center space-x-6 mt-4 text-xs">
-          <div className="flex items-center space-x-1">
-            <span>🔥</span>
-            <span className="text-primary font-medium">
-              {userProfile?.progress?.streak || userProfile?.currentStreak || 0} hari berturut
-            </span>
-          </div>
-          <div className="flex items-center space-x-1">
-            <span>⏱️</span>
-            <span className="text-primary font-medium">
-              {userProfile?.progress?.totalMinutes || userProfile?.totalMeditationMinutes || 0} menit total
-            </span>
-          </div>
-        </div>
-      </div>
+    <DashboardLayout>
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-accent-50 to-meditation-zen-50">
+        <div className="max-w-6xl mx-auto px-4 py-6">
+          
+          {/* Header with Sembalun branding */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-center mb-8"
+          >
+            <div className="flex justify-center items-center mb-4">
+              <CairnIcon size={48} progress={85} className="text-primary-600 mr-3" />
+              <div>
+                <h1 className="text-xl sm:text-2xl font-heading font-bold text-gray-800">
+                  {getTimeBasedGreeting()}, {getUserDisplayName(user, userProfile, isGuest)}! 👋
+                </h1>
+                <p className="text-sm text-gray-600 mt-1">
+                  {getTimeBasedRecommendation()}
+                </p>
+              </div>
+            </div>
 
-      {/* Search Bar */}
-      <Card className="mb-6">
-        <div className="flex items-center space-x-3">
-          <div className="text-gray-400">🔍</div>
-          <input
-            type="text"
-            placeholder="Cari sesi, topik, atau pemandu..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-500"
-          />
-          {searchQuery && (
-            <button 
-              onClick={() => setSearchQuery('')}
-              className="text-gray-400 hover:text-gray-600"
+            {/* User progress indicators */}
+            <div className="flex items-center justify-center space-x-4 sm:space-x-6 text-xs">
+              <div className="flex items-center space-x-1">
+                <span>🔥</span>
+                <span className="text-primary-600 font-medium">
+                  {userProfile?.progress?.streak || userProfile?.currentStreak || 0} hari
+                </span>
+              </div>
+              <div className="flex items-center space-x-1">
+                <span>⏱️</span>
+                <span className="text-primary-600 font-medium">
+                  {userProfile?.progress?.totalMinutes || userProfile?.totalMeditationMinutes || 0} menit
+                </span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Mood Selector Section */}
+          <motion.section
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="mb-8"
+          >
+            <Card className="p-4">
+              <h2 className="text-base font-heading font-semibold text-gray-800 mb-3 text-center">
+                Bagaimana perasaan Anda hari ini?
+              </h2>
+              <MoodSelector
+                selectedMood={selectedMood}
+                onMoodSelect={handleMoodSelect}
+                showLabels={false}
+                className="mb-3"
+              />
+              <div className="text-center">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowMoodHistory(!showMoodHistory)}
+                  className="text-primary-600 hover:bg-primary-50 text-xs"
+                >
+                  <Star className="w-3 h-3 mr-1" />
+                  {showMoodHistory ? 'Sembunyikan' : 'Lihat'} Riwayat
+                </Button>
+              </div>
+            </Card>
+          </motion.section>
+
+          {/* Mood History Section */}
+          <AnimatePresence>
+            {showMoodHistory && (
+              <motion.section
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="mb-8"
+              >
+                <MoodHistory
+                  showStats={true}
+                  showChart={false}
+                  showCalendar={true}
+                />
+              </motion.section>
+            )}
+          </AnimatePresence>
+
+          {/* Search and Filter Bar */}
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="mb-6"
+          >
+            <div className="flex gap-3">
+              <Card className="flex-1 p-3">
+                <div className="flex items-center space-x-3">
+                  <Search className="w-4 h-4 text-gray-400" />
+                  <input
+                    type="text"
+                    placeholder="Cari sesi, topik, atau pemandu..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 bg-transparent border-none outline-none text-gray-700 placeholder-gray-500 text-sm"
+                  />
+                  {searchQuery && (
+                    <button 
+                      onClick={() => setSearchQuery('')}
+                      className="text-gray-400 hover:text-gray-600"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </div>
+              </Card>
+              
+              <Button 
+                variant="outline"
+                size="sm"
+                onClick={() => setShowFilterModal(true)}
+                className={`px-4 ${hasActiveFilters ? 'border-primary-300 text-primary-600 bg-primary-50' : ''}`}
+              >
+                <Filter className="w-4 h-4 mr-1" />
+                Filter
+                {hasActiveFilters && <span className="w-2 h-2 bg-primary-500 rounded-full ml-1" />}
+              </Button>
+            </div>
+          </motion.div>
+
+          {/* Tab Navigation */}
+          <motion.div
+            variants={itemVariants}
+            className="flex space-x-1 bg-white rounded-2xl p-1 mb-6 shadow-sm"
+          >
+            <button
+              onClick={() => setActiveTab('courses')}
+              className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'courses'
+                  ? 'bg-primary-100 text-primary-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
             >
-              ✕
+              Kursus ({filteredCourses.length})
             </button>
-          )}
-        </div>
-      </Card>
+            <button
+              onClick={() => setActiveTab('sessions')}
+              className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200 ${
+                activeTab === 'sessions'
+                  ? 'bg-primary-100 text-primary-700 shadow-sm'
+                  : 'text-gray-600 hover:text-gray-800'
+              }`}
+            >
+              Sesi ({filteredSessions.length})
+            </button>
+          </motion.div>
 
-      {/* Tab Navigation */}
-      <div className="flex space-x-1 bg-gray-100 rounded-2xl p-1 mb-6">
-        <button
-          onClick={() => setActiveTab('courses')}
-          className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200 ${
-            activeTab === 'courses'
-              ? 'bg-white text-primary shadow-sm'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          Kursus ({filteredCourses.length})
-        </button>
-        <button
-          onClick={() => setActiveTab('sessions')}
-          className={`flex-1 py-2 px-4 rounded-xl text-sm font-medium transition-all duration-200 ${
-            activeTab === 'sessions'
-              ? 'bg-white text-primary shadow-sm'
-              : 'text-gray-600 hover:text-gray-800'
-          }`}
-        >
-          Sesi ({filteredSessions.length})
-        </button>
-      </div>
-
-      {/* Filter Button */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-gray-600">
+          {/* Search Results Indicator */}
           {searchQuery && (
-            <span>Hasil untuk "{searchQuery}"</span>
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-sm text-gray-600 mb-4 text-center"
+            >
+              Hasil untuk "<span className="font-medium text-primary-600">{searchQuery}</span>"
+            </motion.div>
           )}
-        </div>
-        <Button 
-          variant="outline" 
-          size="small"
-          onClick={() => setShowFilterModal(true)}
-          className={hasActiveFilters ? 'border-primary text-primary' : ''}
-        >
-          {hasActiveFilters && <span className="w-2 h-2 bg-primary rounded-full mr-2" />}
-          Filter
-        </Button>
-      </div>
 
-      {/* Daily Recommendation (only show if no search/filters) */}
-      {!searchQuery && !hasActiveFilters && recommendations.dailyRecommendation && (
+          {/* Quick Practice Section (only show if no search/filters) */}
+          {!searchQuery && !hasActiveFilters && (
+            <motion.section
+              variants={containerVariants}
+              initial="hidden"
+              animate="visible"
+              className="mb-8"
+            >
+              <h2 className="text-lg font-heading font-semibold text-gray-800 mb-4 text-center">
+                Praktik Cepat
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <BreathingCard
+                  title="Napas 5 Menit"
+                  description="Teknik pernapasan cepat untuk menenangkan pikiran"
+                  duration={3000}
+                  isActive={false}
+                  onClick={() => navigate('/breathing')}
+                />
+                <BreathingCard
+                  title="Reset Energi"
+                  description="Bangkitkan semangat dengan latihan pernapasan energi"
+                  duration={2000}
+                  isActive={false}
+                  onClick={() => navigate('/meditation')}
+                />
+              </div>
+            </motion.section>
+          )}
+
+          {/* Daily Recommendation (only show if no search/filters) */}
+      {!searchQuery && !hasActiveFilters && recommendations?.dailyRecommendation && (
         <div className="mb-6">
           <Card className="bg-gradient-to-r from-primary/10 to-primary/5 border-primary/20">
             <div className="flex items-center space-x-3 mb-3">
@@ -543,32 +750,32 @@ export const Explore: React.FC = () => {
               </div>
             </div>
             
-            {'sessionCount' in recommendations.dailyRecommendation ? (
+            {'sessionCount' in (recommendations?.dailyRecommendation || {}) ? (
               <CourseCard 
-                course={recommendations.dailyRecommendation as Course}
-                onClick={() => handleCourseClick(recommendations.dailyRecommendation as Course)}
+                course={recommendations?.dailyRecommendation as Course}
+                onClick={() => handleCourseClick(recommendations?.dailyRecommendation as Course)}
                 variant="compact"
               />
             ) : (
               <Card 
                 className="cursor-pointer hover:shadow-lg transition-all duration-200 bg-white/50"
-                onClick={() => handleSessionClick(recommendations.dailyRecommendation as Session)}
+                onClick={() => handleSessionClick(recommendations?.dailyRecommendation as Session)}
               >
                 <div className="flex items-center space-x-3">
                   <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-primary/10 rounded-2xl flex items-center justify-center text-2xl">
-                    {(recommendations.dailyRecommendation as Session).thumbnail}
+                    {(recommendations?.dailyRecommendation as Session)?.thumbnail}
                   </div>
                   <div className="flex-1">
                     <h3 className="font-heading text-gray-800 mb-1">
-                      {recommendations.dailyRecommendation.title}
+                      {recommendations?.dailyRecommendation?.title}
                     </h3>
                     <p className="text-xs text-gray-600 mb-2">
-                      {(recommendations.dailyRecommendation as Session).description}
+                      {(recommendations?.dailyRecommendation as Session)?.description}
                     </p>
                     <div className="flex items-center justify-between text-xs text-gray-500">
-                      <span>{recommendations.dailyRecommendation.duration}</span>
+                      <span>{recommendations?.dailyRecommendation?.duration}</span>
                       <span className="text-primary font-medium">
-                        {(recommendations.dailyRecommendation as Session).category}
+                        {(recommendations?.dailyRecommendation as Session)?.category}
                       </span>
                     </div>
                   </div>
@@ -583,14 +790,14 @@ export const Explore: React.FC = () => {
       {activeTab === 'courses' ? (
         <div className="space-y-6">
           {/* Recommended Courses (only show if no search/filters) */}
-          {!searchQuery && !hasActiveFilters && recommendations.recommendedCourses.length > 0 && (
+          {!searchQuery && !hasActiveFilters && recommendations?.recommendedCourses?.length > 0 && (
             <div className="mb-6">
               <h2 className="text-lg font-heading text-gray-800 mb-4">
                 <span className="mr-2">🎯</span>
                 Direkomendasikan Untukmu
               </h2>
               <div className="flex space-x-4 overflow-x-auto pb-2">
-                {recommendations.recommendedCourses.map((course) => (
+                {recommendations?.recommendedCourses?.map((course) => (
                   <CourseCard 
                     key={course.id} 
                     course={course} 
@@ -603,7 +810,7 @@ export const Explore: React.FC = () => {
           )}
 
           {/* Featured Courses (only show if no search/filters and no recommendations) */}
-          {!searchQuery && !hasActiveFilters && recommendations.recommendedCourses.length === 0 && (
+          {!searchQuery && !hasActiveFilters && (!recommendations?.recommendedCourses || recommendations.recommendedCourses.length === 0) && (
             <div className="mb-6">
               <h2 className="text-lg font-heading text-gray-800 mb-4">Kursus Unggulan</h2>
               <div className="flex space-x-4 overflow-x-auto pb-2">
@@ -675,14 +882,14 @@ export const Explore: React.FC = () => {
       ) : (
         <div className="space-y-6">
           {/* Recommended Sessions (only show if no search/filters) */}
-          {!searchQuery && !hasActiveFilters && recommendations.recommendedSessions.length > 0 && (
+          {!searchQuery && !hasActiveFilters && recommendations?.recommendedSessions?.length > 0 && (
             <div className="mb-6">
               <h2 className="text-lg font-heading text-gray-800 mb-4">
                 <span className="mr-2">✨</span>
                 Cocok Untukmu
               </h2>
               <div className="space-y-3">
-                {recommendations.recommendedSessions.slice(0, 3).map((session) => (
+                {recommendations?.recommendedSessions?.slice(0, 3).map((session) => (
                   <Card 
                     key={session.id}
                     className="cursor-pointer hover:shadow-lg transition-all duration-200"
@@ -738,13 +945,18 @@ export const Explore: React.FC = () => {
         </div>
       )}
 
-      {/* Filter Modal */}
-      <FilterModal
-        isOpen={showFilterModal}
-        onClose={() => setShowFilterModal(false)}
-        filters={filters}
-        onFiltersChange={setFilters}
-      />
-    </div>
+          {/* Filter Modal */}
+          <FilterModal
+            isOpen={showFilterModal}
+            onClose={() => setShowFilterModal(false)}
+            filters={filters}
+            onFiltersChange={setFilters}
+          />
+
+          {/* Bottom padding for navigation */}
+          <div className="h-6"></div>
+        </div>
+      </div>
+    </DashboardLayout>
   );
 };

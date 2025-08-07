@@ -1,0 +1,127 @@
+{
+  "ci": {
+    "collect": {
+      "numberOfRuns": 3,
+      "startServerCommand": "npm run preview",
+      "startServerReadyPattern": "Local:\\s+http://localhost:4173",
+      "url": [
+        "http://localhost:4173/",
+        "http://localhost:4173/login",
+        "http://localhost:4173/meditation",
+        "http://localhost:4173/breathing",
+        "http://localhost:4173/analytics",
+        "http://localhost:4173/profile"
+      ],
+      "settings": {
+        "chromeFlags": [
+          "--headless",
+          "--no-sandbox",
+          "--disable-dev-shm-usage",
+          "--disable-gpu"
+        ],
+        "preset": "desktop",
+        "throttling": {
+          "rttMs": 40,
+          "throughputKbps": 10240,
+          "cpuSlowdownMultiplier": 1,
+          "requestLatencyMs": 0,
+          "downloadThroughputKbps": 0,
+          "uploadThroughputKbps": 0
+        }
+      }
+    },
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.85 }],
+        "categories:accessibility": ["error", { "minScore": 0.95 }],
+        "categories:best-practices": ["error", { "minScore": 0.9 }],
+        "categories:seo": ["error", { "minScore": 0.9 }],
+        "categories:pwa": ["error", { "minScore": 0.8 }],
+        
+        "first-contentful-paint": ["error", { "maxNumericValue": 2000 }],
+        "largest-contentful-paint": ["error", { "maxNumericValue": 3000 }],
+        "cumulative-layout-shift": ["error", { "maxNumericValue": 0.1 }],
+        "total-blocking-time": ["error", { "maxNumericValue": 300 }],
+        "speed-index": ["error", { "maxNumericValue": 3000 }],
+        
+        "interactive": ["error", { "maxNumericValue": 4000 }],
+        "first-meaningful-paint": ["error", { "maxNumericValue": 2500 }],
+        "max-potential-fid": ["error", { "maxNumericValue": 130 }],
+        
+        "uses-responsive-images": "error",
+        "efficient-animated-content": "error",
+        "offscreen-images": "warn",
+        "render-blocking-resources": "warn",
+        "unused-css-rules": "warn",
+        "unused-javascript": "warn",
+        "modern-image-formats": "warn",
+        "uses-optimized-images": "warn",
+        "uses-text-compression": "error",
+        "uses-rel-preconnect": "warn",
+        "uses-rel-preload": "warn",
+        "font-display": "warn",
+        "unminified-css": "error",
+        "unminified-javascript": "error",
+        
+        "color-contrast": "error",
+        "image-alt": "error",
+        "label": "error",
+        "link-name": "error",
+        "button-name": "error",
+        "document-title": "error",
+        "html-has-lang": "error",
+        "html-lang-valid": "error",
+        "meta-description": "error",
+        "meta-viewport": "error",
+        "aria-allowed-attr": "error",
+        "aria-hidden-body": "error",
+        "aria-hidden-focus": "error",
+        "aria-input-field-name": "error",
+        "aria-required-attr": "error",
+        "aria-required-children": "error",
+        "aria-required-parent": "error",
+        "aria-roles": "error",
+        "aria-valid-attr": "error",
+        "aria-valid-attr-value": "error",
+        "duplicate-id-active": "error",
+        "duplicate-id-aria": "error",
+        "focus-traps": "error",
+        "focusable-controls": "error",
+        "heading-order": "warn",
+        "interactive-element-affordance": "warn",
+        "logical-tab-order": "warn",
+        "managed-focus": "warn",
+        "offscreen-content-hidden": "warn",
+        "use-landmarks": "warn",
+        "visual-order-follows-dom": "warn",
+        
+        "is-on-https": "error",
+        "service-worker": "error",
+        "works-offline": "error",
+        "viewport": "error",
+        "without-javascript": "warn",
+        "apple-touch-icon": "warn",
+        "content-width": "error",
+        "installable-manifest": "error",
+        "splash-screen": "error",
+        "themed-omnibox": "error",
+        "maskable-icon": "warn",
+        
+        "robots-txt": "warn",
+        "hreflang": "warn",
+        "canonical": "warn",
+        "structured-data": "warn"
+      }
+    },
+    "upload": {
+      "target": "temporary-public-storage"
+    },
+    "server": {
+      "port": 9001,
+      "storage": {
+        "storageMethod": "sql",
+        "sqlDatabasePath": "./lighthouse-results.db"
+      }
+    }
+  }
+}

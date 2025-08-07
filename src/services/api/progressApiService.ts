@@ -260,7 +260,7 @@ export class ProgressApiService {
   async updateStreak(userId: string, activityType: 'meditation' | 'mood_tracking' | 'journaling' | 'mindfulness', date: string = new Date().toISOString()): Promise<{ streak: StreakData | null; error: any }> {
     try {
       // Get existing streak
-      let { data: existingStreak, error: fetchError } = await supabase
+      const { data: existingStreak, error: fetchError } = await supabase
         .from('streaks')
         .select('*')
         .eq('user_id', userId)

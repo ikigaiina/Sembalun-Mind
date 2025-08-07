@@ -30,7 +30,7 @@ interface PrayerTimeIntegration {
   spiritualMoment: boolean;
 }
 
-interface RegionalCustomization {
+interface RegionalCustomization { // eslint-disable-line @typescript-eslint/no-unused-vars
   province: string;
   localWisdom: WisdomQuote[];
   dialectSupport: string[];
@@ -235,9 +235,9 @@ export const IndonesianWisdomQuotes: React.FC<IndonesianWisdomQuotesProps> = ({
   onFavoriteToggle,
   onShare
 }) => {
-  const [selectedQuote, setSelectedQuote] = useState<WisdomQuote | null>(null);
+  const [selectedQuote] = useState<WisdomQuote | null>(null); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+  const [currentQuoteIndex] = useState(0); // eslint-disable-line @typescript-eslint/no-unused-vars
   const [showDetails, setShowDetails] = useState(false);
   const [prayerTimeContext, setPrayerTimeContext] = useState<PrayerTimeIntegration | null>(null);
 

@@ -343,7 +343,7 @@ export class AchievementApiService {
   }
 
   // Achievement Management
-  async getUserAchievements(userId: string): Promise<{ achievements: Achievement[]; error: any }> {
+  async getUserAchievements(userId: string): Promise<{ achievements: Achievement[]; error: Error | null }> {
     try {
       const { data, error } = await supabase
         .from('achievements')
@@ -360,7 +360,7 @@ export class AchievementApiService {
     }
   }
 
-  async checkAndUnlockAchievements(userId: string): Promise<{ newAchievements: Achievement[]; error: any }> {
+  async checkAndUnlockAchievements(userId: string): Promise<{ newAchievements: Achievement[]; error: Error | null }> {
     try {
       // Get user's current achievements
       const { achievements: existingAchievements } = await this.getUserAchievements(userId);
@@ -416,9 +416,9 @@ export class AchievementApiService {
   private async checkRequirements(
     requirements: Omit<AchievementRequirement, 'current_value' | 'completed'>[],
     data: {
-      userProgress: any;
-      sessions: any[];
-      streaks: any[];
+      userProgress: { total_sessions: number; total_minutes: number; level: number };
+      sessions: { type: string; completed_at: string; duration_minutes: number }[];
+      streaks: { type: string; current_streak: number }[];
     }
   ): Promise<AchievementRequirement[]> {
     const results: AchievementRequirement[] = [];
@@ -428,29 +428,33 @@ export class AchievementApiService {
       let completed = false;
 
       switch (req.type) {
-        case 'sessions_count':
+        case 'sessions_count': {
           currentValue = data.userProgress.total_sessions;
           completed = currentValue >= req.value;
           break;
+        }
 
-        case 'streak_days':
-          const meditationStreak = data.streaks.find((s: any) => s.type === 'meditation');
+        case 'streak_days': {
+          const meditationStreak = data.streaks.find((s: { type: string; current_streak: number }) => s.type === 'meditation');
           currentValue = meditationStreak ? meditationStreak.current_streak : 0;
           completed = currentValue >= req.value;
           break;
+        }
 
-        case 'total_minutes':
+        case 'total_minutes': {
           currentValue = data.userProgress.total_minutes;
           completed = currentValue >= req.value;
           break;
+        }
 
-        case 'level_reached':
+        case 'level_reached': {
           currentValue = data.userProgress.level;
           completed = currentValue >= req.value;
           break;
+        }
 
         case 'technique_variety': {
-          const uniqueTypes = new Set(data.sessions.map((s: any) => s.type));
+          const uniqueTypes = new Set(data.sessions.map((s: { type: string }) => s.type));
           currentValue = uniqueTypes.size;
           completed = currentValue >= req.value;
           break;
@@ -460,10 +464,10 @@ export class AchievementApiService {
           // Calculate weekly consistency
           const weekAgo = new Date();
           weekAgo.setDate(weekAgo.getDate() - 7);
-          const weekSessions = data.sessions.filter((s: any) => 
+          const weekSessions = data.sessions.filter((s: { completed_at: string }) => 
             new Date(s.completed_at) >= weekAgo
           );
-          const uniqueDays = new Set(weekSessions.map((s: any) => 
+          const uniqueDays = new Set(weekSessions.map((s: { completed_at: string }) => 
             new Date(s.completed_at).toDateString()
           ));
           currentValue = (uniqueDays.size / 7) * 100;
@@ -529,7 +533,7 @@ export class AchievementApiService {
     }
   }
 
-  async claimReward(userId: string, achievementId: string, rewardId: string): Promise<{ success: boolean; error: any }> {
+  async claimReward(userId: string, achievementId: string, rewardId: string): Promise<{ success: boolean; error: Error | null }> {
     try {
       // Get achievement
       const { data: achievement, error: fetchError } = await supabase
@@ -646,7 +650,7 @@ export class AchievementApiService {
   }
 
   // Achievement Progress & Stats
-  async getAchievementProgress(userId: string): Promise<{ progress: AchievementProgress[]; error: any }> {
+  async getAchievementProgress(userId: string): Promise<{ progress: AchievementProgress[]; error: Error | null }> {
     try {
       const { achievements: existingAchievements } = await this.getUserAchievements(userId);
       const existingIds = new Set(existingAchievements.map(a => a.id));
@@ -716,7 +720,7 @@ export class AchievementApiService {
     }
   }
 
-  async getAchievementStats(userId: string): Promise<{ stats: AchievementStats | null; error: any }> {
+  async getAchievementStats(userId: string): Promise<{ stats: AchievementStats | null; error: Error | null }> {
     try {
       const { achievements } = await this.getUserAchievements(userId);
       const { progress } = await this.getAchievementProgress(userId);
@@ -779,7 +783,7 @@ export class AchievementApiService {
     }
   }
 
-  private estimateCompletion(requirements: AchievementRequirement[], sessions: any[]): string {
+  private estimateCompletion(requirements: AchievementRequirement[], sessions: { completed_at: string; duration_minutes: number }[]): string {
     // Simple estimation based on current progress rate
     const incompleteReqs = requirements.filter(r => !r.completed);
     if (incompleteReqs.length === 0) return 'Selesai';
@@ -810,7 +814,7 @@ export class AchievementApiService {
   }
 
   // Personalized Goals
-  async getPersonalizedGoals(userId: string): Promise<{ goals: PersonalizedGoal[]; error: any }> {
+  async getPersonalizedGoals(userId: string): Promise<{ goals: PersonalizedGoal[]; error: Error | null }> {
     try {
       const { data, error } = await supabase
         .from('personalized_goals')
@@ -828,7 +832,7 @@ export class AchievementApiService {
     }
   }
 
-  async generatePersonalizedGoals(userId: string): Promise<{ goals: PersonalizedGoal[]; error: any }> {
+  async generatePersonalizedGoals(userId: string): Promise<{ goals: PersonalizedGoal[]; error: Error | null }> {
     try {
       // Get user data to analyze patterns
       const [progressResult, sessionsResult, achievementsResult] = await Promise.all([
@@ -921,7 +925,7 @@ export class AchievementApiService {
     }
   }
 
-  async updateGoalProgress(goalId: string, newValue: number): Promise<{ success: boolean; error: any }> {
+  async updateGoalProgress(goalId: string, newValue: number): Promise<{ success: boolean; error: Error | null }> {
     try {
       const { data: goal, error: fetchError } = await supabase
         .from('personalized_goals')

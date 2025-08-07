@@ -1,74 +1,15 @@
-import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react'
-import type { User, Session } from '@supabase/supabase-js'
-import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
+import React, { createContext, useEffect, useState, ReactNode } from 'react'
+import type { EnhancedAuthContextType, LoginAttempt, SuspiciousActivity } from '../../types/auth-enhanced'
+import { useSupabaseAuth } from '../../hooks/useSupabaseAuth'
 
 // Enhanced Auth Provider with additional features placeholder
 // TODO: Implement MFA, social logins, enterprise SSO, RBAC
 
-interface EnhancedAuthContextType {
-  // Basic auth (inherited from Supabase)
-  user: User | null
-  session: Session | null
-  loading: boolean
-  
-  // Enhanced authentication features (placeholders)
-  mfaEnabled: boolean
-  userRole: 'user' | 'premium' | 'admin' | 'moderator'
-  permissions: string[]
-  loginHistory: LoginAttempt[]
-  
-  // MFA methods (placeholders)
-  enableMFA: () => Promise<{ error: Error | null }>
-  disableMFA: () => Promise<{ error: Error | null }>
-  verifyMFA: (code: string) => Promise<{ error: Error | null }>
-  
-  // Social authentication (placeholders)
-  signInWithFacebook: () => Promise<{ error: Error | null }>
-  signInWithTwitter: () => Promise<{ error: Error | null }>
-  signInWithLinkedIn: () => Promise<{ error: Error | null }>
-  
-  // Enterprise features (placeholders)
-  signInWithSSO: (provider: string) => Promise<{ error: Error | null }>
-  validateEnterpriseDomain: (email: string) => Promise<boolean>
-  
-  // Session management (placeholders)
-  refreshSession: () => Promise<{ error: Error | null }>
-  invalidateAllSessions: () => Promise<{ error: Error | null }>
-  getActiveSessions: () => Promise<Session[]>
-  
-  // Security features (placeholders)
-  changePassword: (currentPassword: string, newPassword: string) => Promise<{ error: Error | null }>
-  enablePasswordlessLogin: () => Promise<{ error: Error | null }>
-  reportSuspiciousActivity: (activity: SuspiciousActivity) => Promise<{ error: Error | null }>
-}
-
-interface LoginAttempt {
-  id: string
-  timestamp: Date
-  success: boolean
-  ipAddress: string
-  userAgent: string
-  location?: {
-    country: string
-    city: string
-  }
-}
-
-interface SuspiciousActivity {
-  type: 'unusual_login' | 'multiple_failures' | 'new_device' | 'location_change'
-  description: string
-  metadata: Record<string, unknown>
-}
-
+// Context moved to separate export to avoid React Fast Refresh issues
 const EnhancedAuthContext = createContext<EnhancedAuthContextType | undefined>(undefined)
 
-export const useEnhancedAuth = () => {
-  const context = useContext(EnhancedAuthContext)
-  if (context === undefined) {
-    throw new Error('useEnhancedAuth must be used within an EnhancedAuthProvider')
-  }
-  return context
-}
+// Export context for the custom hook
+export { EnhancedAuthContext }
 
 interface EnhancedAuthProviderProps {
   children: ReactNode
@@ -187,7 +128,7 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
   }
   
   // Security features (placeholders)
-  const changePassword = async (currentPassword: string, newPassword: string) => {
+  const changePassword = async (_currentPassword: string, _newPassword: string) => { // eslint-disable-line @typescript-eslint/no-unused-vars
     // TODO: Implement secure password change
     // 1. Verify current password
     // 2. Validate new password against policy
@@ -249,4 +190,5 @@ export const EnhancedAuthProvider: React.FC<EnhancedAuthProviderProps> = ({ chil
   )
 }
 
+// Export only the component for React Fast Refresh compliance
 export default EnhancedAuthProvider

@@ -1,12 +1,11 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, useMemo } from 'react';
+import React, { createContext, useEffect, useState, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
-import { 
+import type { 
   User as SupabaseUser, 
   Session, 
-  AuthError as SupabaseAuthError,
-  Provider
+  AuthError as SupabaseAuthError
 } from '@supabase/supabase-js';
-import { supabase } from '../config/supabaseClient';
+import { supabase } from '../config/supabase';
 import type { 
   SupabaseAuthContextType, 
   UserProfile, 
@@ -90,15 +89,10 @@ const createDefaultLoadingStates = (): AuthLoadingStates => ({
 });
 
 // Create Supabase Auth Context
-const SupabaseAuthContext = createContext<SupabaseAuthContextType | null>(null);
+export const SupabaseAuthContext = createContext<SupabaseAuthContextType | null>(null);
 
-export const useSupabaseAuth = (): SupabaseAuthContextType => {
-  const context = useContext(SupabaseAuthContext);
-  if (!context) {
-    throw new Error('useSupabaseAuth must be used within a SupabaseAuthProvider');
-  }
-  return context;
-};
+// Export the provider component only to satisfy React Fast Refresh
+export { useSupabaseAuth } from '../hooks/useSupabaseAuth';
 
 interface SupabaseAuthProviderProps {
   children: ReactNode;
@@ -140,40 +134,6 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     setFormErrors(prev => ({ ...prev, ...errors }));
   }, []);
 
-  // Load user profile from Supabase database
-  const loadUserProfile = useCallback(async (userId: string) => {
-    updateLoadingState('profileLoading', true);
-    try {
-      const { data: profile, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('id', userId)
-        .single();
-
-      if (error && error.code !== 'PGRST116') { // PGRST116 = row not found
-        console.error('Error loading user profile:', error);
-        return;
-      }
-
-      if (profile) {
-        setUserProfile({
-          ...profile,
-          createdAt: new Date(profile.created_at),
-          lastLoginAt: new Date(profile.last_login_at || profile.created_at),
-          progress: profile.progress || createDefaultProgress(),
-          preferences: profile.preferences || createDefaultPreferences(),
-        });
-      } else {
-        // Create new profile if doesn't exist
-        await createUserProfile(userId);
-      }
-    } catch (error) {
-      console.error('Error loading user profile:', error);
-    } finally {
-      updateLoadingState('profileLoading', false);
-    }
-  }, [updateLoadingState]);
-
   // Create new user profile
   const createUserProfile = useCallback(async (userId: string) => {
     const newProfile: Partial<UserProfile> = {
@@ -214,6 +174,40 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       console.error('Error creating user profile:', error);
     }
   }, [user]);
+
+  // Load user profile from Supabase database
+  const loadUserProfile = useCallback(async (userId: string) => {
+    updateLoadingState('profileLoading', true);
+    try {
+      const { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', userId)
+        .single();
+
+      if (error && error.code !== 'PGRST116') { // PGRST116 = row not found
+        console.error('Error loading user profile:', error);
+        return;
+      }
+
+      if (profile) {
+        setUserProfile({
+          ...profile,
+          createdAt: new Date(profile.created_at),
+          lastLoginAt: new Date(profile.last_login_at || profile.created_at),
+          progress: profile.progress || createDefaultProgress(),
+          preferences: profile.preferences || createDefaultPreferences(),
+        });
+      } else {
+        // Create new profile if doesn't exist
+        await createUserProfile(userId);
+      }
+    } catch (error) {
+      console.error('Error loading user profile:', error);
+    } finally {
+      updateLoadingState('profileLoading', false);
+    }
+  }, [updateLoadingState, createUserProfile]);
 
   // Initialize auth state
   useEffect(() => {
@@ -466,6 +460,8 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Continue as guest
   const continueAsGuest = useCallback(() => {
+    console.log('🚀 Continuing as guest user...');
+    
     const guestId = `guest_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     const guestData = {
       uid: guestId,
@@ -483,15 +479,64 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       currentStreak: 0,
     };
 
-    localStorage.setItem('guestUserData', JSON.stringify({
-      ...guestData,
-      createdAt: guestData.createdAt.toISOString(),
-      lastLoginAt: guestData.lastLoginAt.toISOString(),
-    }));
+    try {
+      // Save guest data to localStorage
+      localStorage.setItem('guestUserData', JSON.stringify({
+        ...guestData,
+        createdAt: guestData.createdAt.toISOString(),
+        lastLoginAt: guestData.lastLoginAt.toISOString(),
+      }));
 
-    setIsGuest(true);
-    setUserProfile(guestData);
+      // Update state
+      setIsGuest(true);
+      setUserProfile(guestData);
+      
+      console.log('✅ Guest user data saved successfully', guestData);
+      
+    } catch (error) {
+      console.error('❌ Error setting up guest user:', error);
+    }
   }, []);
+
+  // Update user profile
+  const updateUserProfile = useCallback(async (updates: Partial<UserProfile>) => {
+    if (isGuest) {
+      // Update guest profile in localStorage
+      const updatedProfile = { ...userProfile, ...updates } as UserProfile;
+      setUserProfile(updatedProfile);
+      localStorage.setItem('guestUserData', JSON.stringify({
+        ...updatedProfile,
+        createdAt: updatedProfile?.createdAt?.toISOString() || new Date().toISOString(),
+        lastLoginAt: updatedProfile?.lastLoginAt?.toISOString() || new Date().toISOString(),
+      }));
+      return { error: null };
+    }
+
+    if (!user) {
+      return { error: { message: 'User must be authenticated to update profile' } as SupabaseAuthError };
+    }
+
+    try {
+      const { error } = await supabase
+        .from('users')
+        .update({
+          display_name: updates.displayName,
+          avatar_url: updates.photoURL,
+          preferences: updates.preferences,
+          progress: updates.progress,
+        })
+        .eq('id', user.id);
+
+      if (error) {
+        return { error: error as SupabaseAuthError };
+      }
+
+      setUserProfile(prev => prev ? { ...prev, ...updates } : null);
+      return { error: null };
+    } catch (error) {
+      return { error: error as SupabaseAuthError };
+    }
+  }, [user, isGuest, userProfile]);
 
   // Migrate guest data
   const migrateGuestData = useCallback(async () => {
@@ -539,47 +584,7 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       console.error('Error migrating guest data:', error);
       throw error;
     }
-  }, [user, isGuest, userProfile]);
-
-  // Update user profile
-  const updateUserProfile = useCallback(async (updates: Partial<UserProfile>) => {
-    if (isGuest) {
-      // Update guest profile in localStorage
-      const updatedProfile = { ...userProfile, ...updates } as UserProfile;
-      setUserProfile(updatedProfile);
-      localStorage.setItem('guestUserData', JSON.stringify({
-        ...updatedProfile,
-        createdAt: updatedProfile?.createdAt?.toISOString() || new Date().toISOString(),
-        lastLoginAt: updatedProfile?.lastLoginAt?.toISOString() || new Date().toISOString(),
-      }));
-      return { error: null };
-    }
-
-    if (!user) {
-      return { error: { message: 'User must be authenticated to update profile' } as SupabaseAuthError };
-    }
-
-    try {
-      const { error } = await supabase
-        .from('users')
-        .update({
-          display_name: updates.displayName,
-          avatar_url: updates.photoURL,
-          preferences: updates.preferences,
-          progress: updates.progress,
-        })
-        .eq('id', user.id);
-
-      if (error) {
-        return { error: error as SupabaseAuthError };
-      }
-
-      setUserProfile(prev => prev ? { ...prev, ...updates } : null);
-      return { error: null };
-    } catch (error) {
-      return { error: error as SupabaseAuthError };
-    }
-  }, [user, isGuest, userProfile]);
+  }, [user, isGuest, userProfile, updateUserProfile]);
 
   // Send verification email
   const sendVerificationEmail = useCallback(async () => {
@@ -611,13 +616,8 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
       // Use the database function to delete user account
       const { error } = await supabase.rpc('delete_user_account');
 
-      if (profileError) {
-        console.error('Error deleting user profile:', profileError);
-      }
-
-      // Return result after using RPC function above
-
       if (error) {
+        console.error('Error deleting user account:', error);
         return { error: error as SupabaseAuthError };
       }
 
@@ -693,6 +693,8 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     userProfile,
     loading: loadingStates.loading,
     isGuest,
+    formErrors,
+    clearFormErrors,
     signInWithGoogle,
     signInWithApple,
     signInWithEmail,
@@ -713,6 +715,8 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     userProfile,
     loadingStates.loading,
     isGuest,
+    formErrors,
+    clearFormErrors,
     signInWithGoogle,
     signInWithApple,
     signInWithEmail,

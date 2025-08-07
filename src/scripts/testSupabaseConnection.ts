@@ -1,4 +1,4 @@
-import { supabase, checkSupabaseConnection } from '../config/supabaseClient';
+import { supabase, checkSupabaseConnection } from '../config/supabase';
 import { SupabaseAuthService } from '../services/supabaseAuthService';
 import { SupabaseDatabaseService } from '../services/supabaseDatabaseService';
 import { SupabaseRealtimeService } from '../services/supabaseRealtimeService';
