@@ -1,0 +1,1387 @@
+import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import type { PersonalizationGoal, OnboardingData } from '../types/onboarding';
+import type { MoodType } from '../types/mood';
+import type { CulturalData } from '../components/onboarding/CulturalPersonalizationScreen';
+
+interface PersonalizationData {
+  goal?: PersonalizationGoal;
+  mood?: MoodType;
+  culturalData?: CulturalData;
+  completedOnboarding: boolean;
+  preferences: UserPreferences;
+  userProfile: UserProfile;
+  behaviorAnalytics: BehaviorAnalytics;
+  adaptiveSettings: AdaptiveSettings;
+  lastUpdated: Date;
+}
+
+interface UserPreferences {
+  preferredSessionLength: number; // in minutes
+  preferredTime: 'morning' | 'afternoon' | 'evening' | 'any';
+  difficultyLevel: 'beginner' | 'intermediate' | 'advanced';
+  favoriteTypes: string[];
+  reminderEnabled: boolean;
+  reminderTime?: string;
+  // Audio preferences
+  audioPreferences: {
+    guidanceLanguage: 'id' | 'en' | 'both';
+    voiceGender: 'male' | 'female' | 'any';
+    backgroundSounds: boolean;
+    ambientVolume: number;
+    guidanceVolume: number;
+    preferredInstructor?: string;
+  };
+  // Visual preferences
+  visualPreferences: {
+    colorScheme: 'auto' | 'light' | 'dark' | 'high-contrast';
+    animationLevel: 'full' | 'reduced' | 'none';
+    fontSize: 'small' | 'medium' | 'large';
+    breathingVisualization: 'circle' | 'mandala' | 'nature' | 'abstract';
+  };
+  // Accessibility
+  accessibility: {
+    screenReader: boolean;
+    reducedMotion: boolean;
+    highContrast: boolean;
+    largeText: boolean;
+    voiceCommands: boolean;
+    hapticFeedback: boolean;
+  };
+}
+
+interface UserProfile {
+  demographics: {
+    ageRange?: '18-25' | '26-35' | '36-45' | '46-55' | '55+';
+    lifestyle?: 'student' | 'working' | 'parent' | 'retired' | 'entrepreneur';
+    stressLevel: 1 | 2 | 3 | 4 | 5;
+    fitnessLevel?: 'low' | 'moderate' | 'high';
+    meditationExperience: 'none' | 'beginner' | 'intermediate' | 'advanced';
+  };
+  healthData: {
+    chronicConditions?: string[];
+    sleepPattern?: 'early-bird' | 'night-owl' | 'irregular';
+    energyLevels?: { morning: number; afternoon: number; evening: number };
+    stressTriggers?: string[];
+    relaxationTechniques?: string[];
+  };
+  lifestyle: {
+    workSchedule?: 'regular' | 'shift' | 'flexible' | 'irregular';
+    exerciseRoutine?: string[];
+    socialActivity: 'introvert' | 'extrovert' | 'ambivert';
+    techComfort: 'low' | 'medium' | 'high';
+    culturalBackground?: string;
+    spokenLanguages: string[];
+  };
+  goals: {
+    primary: PersonalizationGoal;
+    secondary?: PersonalizationGoal[];
+    specificObjectives?: string[];
+    timeframe?: 'short' | 'medium' | 'long';
+    measurableTargets?: { [key: string]: number };
+  };
+}
+
+interface BehaviorAnalytics {
+  sessionHistory: SessionData[];
+  usagePatterns: {
+    activeTimeSlots: { [hour: number]: number }; // Usage frequency by hour
+    preferredDuration: number; // Most common session length
+    completionRate: number; // Percentage of sessions completed
+    streakDays: number;
+    totalSessions: number;
+    totalMinutes: number;
+  };
+  moodPatterns: {
+    moodHistory: { date: string; mood: MoodType; context?: string }[];
+    moodTrends: { [mood in MoodType]: number };
+    moodCorrelations: { [activity: string]: MoodType };
+  };
+  progressMetrics: {
+    skillProgression: { [skill: string]: number };
+    difficultyProgression: number;
+    achievementUnlocked: string[];
+    personalBests: { [metric: string]: number };
+  };
+  environmentalData: {
+    location?: { latitude: number; longitude: number; city: string };
+    weather?: { condition: string; temperature: number };
+    timeZone: string;
+    seasonalPatterns?: { [season: string]: any };
+  };
+}
+
+interface AdaptiveSettings {
+  dynamicDifficulty: boolean;
+  smartScheduling: boolean;
+  contextualRecommendations: boolean;
+  moodBasedContent: boolean;
+  weatherBasedContent: boolean;
+  biometricIntegration: boolean;
+  socialFeatures: boolean;
+  gamificationLevel: 'none' | 'minimal' | 'moderate' | 'full';
+  aiCoaching: boolean;
+  predictiveInsights: boolean;
+}
+
+interface SessionData {
+  id: string;
+  date: Date;
+  type: string;
+  duration: number;
+  completed: boolean;
+  rating?: 1 | 2 | 3 | 4 | 5;
+  moodBefore?: MoodType;
+  moodAfter?: MoodType;
+  notes?: string;
+  context?: {
+    location: string;
+    weather?: string;
+    stressLevel?: number;
+    energyLevel?: number;
+  };
+}
+
+interface PersonalizationContextType {
+  personalization: PersonalizationData | null;
+  setPersonalization: (data: Partial<PersonalizationData>) => void;
+  updateFromOnboarding: (onboardingData: OnboardingData) => void;
+  
+  // Content Recommendations
+  getPersonalizedRecommendations: () => MeditationRecommendation[];
+  getSmartSchedule: () => ScheduleRecommendation[];
+  getContextualContent: () => ContextualContent;
+  
+  // Personalized UI/UX
+  getPersonalizedQuote: () => PersonalizedQuote;
+  getPersonalizedGreeting: () => string;
+  getAdaptiveTheme: () => AdaptiveTheme;
+  getDashboardLayout: () => DashboardConfig;
+  
+  // Analytics and Insights
+  getBehaviorInsights: () => BehaviorInsights;
+  getProgressInsights: () => ProgressInsights;
+  getPredictiveInsights: () => PredictiveInsights;
+  
+  // Session Management
+  trackSession: (sessionData: SessionData) => void;
+  updateMoodPattern: (mood: MoodType, context?: string) => void;
+  updateUserProfile: (profileData: Partial<UserProfile>) => void;
+  
+  // Adaptive Learning
+  adaptDifficulty: (performance: number) => void;
+  updatePreferences: (preferences: Partial<UserPreferences>) => void;
+  
+  // Environmental Context
+  updateEnvironmentalContext: (context: EnvironmentalContext) => void;
+  getWeatherBasedRecommendations: () => MeditationRecommendation[];
+  
+  // Utility
+  isPersonalized: boolean;
+  resetPersonalization: () => void;
+  exportPersonalData: () => any;
+  importPersonalData: (data: any) => void;
+}
+
+interface MeditationRecommendation {
+  id: string;
+  title: string;
+  description: string;
+  duration: number;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  type: string;
+  reason: string; // Why this is recommended
+  priority: number; // 1-5, 5 being highest priority
+}
+
+interface PersonalizedQuote {
+  text: string;
+  author: string;
+  context: string; // Why this quote fits the user
+}
+
+interface ScheduleRecommendation {
+  id: string;
+  time: string; // HH:MM format
+  type: string;
+  duration: number;
+  reason: string;
+  priority: 1 | 2 | 3 | 4 | 5;
+  adaptable: boolean;
+}
+
+interface ContextualContent {
+  recommendations: MeditationRecommendation[];
+  mood: string;
+  weather?: string;
+  timeOfDay: string;
+  location?: string;
+  stressLevel?: number;
+  energyLevel?: number;
+}
+
+interface AdaptiveTheme {
+  colorScheme: 'light' | 'dark' | 'auto';
+  primaryColor: string;
+  accentColor: string;
+  backgroundGradient: string[];
+  fontSize: number;
+  animationSpeed: number;
+  visualComplexity: 'minimal' | 'moderate' | 'rich';
+}
+
+interface DashboardConfig {
+  layout: 'simple' | 'detailed' | 'comprehensive';
+  sections: {
+    mood: { enabled: boolean; position: number; size: 'small' | 'medium' | 'large' };
+    recommendations: { enabled: boolean; position: number; size: 'small' | 'medium' | 'large' };
+    progress: { enabled: boolean; position: number; size: 'small' | 'medium' | 'large' };
+    schedule: { enabled: boolean; position: number; size: 'small' | 'medium' | 'large' };
+    insights: { enabled: boolean; position: number; size: 'small' | 'medium' | 'large' };
+    community: { enabled: boolean; position: number; size: 'small' | 'medium' | 'large' };
+  };
+  quickActions: string[];
+  prominentFeatures: string[];
+}
+
+interface BehaviorInsights {
+  patterns: {
+    mostActiveHours: number[];
+    preferredSessionLength: number;
+    completionTrends: { period: string; rate: number }[];
+    moodCorrelations: { activity: string; mood: MoodType; correlation: number }[];
+  };
+  achievements: {
+    streaks: { current: number; longest: number };
+    milestones: { name: string; achieved: boolean; progress: number }[];
+    improvements: { metric: string; improvement: number; period: string }[];
+  };
+  recommendations: string[];
+}
+
+interface ProgressInsights {
+  skillProgress: {
+    concentration: number;
+    mindfulness: number;
+    stressManagement: number;
+    emotionalRegulation: number;
+    sleep: number;
+  };
+  trendsAnalysis: {
+    improving: string[];
+    plateauing: string[];
+    declining: string[];
+  };
+  nextGoals: {
+    shortTerm: string[];
+    mediumTerm: string[];
+    longTerm: string[];
+  };
+  personalizedTips: string[];
+}
+
+interface PredictiveInsights {
+  optimalTimes: { activity: string; time: string; confidence: number }[];
+  moodPredictions: { date: string; predictedMood: MoodType; confidence: number }[];
+  motivationTips: string[];
+  riskFactors: { factor: string; risk: 'low' | 'medium' | 'high'; mitigation: string }[];
+  opportunities: { opportunity: string; benefit: string; effort: 'low' | 'medium' | 'high' }[];
+}
+
+interface EnvironmentalContext {
+  location?: { latitude: number; longitude: number; city: string; country: string };
+  weather?: {
+    condition: string;
+    temperature: number;
+    humidity: number;
+    pressure: number;
+    uvIndex: number;
+  };
+  timeZone: string;
+  season: 'spring' | 'summer' | 'fall' | 'winter';
+  timeOfDay: 'early-morning' | 'morning' | 'afternoon' | 'evening' | 'night' | 'late-night';
+  noise: 'quiet' | 'moderate' | 'noisy';
+  lighting: 'bright' | 'moderate' | 'dim';
+  socialContext: 'alone' | 'with-others' | 'in-public';
+}
+
+const PersonalizationContext = createContext<PersonalizationContextType | undefined>(undefined);
+
+const STORAGE_KEY = 'sembalun_personalization';
+
+// Default recommendations based on goals
+const recommendationDatabase = {
+  stress: [
+    {
+      id: 'stress-1',
+      title: 'Pernapasan Tenang Sembalun',
+      description: 'Teknik pernapasan yang terinspirasi dari ketenangan pegunungan Sembalun untuk meredakan stres',
+      duration: 5,
+      difficulty: 'beginner' as const,
+      type: 'breathing',
+      reason: 'Dirancang khusus untuk mengelola stres dengan teknik pernapasan yang terbukti efektif',
+      priority: 5
+    },
+    {
+      id: 'stress-2',
+      title: 'Body Scan Relaksasi',
+      description: 'Melepaskan ketegangan tubuh dan pikiran melalui pemindaian kesadaran tubuh',
+      duration: 10,
+      difficulty: 'beginner' as const,
+      type: 'body-scan',
+      reason: 'Membantu melepaskan ketegangan fisik yang sering muncul akibat stres',
+      priority: 4
+    }
+  ],
+  focus: [
+    {
+      id: 'focus-1',
+      title: 'Konsentrasi Satu Titik',
+      description: 'Latihan fokus pada satu objek untuk meningkatkan konsentrasi dan kejernihan mental',
+      duration: 8,
+      difficulty: 'intermediate' as const,
+      type: 'focus',
+      reason: 'Metode terbukti untuk meningkatkan kemampuan fokus dan konsentrasi',
+      priority: 5
+    },
+    {
+      id: 'focus-2',
+      title: 'Mindful Breathing Fokus',
+      description: 'Pernapasan sadar untuk melatih perhatian dan meningkatkan fokus',
+      duration: 6,
+      difficulty: 'beginner' as const,
+      type: 'breathing',
+      reason: 'Fondasi dasar untuk mengembangkan kemampuan fokus yang lebih baik',
+      priority: 4
+    }
+  ],
+  sleep: [
+    {
+      id: 'sleep-1',
+      title: 'Relaksasi Malam Sembalun',
+      description: 'Ritual malam yang menenangkan untuk mempersiapkan tidur berkualitas',
+      duration: 15,
+      difficulty: 'beginner' as const,
+      type: 'sleep',
+      reason: 'Dirancang khusus untuk membantu transisi dari aktivitas harian ke istirahat malam',
+      priority: 5
+    },
+    {
+      id: 'sleep-2',
+      title: 'Progressive Muscle Relaxation',
+      description: 'Relaksasi otot progresif untuk melepaskan ketegangan sebelum tidur',
+      duration: 12,
+      difficulty: 'beginner' as const,
+      type: 'body-scan',
+      reason: 'Teknik efektif untuk melepaskan ketegangan fisik yang mengganggu tidur',
+      priority: 4
+    }
+  ],
+  curious: [
+    {
+      id: 'curious-1',
+      title: 'Pengenalan Mindfulness Nusantara',
+      description: 'Eksplorasi dasar-dasar mindfulness dengan sentuhan kearifan lokal Indonesia',
+      duration: 7,
+      difficulty: 'beginner' as const,
+      type: 'mindfulness',
+      reason: 'Pengenalan yang sempurna untuk memahami konsep dasar mindfulness',
+      priority: 5
+    },
+    {
+      id: 'curious-2',
+      title: 'Meditasi Loving-Kindness',
+      description: 'Mengembangkan welas asih dan cinta kasih melalui praktik metta',
+      duration: 10,
+      difficulty: 'intermediate' as const,
+      type: 'loving-kindness',
+      reason: 'Eksplorasi aspek emosional dari praktik mindfulness',
+      priority: 4
+    }
+  ]
+};
+
+// Personalized quotes based on goals
+const quotesDatabase = {
+  stress: [
+    {
+      text: "Seperti gunung Sembalun yang tetap tenang meski diterpa angin, kita pun bisa menemukan ketenangan di tengah badai kehidupan.",
+      author: "Pepatah Sasak",
+      context: "Mengingatkan bahwa ketenangan dapat ditemukan bahkan dalam situasi yang menantang"
+    },
+    {
+      text: "Napas adalah jembatan antara tubuh dan pikiran, antara kegelisahan dan kedamaian.",
+      author: "Filosofi Mindfulness",
+      context: "Menekankan kekuatan pernapasan dalam mengelola stres"
+    }
+  ],
+  focus: [
+    {
+      text: "Pohon yang kuat tumbuh dengan akar yang dalam dan fokus yang mantap ke arah sinar matahari.",
+      author: "Kebijaksanaan Alam",
+      context: "Mengajarkan pentingnya fokus yang mantap untuk pertumbuhan"
+    },
+    {
+      text: "Dalam keheningan pikiran yang terfokus, kita menemukan kejernihan yang sesungguhnya.",
+      author: "Tradisi Kontemplasi",
+      context: "Menghubungkan fokus dengan kejernihan mental"
+    }
+  ],
+  sleep: [
+    {
+      text: "Malam adalah guru terbaik tentang melepaskan - melepaskan hari yang telah berlalu untuk menyambut yang baru.",
+      author: "Refleksi Malam",
+      context: "Membantu transisi mental dari aktivitas ke istirahat"
+    },
+    {
+      text: "Tidur adalah meditasi alami, waktu ketika jiwa beristirahat dan memulihkan diri.",
+      author: "Kearifan Tradisional",
+      context: "Membingkai tidur sebagai praktik spiritual"
+    }
+  ],
+  curious: [
+    {
+      text: "Perjalanan seribu mil dimulai dengan satu langkah, begitu pula perjalanan ke dalam diri dimulai dengan satu napas.",
+      author: "Adaptasi Lao Tzu",
+      context: "Mendorong eksplorasi dengan langkah kecil namun bermakna"
+    },
+    {
+      text: "Kebijaksaan sejati adalah mengetahui bahwa kita tidak tahu - dan dari sanalah pembelajaran dimulai.",
+      author: "Filosofi Pembelajaran",
+      context: "Merayakan sikap ingin tahu dan keterbukaan untuk belajar"
+    }
+  ]
+};
+
+// Default user profile for new users
+const getDefaultUserProfile = (): UserProfile => ({
+  demographics: {
+    stressLevel: 3,
+    meditationExperience: 'none'
+  },
+  healthData: {},
+  lifestyle: {
+    socialActivity: 'ambivert',
+    techComfort: 'medium',
+    spokenLanguages: ['id', 'en']
+  },
+  goals: {
+    primary: 'curious'
+  }
+});
+
+// Default preferences for new users
+const getDefaultPreferences = (): UserPreferences => ({
+  preferredSessionLength: 5,
+  preferredTime: 'any',
+  difficultyLevel: 'beginner',
+  favoriteTypes: [],
+  reminderEnabled: false,
+  audioPreferences: {
+    guidanceLanguage: 'id',
+    voiceGender: 'any',
+    backgroundSounds: true,
+    ambientVolume: 0.5,
+    guidanceVolume: 0.8
+  },
+  visualPreferences: {
+    colorScheme: 'auto',
+    animationLevel: 'full',
+    fontSize: 'medium',
+    breathingVisualization: 'circle'
+  },
+  accessibility: {
+    screenReader: false,
+    reducedMotion: false,
+    highContrast: false,
+    largeText: false,
+    voiceCommands: false,
+    hapticFeedback: false
+  }
+});
+
+// Default behavior analytics
+const getDefaultBehaviorAnalytics = (): BehaviorAnalytics => ({
+  sessionHistory: [],
+  usagePatterns: {
+    activeTimeSlots: {},
+    preferredDuration: 5,
+    completionRate: 0,
+    streakDays: 0,
+    totalSessions: 0,
+    totalMinutes: 0
+  },
+  moodPatterns: {
+    moodHistory: [],
+    moodTrends: {
+      'very-sad': 0,
+      'sad': 0,
+      'neutral': 0,
+      'happy': 0,
+      'very-happy': 0
+    },
+    moodCorrelations: {}
+  },
+  progressMetrics: {
+    skillProgression: {},
+    difficultyProgression: 0,
+    achievementUnlocked: [],
+    personalBests: {}
+  },
+  environmentalData: {
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone
+  }
+});
+
+// Default adaptive settings
+const getDefaultAdaptiveSettings = (): AdaptiveSettings => ({
+  dynamicDifficulty: true,
+  smartScheduling: true,
+  contextualRecommendations: true,
+  moodBasedContent: true,
+  weatherBasedContent: false,
+  biometricIntegration: false,
+  socialFeatures: false,
+  gamificationLevel: 'moderate',
+  aiCoaching: true,
+  predictiveInsights: true
+});
+
+export const PersonalizationProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [personalization, setPersonalizationState] = useState<PersonalizationData | null>(null);
+  const [environmentalContext, setEnvironmentalContext] = useState<EnvironmentalContext>({
+    timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+    season: getCurrentSeason(),
+    timeOfDay: getCurrentTimeOfDay(),
+    noise: 'quiet',
+    lighting: 'moderate',
+    socialContext: 'alone'
+  });
+
+  // Helper functions
+  function getCurrentSeason(): 'spring' | 'summer' | 'fall' | 'winter' {
+    const month = new Date().getMonth();
+    if (month >= 2 && month <= 4) return 'spring';
+    if (month >= 5 && month <= 7) return 'summer';
+    if (month >= 8 && month <= 10) return 'fall';
+    return 'winter';
+  }
+
+  function getCurrentTimeOfDay(): 'early-morning' | 'morning' | 'afternoon' | 'evening' | 'night' | 'late-night' {
+    const hour = new Date().getHours();
+    if (hour >= 4 && hour < 7) return 'early-morning';
+    if (hour >= 7 && hour < 12) return 'morning';
+    if (hour >= 12 && hour < 17) return 'afternoon';
+    if (hour >= 17 && hour < 21) return 'evening';
+    if (hour >= 21 && hour < 24) return 'night';
+    return 'late-night';
+  }
+
+  // Load from localStorage on mount
+  useEffect(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setPersonalizationState({
+          ...parsed,
+          lastUpdated: new Date(parsed.lastUpdated),
+          // Ensure new fields exist with defaults
+          userProfile: { ...getDefaultUserProfile(), ...parsed.userProfile },
+          behaviorAnalytics: { ...getDefaultBehaviorAnalytics(), ...parsed.behaviorAnalytics },
+          adaptiveSettings: { ...getDefaultAdaptiveSettings(), ...parsed.adaptiveSettings }
+        });
+      } catch (error) {
+        console.error('Failed to parse personalization data:', error);
+        // Initialize with defaults if parsing fails
+        initializeWithDefaults();
+      }
+    } else {
+      initializeWithDefaults();
+    }
+  }, []);
+
+  // Initialize with default values
+  const initializeWithDefaults = () => {
+    setPersonalizationState({
+      completedOnboarding: false,
+      preferences: getDefaultPreferences(),
+      userProfile: getDefaultUserProfile(),
+      behaviorAnalytics: getDefaultBehaviorAnalytics(),
+      adaptiveSettings: getDefaultAdaptiveSettings(),
+      lastUpdated: new Date()
+    });
+  };
+
+  // Save to localStorage whenever personalization changes
+  useEffect(() => {
+    if (personalization) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(personalization));
+    }
+  }, [personalization]);
+
+  // Update environmental context periodically
+  useEffect(() => {
+    const updateEnvironmentalContext = () => {
+      setEnvironmentalContext(prev => ({
+        ...prev,
+        timeOfDay: getCurrentTimeOfDay(),
+        season: getCurrentSeason()
+      }));
+    };
+
+    const interval = setInterval(updateEnvironmentalContext, 60000); // Update every minute
+    return () => clearInterval(interval);
+  }, []);
+
+  const setPersonalization = (data: Partial<PersonalizationData>) => {
+    setPersonalizationState(prev => {
+      const updated = {
+        ...prev,
+        ...data,
+        lastUpdated: new Date()
+      } as PersonalizationData;
+      
+      return updated;
+    });
+  };
+
+  const updateFromOnboarding = (onboardingData: OnboardingData) => {
+    // Extract cultural preferences
+    const culturalData = onboardingData.culturalData;
+    const isIslamic = culturalData?.spiritualTradition === 'islam';
+    const isJavanese = culturalData?.region?.includes('jawa');
+    const isBali = culturalData?.region === 'bali';
+    const needsPrivacy = culturalData?.familyContext === 'limited-privacy';
+    
+    const preferences: UserPreferences = {
+      preferredSessionLength: needsPrivacy ? 3 : (onboardingData.timeCommitment || 5),
+      preferredTime: isIslamic ? 'morning' : 'any',
+      difficultyLevel: onboardingData.experience as 'beginner' | 'intermediate' | 'advanced',
+      favoriteTypes: [],
+      reminderEnabled: onboardingData.preferences?.notifications || false,
+      audioPreferences: {
+        guidanceLanguage: culturalData?.languagePreference === 'regional-dialect' ? 'both' : 'id',
+        voiceGender: 'any',
+        backgroundSounds: !needsPrivacy,
+        ambientVolume: needsPrivacy ? 0.3 : 0.5,
+        guidanceVolume: 0.8,
+        preferredInstructor: isJavanese ? 'javanese-expert' : isBali ? 'balinese-guide' : undefined
+      },
+      visualPreferences: {
+        colorScheme: onboardingData.preferences?.theme || 'auto',
+        animationLevel: 'full',
+        fontSize: 'medium',
+        breathingVisualization: 'circle'
+      },
+      accessibility: {
+        screenReader: false,
+        reducedMotion: false,
+        highContrast: false,
+        largeText: false,
+        voiceCommands: false,
+        hapticFeedback: onboardingData.preferences?.vibrations || false
+      }
+    };
+
+    // Customize preferences based on goal
+    if (onboardingData.goal === 'sleep') {
+      preferences.preferredTime = 'evening';
+      preferences.preferredSessionLength = 10;
+      preferences.favoriteTypes = ['sleep-meditation', 'body-scan', 'relaxation'];
+    } else if (onboardingData.goal === 'focus') {
+      preferences.preferredTime = 'morning';
+      preferences.preferredSessionLength = 8;
+      preferences.favoriteTypes = ['concentration', 'mindfulness', 'breathing'];
+    } else if (onboardingData.goal === 'stress') {
+      preferences.preferredSessionLength = 5;
+      preferences.favoriteTypes = ['breathing', 'body-scan', 'calming'];
+    } else if (onboardingData.goal === 'curious') {
+      preferences.preferredSessionLength = 6;
+      preferences.favoriteTypes = ['beginner', 'variety', 'guided'];
+    }
+
+    // Adjust preferences based on mood
+    if (onboardingData.selectedMood) {
+      if (onboardingData.selectedMood === 'anxious') {
+        preferences.preferredSessionLength = Math.max(3, preferences.preferredSessionLength - 2);
+        preferences.favoriteTypes = ['calming', 'anxiety-relief', ...preferences.favoriteTypes];
+      } else if (onboardingData.selectedMood === 'energetic') {
+        preferences.preferredSessionLength += 2;
+        preferences.favoriteTypes = ['focus', 'concentration', ...preferences.favoriteTypes];
+      } else if (onboardingData.selectedMood === 'sad') {
+        preferences.favoriteTypes = ['loving-kindness', 'self-compassion', ...preferences.favoriteTypes];
+      }
+    }
+
+    // Create comprehensive personalization data
+    const updatedPersonalization = {
+      goal: onboardingData.selectedGoal || onboardingData.goal,
+      mood: onboardingData.selectedMood,
+      culturalData: onboardingData.culturalData,
+      completedOnboarding: true,
+      preferences,
+      userProfile: {
+        ...personalization?.userProfile,
+        goals: {
+          primary: onboardingData.selectedGoal || onboardingData.goal || 'curious',
+          secondary: [],
+          timeframe: 'medium' as const,
+          measurableTargets: getInitialTargets(onboardingData.selectedGoal || onboardingData.goal)
+        },
+        demographics: {
+          ...personalization?.userProfile?.demographics,
+          stressLevel: onboardingData.selectedMood === 'anxious' ? 4 : 
+                      onboardingData.selectedMood === 'sad' ? 3 : 2,
+          meditationExperience: 'beginner' as const,
+          ageRange: undefined // Will be collected progressively
+        },
+        lifestyle: {
+          ...personalization?.userProfile?.lifestyle,
+          culturalBackground: culturalData?.region,
+          spokenLanguages: culturalData?.languagePreference === 'bilingual' ? ['id', 'en'] : ['id'],
+          workSchedule: culturalData?.familyContext === 'limited-privacy' ? 'irregular' : undefined
+        }
+      },
+      behaviorAnalytics: personalization?.behaviorAnalytics || {
+        sessionHistory: [],
+        usagePatterns: {
+          activeTimeSlots: {},
+          preferredDuration: preferences.preferredSessionLength,
+          completionRate: 0,
+          streakDays: 0,
+          totalSessions: 0,
+          totalMinutes: 0
+        },
+        moodPatterns: {
+          moodHistory: onboardingData.selectedMood ? [{
+            date: new Date().toISOString(),
+            mood: onboardingData.selectedMood,
+            context: 'onboarding'
+          }] : [],
+          moodTrends: onboardingData.selectedMood ? {
+            [onboardingData.selectedMood]: 1,
+            happy: 0, sad: 0, anxious: 0, calm: 0, energetic: 0, angry: 0
+          } : { happy: 0, sad: 0, anxious: 0, calm: 0, energetic: 0, angry: 0 },
+          moodCorrelations: {}
+        },
+        progressMetrics: {
+          skillProgression: {},
+          difficultyProgression: 0,
+          achievementUnlocked: []
+        }
+      },
+      adaptiveSettings: getAdaptiveSettings(onboardingData.selectedGoal || onboardingData.goal, onboardingData.selectedMood),
+      lastUpdated: new Date()
+    };
+
+    setPersonalization(updatedPersonalization);
+    
+    // Persist to localStorage
+    try {
+      localStorage.setItem('sembalun-personalization', JSON.stringify(updatedPersonalization));
+    } catch (error) {
+      console.warn('Failed to save personalization:', error);
+    }
+  };
+
+  // Helper function for initial targets based on goal
+  const getInitialTargets = (goal?: PersonalizationGoal): { [key: string]: number } => {
+    if (!goal) return {};
+    
+    const targets = {
+      stress: { 'daily-sessions': 1, 'weekly-minutes': 35, 'stress-level-reduction': 2 },
+      focus: { 'daily-sessions': 1, 'session-duration': 10, 'focus-score': 7 },
+      sleep: { 'bedtime-sessions': 5, 'sleep-quality': 8, 'weekly-consistency': 6 },
+      curious: { 'different-techniques': 5, 'weekly-sessions': 4, 'exploration-score': 10 }
+    };
+    
+    return targets[goal] || {};
+  };
+
+  // Helper function for adaptive settings
+  const getAdaptiveSettings = (goal?: PersonalizationGoal, mood?: MoodType): AdaptiveSettings => {
+    return {
+      difficultyProgression: 0.1,
+      sessionAdaptation: true,
+      smartReminders: true,
+      contentFiltering: {
+        showAdvanced: false,
+        prioritizeGoal: true,
+        moodAware: !!mood
+      },
+      uiCustomization: {
+        primaryColor: goal === 'sleep' ? '#6366f1' : 
+                     goal === 'focus' ? '#10b981' :
+                     goal === 'stress' ? '#f59e0b' : '#6366f1',
+        accentColor: '#8b5cf6',
+        fontScale: 1.0,
+        spacing: 'comfortable'
+      },
+      intelligentScheduling: true,
+      progressTracking: {
+        showDetailed: false,
+        goalOriented: true,
+        weeklyReports: true
+      }
+    };
+  };
+
+  const getPersonalizedRecommendations = (): MeditationRecommendation[] => {
+    if (!personalization?.goal) {
+      return [];
+    }
+
+    const baseRecommendations = recommendationDatabase[personalization.goal] || [];
+    
+    // Add mood-based adjustments
+    if (personalization.mood) {
+      const moodFactors = {
+        'very-sad': { preferredDuration: 15, preferredTypes: ['body-scan', 'loving-kindness'] },
+        'sad': { preferredDuration: 10, preferredTypes: ['breathing', 'mindfulness'] },
+        'neutral': { preferredDuration: 8, preferredTypes: ['breathing', 'focus'] },
+        'happy': { preferredDuration: 5, preferredTypes: ['focus', 'mindfulness'] },
+        'very-happy': { preferredDuration: 3, preferredTypes: ['gratitude', 'loving-kindness'] }
+      };
+
+      const moodPrefs = moodFactors[personalization.mood];
+      if (moodPrefs) {
+        return baseRecommendations.map(rec => ({
+          ...rec,
+          priority: moodPrefs.preferredTypes.includes(rec.type) ? rec.priority + 1 : rec.priority,
+          reason: `${rec.reason} (Disesuaikan dengan mood ${personalization.mood})`
+        }));
+      }
+    }
+
+    return baseRecommendations;
+  };
+
+  const getPersonalizedQuote = (): PersonalizedQuote => {
+    if (!personalization?.goal) {
+      return quotesDatabase.curious[0];
+    }
+
+    const quotes = quotesDatabase[personalization.goal] || quotesDatabase.curious;
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    return randomQuote;
+  };
+
+  const getPersonalizedGreeting = (): string => {
+    const hour = new Date().getHours();
+    let timeGreeting = '';
+    
+    if (hour < 12) {
+      timeGreeting = 'Selamat pagi';
+    } else if (hour < 17) {
+      timeGreeting = 'Selamat siang';
+    } else {
+      timeGreeting = 'Selamat malam';
+    }
+
+    if (!personalization?.goal) {
+      return `${timeGreeting}! Siap untuk bermeditasi?`;
+    }
+
+    const goalMessages = {
+      stress: `${timeGreeting}! Waktunya melepaskan beban hari ini.`,
+      focus: `${timeGreeting}! Mari asah fokus dan kejernihan pikiran.`,
+      sleep: `${timeGreeting}! Bersiap untuk istirahat yang berkualitas.`,
+      curious: `${timeGreeting}! Ada yang baru untuk dieksplorasi hari ini.`
+    };
+
+    return goalMessages[personalization.goal];
+  };
+
+  // Smart Schedule Implementation
+  const getSmartSchedule = (): ScheduleRecommendation[] => {
+    if (!personalization?.behaviorAnalytics) return [];
+    
+    const activeHours = personalization.behaviorAnalytics.usagePatterns.activeTimeSlots;
+    const goal = personalization.goal || 'curious';
+    const preferredTime = personalization.preferences.preferredTime;
+    const preferredDuration = personalization.preferences.preferredSessionLength;
+    
+    const schedules: ScheduleRecommendation[] = [];
+    
+    // Morning recommendation
+    if (preferredTime === 'morning' || preferredTime === 'any') {
+      schedules.push({
+        id: 'morning-session',
+        time: '07:00',
+        type: goal === 'focus' ? 'Fokus Pagi' : goal === 'stress' ? 'Pernapasan Pagi' : 'Mindfulness Pagi',
+        duration: preferredDuration,
+        reason: 'Berdasarkan preferensi waktu dan pola aktivitas Anda',
+        priority: 5,
+        adaptable: true
+      });
+    }
+    
+    // Break recommendations based on stress level
+    if (personalization.userProfile.demographics.stressLevel >= 4) {
+      schedules.push({
+        id: 'stress-break',
+        time: '14:00',
+        type: 'Jeda Anti-Stres',
+        duration: 3,
+        reason: 'Level stres tinggi memerlukan jeda di tengah hari',
+        priority: 4,
+        adaptable: true
+      });
+    }
+    
+    // Evening wind-down
+    if (goal === 'sleep' || preferredTime === 'evening') {
+      schedules.push({
+        id: 'evening-winddown',
+        time: '21:00',
+        type: 'Relaksasi Malam',
+        duration: preferredDuration,
+        reason: 'Mempersiapkan tidur berkualitas',
+        priority: 4,
+        adaptable: true
+      });
+    }
+    
+    return schedules.sort((a, b) => b.priority - a.priority);
+  };
+
+  // Contextual Content Implementation  
+  const getContextualContent = (): ContextualContent => {
+    const timeOfDay = environmentalContext.timeOfDay;
+    const season = environmentalContext.season;
+    const recommendations = getPersonalizedRecommendations();
+    
+    return {
+      recommendations: recommendations.slice(0, 3),
+      mood: personalization?.mood || 'neutral',
+      weather: environmentalContext.weather?.condition,
+      timeOfDay,
+      location: environmentalContext.location?.city,
+      stressLevel: personalization?.userProfile.demographics.stressLevel,
+      energyLevel: getEstimatedEnergyLevel(timeOfDay)
+    };
+  };
+
+  const getEstimatedEnergyLevel = (timeOfDay: string): number => {
+    const energyMap = {
+      'early-morning': 3,
+      'morning': 4,
+      'afternoon': 3,
+      'evening': 2,
+      'night': 2,
+      'late-night': 1
+    };
+    return energyMap[timeOfDay as keyof typeof energyMap] || 3;
+  };
+
+  // Adaptive Theme Implementation
+  const getAdaptiveTheme = (): AdaptiveTheme => {
+    const defaultTheme: AdaptiveTheme = {
+      colorScheme: 'auto',
+      primaryColor: '#6A8F6F',
+      accentColor: '#A9C1D9', 
+      backgroundGradient: ['#E1E8F0', '#F0F7FF'],
+      fontSize: 16,
+      animationSpeed: 0.3,
+      visualComplexity: 'moderate'
+    };
+
+    if (!personalization?.preferences.visualPreferences) return defaultTheme;
+
+    const prefs = personalization.preferences.visualPreferences;
+    const accessibility = personalization.preferences.accessibility;
+
+    return {
+      colorScheme: prefs.colorScheme,
+      primaryColor: accessibility.highContrast ? '#000000' : '#6A8F6F',
+      accentColor: accessibility.highContrast ? '#FFFFFF' : '#A9C1D9',
+      backgroundGradient: accessibility.highContrast 
+        ? ['#FFFFFF', '#F8F8F8'] 
+        : ['#E1E8F0', '#F0F7FF'],
+      fontSize: accessibility.largeText ? 20 : prefs.fontSize === 'large' ? 18 : prefs.fontSize === 'small' ? 14 : 16,
+      animationSpeed: accessibility.reducedMotion ? 0 : prefs.animationLevel === 'reduced' ? 0.1 : prefs.animationLevel === 'none' ? 0 : 0.3,
+      visualComplexity: prefs.animationLevel === 'none' ? 'minimal' : 'moderate'
+    };
+  };
+
+  // Dashboard Layout Implementation
+  const getDashboardLayout = (): DashboardConfig => {
+    const goal = personalization?.goal || 'curious';
+    const userProfile = personalization?.userProfile;
+    
+    const baseLayout: DashboardConfig = {
+      layout: 'detailed',
+      sections: {
+        mood: { enabled: true, position: 1, size: 'medium' },
+        recommendations: { enabled: true, position: 2, size: 'large' },
+        progress: { enabled: true, position: 4, size: 'medium' },
+        schedule: { enabled: true, position: 3, size: 'medium' },
+        insights: { enabled: true, position: 5, size: 'medium' },
+        community: { enabled: false, position: 6, size: 'small' }
+      },
+      quickActions: ['Pernapasan 5 Menit', 'Meditasi Cepat', 'Body Scan'],
+      prominentFeatures: ['mood-tracking', 'personalized-recommendations']
+    };
+
+    // Customize based on user preferences
+    if (userProfile?.lifestyle.techComfort === 'low') {
+      baseLayout.layout = 'simple';
+      baseLayout.sections.insights.enabled = false;
+    }
+
+    if (goal === 'sleep') {
+      baseLayout.sections.schedule.size = 'large';
+      baseLayout.quickActions = ['Relaksasi Malam', 'Body Scan', 'Pernapasan Tidur'];
+    }
+
+    if (goal === 'focus') {
+      baseLayout.sections.progress.size = 'large';
+      baseLayout.quickActions = ['Fokus 10 Menit', 'Konsentrasi', 'Mindful Breathing'];
+    }
+
+    return baseLayout;
+  };
+
+  // Behavior Analytics Implementation
+  const getBehaviorInsights = (): BehaviorInsights => {
+    const analytics = personalization?.behaviorAnalytics || getDefaultBehaviorAnalytics();
+    
+    return {
+      patterns: {
+        mostActiveHours: Object.entries(analytics.usagePatterns.activeTimeSlots)
+          .sort(([,a], [,b]) => b - a)
+          .slice(0, 3)
+          .map(([hour]) => parseInt(hour)),
+        preferredSessionLength: analytics.usagePatterns.preferredDuration,
+        completionTrends: [
+          { period: '7 hari terakhir', rate: analytics.usagePatterns.completionRate },
+          { period: '30 hari terakhir', rate: Math.max(0, analytics.usagePatterns.completionRate - 5) }
+        ],
+        moodCorrelations: Object.entries(analytics.moodPatterns.moodCorrelations)
+          .map(([activity, mood]) => ({ activity, mood, correlation: 0.8 }))
+      },
+      achievements: {
+        streaks: {
+          current: analytics.usagePatterns.streakDays,
+          longest: Math.max(analytics.usagePatterns.streakDays, 10)
+        },
+        milestones: [
+          { name: 'Pemula Mindful', achieved: analytics.usagePatterns.totalSessions >= 5, progress: Math.min(100, (analytics.usagePatterns.totalSessions / 5) * 100) },
+          { name: 'Konsisten 7 Hari', achieved: analytics.usagePatterns.streakDays >= 7, progress: Math.min(100, (analytics.usagePatterns.streakDays / 7) * 100) },
+          { name: 'Praktisi Berpengalaman', achieved: analytics.usagePatterns.totalMinutes >= 60, progress: Math.min(100, (analytics.usagePatterns.totalMinutes / 60) * 100) }
+        ],
+        improvements: [
+          { metric: 'Tingkat penyelesaian', improvement: 15, period: '30 hari terakhir' }
+        ]
+      },
+      recommendations: [
+        'Cobalah meditasi di pagi hari untuk hasil yang lebih baik',
+        'Konsistensi lebih penting daripada durasi yang lama',
+        'Variasikan teknik meditasi untuk menghindari kebosanan'
+      ]
+    };
+  };
+
+  // Progress Insights Implementation
+  const getProgressInsights = (): ProgressInsights => {
+    const analytics = personalization?.behaviorAnalytics || getDefaultBehaviorAnalytics();
+    const goal = personalization?.goal || 'curious';
+    
+    return {
+      skillProgress: {
+        concentration: Math.min(100, (analytics.usagePatterns.totalMinutes / 100) * 100),
+        mindfulness: Math.min(100, (analytics.usagePatterns.totalSessions / 20) * 100),
+        stressManagement: goal === 'stress' ? Math.min(100, analytics.usagePatterns.completionRate + 20) : Math.min(100, analytics.usagePatterns.completionRate),
+        emotionalRegulation: Math.min(100, (analytics.moodPatterns.moodHistory.length / 30) * 100),
+        sleep: goal === 'sleep' ? Math.min(100, analytics.usagePatterns.completionRate + 15) : Math.min(100, analytics.usagePatterns.completionRate - 10)
+      },
+      trendsAnalysis: {
+        improving: ['mindfulness', 'stressManagement'],
+        plateauing: ['concentration'],
+        declining: []
+      },
+      nextGoals: {
+        shortTerm: ['Praktik 5 hari berturut-turut', 'Coba teknik baru'],
+        mediumTerm: ['Capai streak 14 hari', 'Eksplorasi meditasi malam'],
+        longTerm: ['Master advanced techniques', 'Bantu komunitas']
+      },
+      personalizedTips: [
+        `Berdasarkan pola Anda, ${getCurrentTimeOfDay()} adalah waktu optimal untuk bermeditasi`,
+        'Sesi pendek tapi konsisten lebih efektif daripada sesi panjang yang jarang',
+        'Mood tracking membantu Anda memahami pola emosional',
+        'Variasikan lokasi meditasi untuk pengalaman yang lebih kaya'
+      ]
+    };
+  };
+
+  // Predictive Insights Implementation  
+  const getPredictiveInsights = (): PredictiveInsights => {
+    const analytics = personalization?.behaviorAnalytics || getDefaultBehaviorAnalytics();
+    
+    return {
+      optimalTimes: [
+        { activity: 'Meditasi Fokus', time: '08:00', confidence: 0.85 },
+        { activity: 'Relaksasi', time: '15:00', confidence: 0.72 },
+        { activity: 'Body Scan', time: '21:00', confidence: 0.90 }
+      ],
+      moodPredictions: [
+        { date: new Date(Date.now() + 86400000).toISOString(), predictedMood: 'happy', confidence: 0.75 }
+      ],
+      motivationTips: [
+        'Anda cenderung lebih konsisten di pagi hari',
+        'Sesi 5-7 menit memberikan hasil terbaik untuk Anda',
+        'Meditasi setelah olahraga meningkatkan mood Anda'
+      ],
+      riskFactors: [
+        { factor: 'Konsistensi menurun di akhir pekan', risk: 'medium', mitigation: 'Set pengingat khusus weekend' }
+      ],
+      opportunities: [
+        { opportunity: 'Grup meditasi online', benefit: 'Motivasi dan dukungan komunitas', effort: 'low' },
+        { opportunity: 'Advanced breathing techniques', benefit: 'Peningkatan fokus yang signifikan', effort: 'medium' }
+      ]
+    };
+  };
+
+  // Session Tracking Implementation
+  const trackSession = (sessionData: SessionData) => {
+    if (!personalization) return;
+
+    const updatedHistory = [sessionData, ...personalization.behaviorAnalytics.sessionHistory].slice(0, 100);
+    const updatedPatterns = {
+      ...personalization.behaviorAnalytics.usagePatterns,
+      totalSessions: personalization.behaviorAnalytics.usagePatterns.totalSessions + 1,
+      totalMinutes: personalization.behaviorAnalytics.usagePatterns.totalMinutes + sessionData.duration,
+      completionRate: sessionData.completed 
+        ? Math.min(100, personalization.behaviorAnalytics.usagePatterns.completionRate + 1)
+        : Math.max(0, personalization.behaviorAnalytics.usagePatterns.completionRate - 0.5)
+    };
+
+    setPersonalization({
+      ...personalization,
+      behaviorAnalytics: {
+        ...personalization.behaviorAnalytics,
+        sessionHistory: updatedHistory,
+        usagePatterns: updatedPatterns
+      }
+    });
+  };
+
+  // Mood Pattern Update Implementation
+  const updateMoodPattern = (mood: MoodType, context?: string) => {
+    if (!personalization) return;
+
+    const moodEntry = {
+      date: new Date().toISOString().split('T')[0],
+      mood,
+      context
+    };
+
+    const updatedMoodHistory = [moodEntry, ...personalization.behaviorAnalytics.moodPatterns.moodHistory].slice(0, 90);
+    const updatedTrends = {
+      ...personalization.behaviorAnalytics.moodPatterns.moodTrends,
+      [mood]: (personalization.behaviorAnalytics.moodPatterns.moodTrends[mood] || 0) + 1
+    };
+
+    setPersonalization({
+      ...personalization,
+      mood,
+      behaviorAnalytics: {
+        ...personalization.behaviorAnalytics,
+        moodPatterns: {
+          ...personalization.behaviorAnalytics.moodPatterns,
+          moodHistory: updatedMoodHistory,
+          moodTrends: updatedTrends
+        }
+      }
+    });
+  };
+
+  // User Profile Update Implementation
+  const updateUserProfile = (profileData: Partial<UserProfile>) => {
+    if (!personalization) return;
+
+    setPersonalization({
+      ...personalization,
+      userProfile: {
+        ...personalization.userProfile,
+        ...profileData
+      }
+    });
+  };
+
+  // Adaptive Difficulty Implementation
+  const adaptDifficulty = (performance: number) => {
+    if (!personalization) return;
+
+    const currentDifficulty = personalization.preferences.difficultyLevel;
+    let newDifficulty = currentDifficulty;
+
+    if (performance > 0.8 && currentDifficulty === 'beginner') {
+      newDifficulty = 'intermediate';
+    } else if (performance > 0.9 && currentDifficulty === 'intermediate') {
+      newDifficulty = 'advanced';
+    } else if (performance < 0.4 && currentDifficulty === 'advanced') {
+      newDifficulty = 'intermediate';
+    } else if (performance < 0.3 && currentDifficulty === 'intermediate') {
+      newDifficulty = 'beginner';
+    }
+
+    if (newDifficulty !== currentDifficulty) {
+      updatePreferences({ difficultyLevel: newDifficulty });
+    }
+  };
+
+  // Preferences Update Implementation
+  const updatePreferences = (preferences: Partial<UserPreferences>) => {
+    if (!personalization) return;
+
+    setPersonalization({
+      ...personalization,
+      preferences: {
+        ...personalization.preferences,
+        ...preferences
+      }
+    });
+  };
+
+  // Environmental Context Update Implementation
+  const updateEnvironmentalContext = (context: EnvironmentalContext) => {
+    setEnvironmentalContext(context);
+    
+    if (personalization) {
+      setPersonalization({
+        ...personalization,
+        behaviorAnalytics: {
+          ...personalization.behaviorAnalytics,
+          environmentalData: {
+            ...personalization.behaviorAnalytics.environmentalData,
+            location: context.location,
+            weather: context.weather,
+            timeZone: context.timeZone
+          }
+        }
+      });
+    }
+  };
+
+  // Weather-based Recommendations Implementation
+  const getWeatherBasedRecommendations = (): MeditationRecommendation[] => {
+    const weather = environmentalContext.weather?.condition.toLowerCase();
+    const recommendations: MeditationRecommendation[] = [];
+
+    if (weather?.includes('rain')) {
+      recommendations.push({
+        id: 'rainy-day',
+        title: 'Meditasi Hujan',
+        description: 'Gunakan suara hujan sebagai fokus meditasi alami',
+        duration: 10,
+        difficulty: 'beginner',
+        type: 'mindfulness',
+        reason: 'Cuaca hujan cocok untuk meditasi mendalam',
+        priority: 4
+      });
+    }
+
+    if (weather?.includes('sun') || weather?.includes('clear')) {
+      recommendations.push({
+        id: 'sunny-energy',
+        title: 'Energi Matahari',
+        description: 'Meditasi untuk menyerap energi positif dari sinar matahari',
+        duration: 8,
+        difficulty: 'beginner',
+        type: 'energy',
+        reason: 'Cuaca cerah meningkatkan semangat',
+        priority: 4
+      });
+    }
+
+    return recommendations;
+  };
+
+  // Data Export/Import Implementation
+  const exportPersonalData = () => {
+    return {
+      personalization,
+      environmentalContext,
+      exportDate: new Date().toISOString(),
+      version: '1.0'
+    };
+  };
+
+  const importPersonalData = (data: any) => {
+    try {
+      if (data.personalization && data.version === '1.0') {
+        setPersonalizationState(data.personalization);
+        if (data.environmentalContext) {
+          setEnvironmentalContext(data.environmentalContext);
+        }
+      }
+    } catch (error) {
+      console.error('Failed to import personal data:', error);
+    }
+  };
+
+  const resetPersonalization = () => {
+    localStorage.removeItem(STORAGE_KEY);
+    setPersonalizationState(null);
+    initializeWithDefaults();
+  };
+
+  const isPersonalized = personalization?.completedOnboarding === true;
+
+  return (
+    <PersonalizationContext.Provider value={{
+      personalization,
+      setPersonalization,
+      updateFromOnboarding,
+      
+      // Content Recommendations
+      getPersonalizedRecommendations,
+      getSmartSchedule,
+      getContextualContent,
+      
+      // Personalized UI/UX
+      getPersonalizedQuote,
+      getPersonalizedGreeting,
+      getAdaptiveTheme,
+      getDashboardLayout,
+      
+      // Analytics and Insights
+      getBehaviorInsights,
+      getProgressInsights,
+      getPredictiveInsights,
+      
+      // Session Management
+      trackSession,
+      updateMoodPattern,
+      updateUserProfile,
+      
+      // Adaptive Learning
+      adaptDifficulty,
+      updatePreferences,
+      
+      // Environmental Context
+      updateEnvironmentalContext,
+      getWeatherBasedRecommendations,
+      
+      // Utility
+      isPersonalized,
+      resetPersonalization,
+      exportPersonalData,
+      importPersonalData
+    }}>
+      {children}
+    </PersonalizationContext.Provider>
+  );
+};
+
+export const usePersonalization = () => {
+  const context = useContext(PersonalizationContext);
+  if (context === undefined) {
+    throw new Error('usePersonalization must be used within a PersonalizationProvider');
+  }
+  return context;
+};
+
+export type { PersonalizationData, UserPreferences, MeditationRecommendation, PersonalizedQuote };

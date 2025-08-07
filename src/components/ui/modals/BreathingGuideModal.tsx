@@ -1,7 +1,9 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '../Button';
-import { Card } from '../Card';
-import { BreathingGuide } from '../BreathingGuide';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Play, Pause, RotateCcw, Settings, Wind, Heart } from 'lucide-react';
+import { Button, Card } from '../index';
+import { MeditationModal } from '../IndonesianModal';
+import BreathingVisualization3D from '../../meditation/BreathingVisualization3D';
 import { breathingPatterns, type BreathingPattern } from '../../../utils/breathingPatterns';
 
 interface BreathingGuideModalProps {
@@ -40,6 +42,7 @@ const traditionalBreathingTechniques = [
   }
 ];
 
+// Enhanced 2025 Breathing Guide Modal with Glassmorphic Design
 export const BreathingGuideModal: React.FC<BreathingGuideModalProps> = ({
   isOpen,
   onClose,
@@ -52,12 +55,14 @@ export const BreathingGuideModal: React.FC<BreathingGuideModalProps> = ({
   const [isActive, setIsActive] = useState(autoStart);
   const [sessionTime, setSessionTime] = useState(0);
   const [breathCount, setBreathCount] = useState(0);
+  const [showSettings, setShowSettings] = useState(false);
+  const [show3D, setShow3D] = useState(true);
 
   const availablePatterns = culturalStyle === 'traditional' 
     ? [...breathingPatterns, ...traditionalBreathingTechniques]
     : breathingPatterns;
 
-  // Session timer
+  // Enhanced session timer
   useEffect(() => {
     let timer: NodeJS.Timeout | null = null;
     
@@ -75,13 +80,17 @@ export const BreathingGuideModal: React.FC<BreathingGuideModalProps> = ({
   const handlePatternChange = useCallback((patternId: BreathingPattern) => {
     setSelectedPattern(patternId);
     if (isActive) {
-      // Reset counters when changing pattern during active session
       setBreathCount(0);
     }
   }, [isActive]);
 
-  const handleBreathComplete = useCallback(() => {
-    setBreathCount(prev => prev + 1);
+  // Breath completion handler - currently handled by 3D visualization
+  // const handleBreathComplete = useCallback(() => {
+  //   setBreathCount(prev => prev + 1);
+  // }, []);
+
+  const handleSessionComplete = useCallback(() => {
+    setIsActive(false);
   }, []);
 
   const formatTime = (seconds: number): string => {
@@ -94,246 +103,301 @@ export const BreathingGuideModal: React.FC<BreathingGuideModalProps> = ({
     return availablePatterns.find(p => p.id === selectedPattern) || availablePatterns[0];
   };
 
-  if (!isOpen) return null;
-
   const currentPattern = getCurrentPattern();
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-3xl max-w-md w-full max-h-[90vh] overflow-y-auto relative">
-        {/* Header */}
-        <div className="relative p-6 text-center border-b border-gray-100">
-          {onClose && (
-            <button
-              onClick={onClose}
-              className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+    <MeditationModal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Breathing Guide"
+      size="large"
+      culturalTheme="meditation"
+      gestureEnabled={true}
+      showBackButton={false}
+      className="overflow-hidden"
+    >
+      <div className="p-6">
+        {/* Enhanced Header with 2025 Design */}
+        <motion.div 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="text-center mb-6"
+        >
+          <div className="flex justify-center mb-6 relative">
+            <motion.div 
+              className="relative flex items-center justify-center"
+              animate={isActive ? { scale: [1, 1.05, 1] } : { scale: 1 }}
+              transition={{ duration: 4, repeat: isActive ? Infinity : 0, ease: "easeInOut" }}
             >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          )}
-          
-          <div className="flex justify-center mb-4">
-            <div 
-              className="w-16 h-16 rounded-full flex items-center justify-center text-2xl"
-              style={{
-                background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(219, 39, 119, 0.2) 100%)'
-              }}
-            >
-              {currentPattern.icon}
-            </div>
+              <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-meditation-focus-400/20 to-meditation-zen-400/20 backdrop-blur-xl border border-white/30 flex items-center justify-center shadow-lg">
+                <Wind className="w-10 h-10 text-meditation-focus-600" />
+              </div>
+            </motion.div>
           </div>
           
-          <h2 className="text-xl font-heading text-gray-800 mb-2">
-            {currentPattern.name}
-          </h2>
-          <p className="text-gray-600 text-sm">
-            {currentPattern.description}
-          </p>
-          
-          {('cultural' in currentPattern) && (
-            <p className="text-purple-600 text-xs mt-2 italic">
-              {currentPattern.cultural}
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+          >
+            <h2 className="text-fluid-2xl font-heading font-bold mb-3 text-gray-800">
+              {currentPattern.name}
+            </h2>
+            <p className="text-meditation-focus-600 meditation-body">
+              {currentPattern.description}
             </p>
-          )}
-        </div>
+            
+            {('cultural' in currentPattern) && (
+              <p className="text-meditation-zen-600 text-sm mt-2 italic">
+                {(currentPattern as any).cultural}
+              </p>
+            )}
+          </motion.div>
+        </motion.div>
 
-        {/* Session Stats */}
-        {isActive && (
-          <div className="px-6 py-4 bg-gradient-to-r from-purple-50 to-pink-50">
-            <div className="flex items-center justify-center space-x-8">
-              <div className="text-center">
-                <div className="text-2xl font-heading text-purple-700">
-                  {formatTime(sessionTime)}
+        {/* Enhanced Session Stats */}
+        <AnimatePresence>
+          {isActive && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-6"
+            >
+              <Card variant="breathing" className="backdrop-blur-sm">
+                <div className="flex items-center justify-center space-x-8 p-4">
+                  <div className="text-center">
+                    <motion.div 
+                      className="text-3xl font-heading text-meditation-focus-600 mb-1"
+                      animate={{ scale: [1, 1.1, 1] }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      {formatTime(sessionTime)}
+                    </motion.div>
+                    <div className="text-sm text-gray-600 flex items-center justify-center">
+                      <Heart className="w-4 h-4 mr-1" />
+                      Duration
+                    </div>
+                  </div>
+                  <div className="h-8 w-px bg-gradient-to-b from-transparent via-meditation-focus-300 to-transparent" />
+                  <div className="text-center">
+                    <motion.div 
+                      className="text-3xl font-heading text-meditation-zen-600 mb-1"
+                      animate={{ scale: breathCount % 2 === 1 ? [1, 1.2, 1] : 1 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      {breathCount}
+                    </motion.div>
+                    <div className="text-sm text-gray-600 flex items-center justify-center">
+                      <Wind className="w-4 h-4 mr-1" />
+                      Breaths
+                    </div>
+                  </div>
                 </div>
-                <div className="text-xs text-gray-600">Waktu</div>
-              </div>
-              <div className="text-center">
-                <div className="text-2xl font-heading text-purple-700">
-                  {breathCount}
-                </div>
-                <div className="text-xs text-gray-600">Napas</div>
-              </div>
+              </Card>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Enhanced 3D Breathing Visualization */}
+        {show3D && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 flex justify-center"
+          >
+            <div className="relative">
+              <BreathingVisualization3D 
+                autoStart={isActive}
+                onSessionComplete={handleSessionComplete}
+              />
+              
+              {/* Settings Toggle */}
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowSettings(!showSettings)}
+                className="absolute top-2 right-2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md border border-white/30 flex items-center justify-center shadow-lg hover:bg-white/30 transition-colors"
+              >
+                <Settings className="w-5 h-5 text-meditation-focus-600" />
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         )}
 
-        <div className="p-6 space-y-6">
-          {/* Pattern Selector */}
-          {showPatternSelector && (
-            <Card>
-              <h3 className="font-heading text-gray-800 mb-4">
-                {culturalStyle === 'traditional' ? 'Teknik Spiritual' : 'Pola Pernapasan'}
-              </h3>
-              <div className="grid grid-cols-1 gap-3 max-h-48 overflow-y-auto">
-                {availablePatterns.map((pattern) => (
-                  <button
-                    key={pattern.id}
-                    onClick={() => handlePatternChange(pattern.id)}
-                    className={`
-                      flex items-center space-x-3 p-3 rounded-xl transition-all duration-200 text-left
-                      ${selectedPattern === pattern.id 
-                        ? 'bg-purple-50 border-2 border-purple-200' 
-                        : 'bg-gray-50 border-2 border-transparent hover:bg-gray-100'
-                      }
-                    `}
-                  >
-                    <div 
-                      className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-                      style={{ 
-                        backgroundColor: selectedPattern === pattern.id 
-                          ? 'rgba(147, 51, 234, 0.15)' 
-                          : 'rgba(147, 51, 234, 0.08)'
-                      }}
+        {/* Enhanced Pattern Selector */}
+        <AnimatePresence>
+          {showPatternSelector && (showSettings || !isActive) && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="mb-6"
+            >
+              <Card variant="meditation" size="lg">
+                <h3 className="text-fluid-lg font-heading font-semibold text-gray-800 mb-4">
+                  {culturalStyle === 'traditional' ? 'Spiritual Techniques' : 'Breathing Patterns'}
+                </h3>
+                <div className="grid grid-cols-1 gap-3 max-h-60 overflow-y-auto">
+                  {availablePatterns.map((pattern, index) => (
+                    <motion.button
+                      key={pattern.id}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      onClick={() => handlePatternChange(pattern.id)}
+                      className={`flex items-center space-x-4 p-4 rounded-2xl transition-all duration-300 text-left group hover:scale-[1.02] ${
+                        selectedPattern === pattern.id 
+                          ? 'bg-meditation-focus-100/20 backdrop-blur-md border-2 border-meditation-focus-300 shadow-lg' 
+                          : 'bg-white/10 backdrop-blur-md border-2 border-white/20 hover:bg-white/15'
+                      }`}
                     >
-                      {pattern.icon}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-800 text-sm truncate">
-                        {pattern.name}
+                      <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-lg transition-colors ${
+                        selectedPattern === pattern.id 
+                          ? 'bg-meditation-focus-200/30 text-meditation-focus-600' 
+                          : 'bg-gray-100 text-gray-600 group-hover:bg-meditation-focus-100/20'
+                      }`}>
+                        {pattern.icon}
                       </div>
-                      <div className="text-xs text-gray-600 truncate">
-                        {pattern.description}
+                      <div className="flex-1 min-w-0">
+                        <div className="font-semibold text-gray-800 text-base mb-1">
+                          {pattern.name}
+                        </div>
+                        <div className="text-sm text-gray-600 mb-2">
+                          {pattern.description}
+                        </div>
+                        <div className="flex items-center space-x-2 text-xs text-meditation-focus-600">
+                          {Object.entries(pattern.phases)
+                            .filter(([, duration]) => duration > 0)
+                            .map(([phase, duration], idx) => (
+                              <React.Fragment key={phase}>
+                                <span className="px-2 py-1 bg-meditation-focus-100/30 rounded-full">
+                                  {duration}s {phase}
+                                </span>
+                                {idx < Object.entries(pattern.phases).filter(([, d]) => d > 0).length - 1 && (
+                                  <span className="text-gray-400">→</span>
+                                )}
+                              </React.Fragment>
+                            ))}
+                        </div>
                       </div>
-                      <div className="text-xs text-purple-600 mt-1">
-                        {Object.entries(pattern.phases)
-                          .filter(([, duration]) => duration > 0)
-                          .map(([phase, duration]) => `${duration}s`)
-                          .join(' - ')}
-                      </div>
-                    </div>
-                    {selectedPattern === pattern.id && (
-                      <svg 
-                        width="16" 
-                        height="16" 
-                        viewBox="0 0 24 24" 
-                        fill="none" 
-                        stroke="rgba(147, 51, 234, 0.8)" 
-                        strokeWidth="2"
-                        className="flex-shrink-0"
-                      >
-                        <path d="M20 6L9 17l-5-5"/>
-                      </svg>
-                    )}
-                  </button>
-                ))}
-              </div>
-            </Card>
+                      {selectedPattern === pattern.id && (
+                        <motion.div
+                          initial={{ scale: 0 }}
+                          animate={{ scale: 1 }}
+                          className="w-6 h-6 bg-meditation-focus-500 rounded-full flex items-center justify-center flex-shrink-0"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3">
+                            <path d="M20 6L9 17l-5-5"/>
+                          </svg>
+                        </motion.div>
+                      )}
+                    </motion.button>
+                  ))}
+                </div>
+              </Card>
+            </motion.div>
           )}
+        </AnimatePresence>
 
-          {/* Breathing Guide */}
-          <div className="flex justify-center">
-            <BreathingGuide
-              pattern={selectedPattern}
-              isActive={isActive}
-              size="large"
-              onBreathComplete={handleBreathComplete}
-              culturalStyle={culturalStyle}
-            />
+        {/* Enhanced Control Buttons */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="space-y-4"
+        >
+          <div className="flex space-x-4">
+            <Button
+              variant="breathing"
+              size="lg"
+              className="flex-1"
+              onClick={() => setIsActive(!isActive)}
+            >
+              <div className="flex items-center justify-center space-x-3">
+                {isActive ? (
+                  <>
+                    <Pause className="w-5 h-5" />
+                    <span>Pause Session</span>
+                  </>
+                ) : (
+                  <>
+                    <Play className="w-5 h-5" />
+                    <span>Start Breathing</span>
+                  </>
+                )}
+              </div>
+            </Button>
+            
+            <Button
+              variant="ghost"
+              size="lg"
+              className="px-4 border border-meditation-focus-200/50"
+              onClick={() => {
+                setIsActive(false);
+                setSessionTime(0);
+                setBreathCount(0);
+              }}
+              disabled={!isActive && sessionTime === 0 && breathCount === 0}
+            >
+              <RotateCcw className="w-5 h-5" />
+            </Button>
           </div>
 
-          {/* Instructions */}
-          <Card padding="small" className="text-center">
-            <div className="space-y-2">
-              <h4 className="font-medium text-gray-800 text-sm">
-                Panduan Pernapasan
-              </h4>
-              <div className="text-xs text-gray-600 space-y-1">
-                {currentPattern.phases.inhale > 0 && (
-                  <div>Hirup: {currentPattern.phases.inhale} detik</div>
-                )}
-                {currentPattern.phases.hold > 0 && (
-                  <div>Tahan: {currentPattern.phases.hold} detik</div>
-                )}
-                {currentPattern.phases.exhale > 0 && (
-                  <div>Buang: {currentPattern.phases.exhale} detik</div>
-                )}
-                {currentPattern.phases.pause > 0 && (
-                  <div>Jeda: {currentPattern.phases.pause} detik</div>
-                )}
-              </div>
-            </div>
-          </Card>
-
-          {/* Control Buttons */}
-          <div className="space-y-3">
-            <div className="flex space-x-3">
-              <Button
-                onClick={() => setIsActive(!isActive)}
-                className="flex-1"
-                style={isActive ? {
-                  background: 'linear-gradient(135deg, rgba(239, 68, 68, 1) 0%, rgba(220, 38, 127, 1) 100%)'
-                } : { 
-                  background: 'linear-gradient(135deg, rgba(147, 51, 234, 1) 0%, rgba(219, 39, 119, 1) 100%)' 
-                }}
-              >
-                <div className="flex items-center justify-center space-x-2">
-                  {isActive ? (
-                    <>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
-                      </svg>
-                      <span>Jeda</span>
-                    </>
-                  ) : (
-                    <>
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M8 5v14l11-7z"/>
-                      </svg>
-                      <span>Mulai</span>
-                    </>
-                  )}
-                </div>
-              </Button>
-              
-              {isActive && (
-                <Button
-                  onClick={() => {
-                    setIsActive(false);
-                    setSessionTime(0);
-                    setBreathCount(0);
-                  }}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  <div className="flex items-center justify-center space-x-2">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                      <rect x="6" y="6" width="12" height="12"/>
-                    </svg>
-                    <span>Reset</span>
-                  </div>
-                </Button>
-              )}
-            </div>
+          <div className="flex space-x-4">
+            <Button
+              variant="calm"
+              size="lg"
+              className="flex-1"
+              onClick={() => setShow3D(!show3D)}
+            >
+              {show3D ? 'Hide 3D' : 'Show 3D'} Visualization
+            </Button>
             
             {onClose && (
               <Button
+                variant="ghost"
+                size="lg" 
+                className="flex-1 border border-gray-200/50"
                 onClick={onClose}
-                variant="outline"
-                className="w-full"
               >
-                Selesai
+                Complete Session
               </Button>
             )}
           </div>
+        </motion.div>
 
-          {/* Cultural Wisdom */}
-          {culturalStyle === 'traditional' && (
-            <Card padding="small" className="text-center border-purple-100">
-              <div className="space-y-2">
-                <div className="text-lg">🙏</div>
-                <blockquote className="text-gray-600 font-body text-xs italic leading-relaxed">
-                  "Prana adalah kehidupan itu sendiri. Dengan menguasai napas, kita menguasai pikiran dan jiwa."
+        {/* Enhanced Wisdom Section */}
+        {culturalStyle === 'traditional' && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6 }}
+            className="mt-6"
+          >
+            <Card variant="calm" className="text-center border border-meditation-zen-200/50">
+              <div className="space-y-4 p-4">
+                <motion.div 
+                  animate={{ rotate: [0, 10, -10, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+                  className="text-2xl"
+                >
+                  🙏
+                </motion.div>
+                <blockquote className="text-meditation-zen-700 meditation-body text-sm italic leading-relaxed">
+                  "Breath is the bridge which connects life to consciousness, 
+                  which unites your body to your thoughts."
                   <br />
-                  <cite className="text-purple-600">- Kebijaksanaan Yoga</cite>
+                  <cite className="text-meditation-zen-600 not-italic text-xs">
+                    — Thich Nhat Hanh
+                  </cite>
                 </blockquote>
               </div>
             </Card>
-          )}
-        </div>
+          </motion.div>
+        )}
       </div>
-    </div>
+    </MeditationModal>
   );
 };
 

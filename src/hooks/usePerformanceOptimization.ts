@@ -82,7 +82,7 @@ export function useMemoryLeakDetection(componentName: string, dependencies: any[
       });
       listenersRef.current.clear();
     };
-  }, dependencies);
+  }, []);
 
   // Report potential leaks
   useEffect(() => {
@@ -140,7 +140,7 @@ export function useRenderOptimization<T extends Record<string, any>>(
   }, [deps, skipMemorization, debugName]);
 
   // Memoized values to prevent unnecessary re-renders
-  const memoizedDeps = useMemo(() => deps, Object.values(deps));
+  const memoizedDeps = useMemo(() => deps, [deps]);
 
   const forceRender = useCallback(() => {
     setForceUpdate(prev => prev + 1);

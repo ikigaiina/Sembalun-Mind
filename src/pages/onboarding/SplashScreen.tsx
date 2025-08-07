@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { CairnIcon } from '../../components/ui/CairnIcon';
 
 interface SplashScreenProps {
@@ -38,118 +39,190 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
   }, [onComplete, duration]);
 
   return (
-    <div 
-      className={`
-        fixed inset-0 z-50 flex flex-col items-center justify-center
-        transition-opacity duration-500 ease-out
-        ${isVisible ? 'opacity-100' : 'opacity-0'}
-      `}
-      style={{
-        background: `linear-gradient(135deg, 
-          var(--color-background) 0%, 
-          rgba(169, 193, 217, 0.3) 50%, 
-          var(--color-background) 100%)`
-      }}
-    >
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div 
-          className="absolute top-20 left-10 w-32 h-32 rounded-full opacity-10 animate-pulse"
-          style={{ backgroundColor: 'var(--color-primary)' }}
-        />
-        <div 
-          className="absolute bottom-32 right-16 w-24 h-24 rounded-full opacity-10 animate-pulse"
-          style={{ 
-            backgroundColor: 'var(--color-accent)',
-            animationDelay: '1s'
-          }}
-        />
-      </div>
-
-      {/* Main content */}
-      <div className="relative z-10 flex flex-col items-center text-center px-8 max-w-sm">
-        
-        {/* Logo and icon */}
-        <div className="mb-8 transform scale-110 animate-fade-in">
-          <div className="relative">
-            <CairnIcon 
-              progress={cairnProgress} 
-              size={80} 
-              className="text-primary mx-auto mb-4"
-            />
-            
-            {/* Glow effect */}
-            <div 
-              className={`
-                absolute inset-0 rounded-full transition-opacity duration-300
-                ${cairnProgress >= 100 ? 'opacity-30' : 'opacity-0'}
-              `}
-              style={{
-                background: `radial-gradient(circle, var(--color-primary) 0%, transparent 70%)`,
-                filter: 'blur(20px)',
-                transform: 'scale(1.5)'
-              }}
-            />
-          </div>
+    <AnimatePresence>
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isVisible ? 1 : 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-primary-50 via-accent-50 to-meditation-zen-50"
+      >
+        {/* Enhanced Animated background elements */}
+        <div className="absolute inset-0 overflow-hidden">
+          <motion.div 
+            animate={{
+              scale: [1, 1.3, 1],
+              opacity: [0.05, 0.15, 0.05],
+              rotate: [0, 180, 360]
+            }}
+            transition={{
+              duration: 8,
+              repeat: Infinity,
+              ease: "easeInOut"
+            }}
+            className="absolute top-20 left-10 w-32 h-32 rounded-full bg-primary-400"
+          />
+          <motion.div 
+            animate={{
+              scale: [1, 1.2, 1],
+              opacity: [0.03, 0.12, 0.03],
+              rotate: [360, 180, 0]
+            }}
+            transition={{
+              duration: 10,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 1
+            }}
+            className="absolute bottom-32 right-16 w-24 h-24 rounded-full bg-accent-400"
+          />
+          <motion.div 
+            animate={{
+              scale: [1, 1.1, 1],
+              opacity: [0.02, 0.08, 0.02],
+              x: [0, 50, 0],
+              y: [0, -30, 0]
+            }}
+            transition={{
+              duration: 12,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 2
+            }}
+            className="absolute top-1/2 right-1/4 w-20 h-20 rounded-full bg-meditation-zen-400"
+          />
         </div>
 
-        {/* App name */}
-        <h1 
-          className="text-4xl font-heading mb-4 animate-fade-in"
-          style={{ 
-            color: 'var(--color-primary)',
-            animationDelay: '0.5s',
-            animationFillMode: 'both'
-          }}
-        >
-          Sembalun
-        </h1>
-
-        {/* Tagline */}
-        <p 
-          className="text-lg text-gray-600 font-body leading-relaxed animate-fade-in"
-          style={{
-            animationDelay: '1s',
-            animationFillMode: 'both'
-          }}
-        >
-          Perjalanan ke Dalam Diri
-        </p>
-
-        {/* Subtitle */}
-        <p 
-          className="text-sm text-gray-500 font-body mt-2 opacity-80 animate-fade-in"
-          style={{
-            animationDelay: '1.5s',
-            animationFillMode: 'both'
-          }}
-        >
-          Meditasi yang tenang untuk jiwa Indonesia
-        </p>
-
-        {/* Loading indicator */}
-        <div 
-          className="mt-12 animate-fade-in"
-          style={{
-            animationDelay: '2s',
-            animationFillMode: 'both'
-          }}
-        >
-          <div className="flex space-x-1">
-            {[0, 1, 2].map((i) => (
-              <div
-                key={i}
-                className="w-2 h-2 rounded-full animate-pulse"
+        {/* Main content with enhanced animations */}
+        <div className="relative z-10 flex flex-col items-center text-center px-8 max-w-sm">
+          
+          {/* Logo and icon with sophisticated animation */}
+          <motion.div 
+            className="mb-8"
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
+          >
+            <div className="relative">
+              <motion.div
+                animate={{
+                  scale: cairnProgress >= 100 ? [1, 1.05, 1] : 1
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              >
+                <CairnIcon 
+                  progress={cairnProgress} 
+                  size={100} 
+                  className="text-primary-600 mx-auto mb-4"
+                />
+              </motion.div>
+              
+              {/* Enhanced Glow effect */}
+              <motion.div 
+                animate={{
+                  opacity: cairnProgress >= 100 ? [0.2, 0.4, 0.2] : 0,
+                  scale: cairnProgress >= 100 ? [1.5, 2, 1.5] : 1.5
+                }}
+                transition={{
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+                className="absolute inset-0 rounded-full"
                 style={{
-                  backgroundColor: 'var(--color-primary)',
-                  animationDelay: `${i * 0.2}s`,
-                  opacity: 0.6
+                  background: `radial-gradient(circle, rgba(106, 143, 111, 0.4) 0%, transparent 70%)`,
+                  filter: 'blur(25px)',
+                  transform: 'scale(1.5)'
                 }}
               />
-            ))}
-          </div>
+            </div>
+          </motion.div>
+
+          {/* App name with typewriter effect */}
+          <motion.h1 
+            className="text-4xl sm:text-5xl font-heading mb-4 text-primary-700"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.5 }}
+          >
+            Sembalun
+          </motion.h1>
+
+          {/* Tagline with slide up */}
+          <motion.p 
+            className="text-lg text-gray-700 font-body leading-relaxed mb-2"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.8 }}
+          >
+            Perjalanan ke Dalam Diri
+          </motion.p>
+
+          {/* Subtitle with fade in */}
+          <motion.p 
+            className="text-sm text-gray-500 font-body opacity-80 mb-8"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 1.1 }}
+          >
+            Meditasi yang tenang untuk jiwa Indonesia
+          </motion.p>
+
+          {/* Enhanced loading indicator */}
+          <motion.div 
+            className="flex items-center space-x-3"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 1.5 }}
+          >
+            <div className="flex space-x-2">
+              {[0, 1, 2].map((i) => (
+                <motion.div
+                  key={i}
+                  className="w-3 h-3 rounded-full bg-primary-400"
+                  animate={{
+                    scale: [0.8, 1.2, 0.8],
+                    opacity: [0.4, 1, 0.4]
+                  }}
+                  transition={{
+                    duration: 1.5,
+                    repeat: Infinity,
+                    delay: i * 0.2,
+                    ease: "easeInOut"
+                  }}
+                />
+              ))}
+            </div>
+            <motion.span 
+              className="text-sm text-gray-500 font-medium ml-3"
+              animate={{ opacity: [0.5, 1, 0.5] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              Mempersiapkan...
+            </motion.span>
+          </motion.div>
+
+          {/* Progress indicator */}
+          <motion.div 
+            className="mt-6 w-full max-w-xs"
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.8, delay: 1.8 }}
+          >
+            <div className="w-full h-1 bg-gray-200 rounded-full overflow-hidden">
+              <motion.div 
+                className="h-full bg-gradient-to-r from-primary-400 to-accent-400 rounded-full"
+                initial={{ width: "0%" }}
+                animate={{ width: `${cairnProgress}%` }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              />
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      </motion.div>
+    </AnimatePresence>
   );
 };

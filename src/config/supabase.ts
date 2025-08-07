@@ -59,6 +59,21 @@ const supabaseConfig = {
 let supabaseClient: ReturnType<typeof createClient> | null = null
 let supabaseInitialized = false
 
+// Prevent multiple client instances in the same context
+const SUPABASE_CLIENT_KEY = '__supabase_client_instance__'
+const getGlobalSupabase = () => {
+  if (typeof window !== 'undefined') {
+    return (window as any)[SUPABASE_CLIENT_KEY]
+  }
+  return null
+}
+
+const setGlobalSupabase = (client: any) => {
+  if (typeof window !== 'undefined') {
+    (window as any)[SUPABASE_CLIENT_KEY] = client
+  }
+}
+
 const initializeSupabase = () => {
   // Skip initialization during SSR or build
   if (isSSR || isBuildTime || !isConfigValid) {
@@ -66,8 +81,17 @@ const initializeSupabase = () => {
     return null
   }
   
+  // Check for existing global instance first
+  const existingClient = getGlobalSupabase()
+  if (existingClient) {
+    console.log('✅ Using existing Supabase client instance')
+    supabaseClient = existingClient
+    supabaseInitialized = true
+    return existingClient
+  }
+  
   // Return existing client if already initialized
-  if (supabaseInitialized) {
+  if (supabaseInitialized && supabaseClient) {
     return supabaseClient
   }
   
@@ -77,6 +101,7 @@ const initializeSupabase = () => {
     }
     
     supabaseClient = createClient(supabaseUrl, supabaseAnonKey, supabaseConfig)
+    setGlobalSupabase(supabaseClient) // Store in global context
     supabaseInitialized = true
     console.log('✅ Supabase initialized successfully')
     return supabaseClient
@@ -90,12 +115,65 @@ const initializeSupabase = () => {
   }
 }
 
-// Initialize the client once
-const supabase = initializeSupabase()
+// Initialize the client once - use lazy initialization to prevent multiple instances
+let _supabase: ReturnType<typeof createClient> | null = null
+const getSupabase = () => {
+  if (!_supabase) {
+    _supabase = initializeSupabase()
+  }
+  return _supabase
+}
+
+const supabase = getSupabase()
 
 // Export the client and utilities
 export { supabase }
 export default supabase
+
+// Health check function
+export const checkSupabaseConnection = async (): Promise<boolean> => {
+  try {
+    if (!supabase) {
+      console.error('Supabase client not initialized')
+      return false
+    }
+
+    // Test basic connection with a simple query
+    const { error } = await supabase
+      .from('courses')
+      .select('id')
+      .limit(1)
+    
+    if (error) {
+      console.error('Supabase connection check failed:', error)
+      return false
+    }
+    
+    return true
+  } catch (error) {
+    console.error('Supabase connection check error:', error)
+    return false
+  }
+}
+
+// Error handler for Supabase operations
+export const handleSupabaseError = (error: any) => {
+  console.error('Supabase Error:', error)
+  
+  if (error?.code === 'PGRST301') {
+    throw new Error('Database connection failed. Please check your network connection.')
+  }
+  
+  if (error?.code === '42501') {
+    throw new Error('Access denied. Please check your authentication.')
+  }
+  
+  if (error?.message) {
+    throw new Error(error.message)
+  }
+  
+  throw new Error('An unexpected database error occurred.')
+}
 
 // Auth helpers
 export const getSupabaseAuth = () => supabase?.auth

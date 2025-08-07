@@ -1,532 +1,365 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { Header } from '../components/ui/Header';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ArrowLeft, Settings, Volume2, VolumeX, Heart, Timer, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import BreathingVisualization3D from '../components/meditation/BreathingVisualization3D';
+import VoiceUIIndicator from '../components/ui/VoiceUIIndicator';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import { BreathingGuide } from '../components/ui/BreathingGuide';
-import { breathingPatterns, type BreathingPattern } from '../utils/breathingPatterns';
-import { scrollToTop } from '../hooks/useScrollToTop';
 
-type SessionState = 'setup' | 'active' | 'paused' | 'completed';
-
-interface SessionStats {
+// 2025 Enhanced Breathing Session with 3D Visualization
+interface BreathingSessionData {
+  duration: number;
   completedCycles: number;
-  totalMinutes: number;
-  pattern: BreathingPattern;
+  patternUsed: string;
+  averageHeartRate?: number;
+  stressLevel: 'low' | 'medium' | 'high';
 }
-
-const durationOptions = [
-  { value: 2, label: '2 menit', description: 'Jeda singkat' },
-  { value: 5, label: '5 menit', description: 'Standar' },
-  { value: 10, label: '10 menit', description: 'Mendalam' },
-  { value: 0, label: 'Terus menerus', description: 'Tanpa batas waktu' }
-];
 
 export const BreathingSession: React.FC = () => {
   const navigate = useNavigate();
-  const location = useLocation();
-  const [sessionState, setSessionState] = useState<SessionState>('setup');
-  const [selectedPattern, setSelectedPattern] = useState<BreathingPattern>('box');
-  const [selectedDuration, setSelectedDuration] = useState(5); // in minutes, 0 = continuous
-  const [sessionTime, setSessionTime] = useState(0); // elapsed seconds
-  const [isActive, setIsActive] = useState(false);
-  const [stats, setStats] = useState<SessionStats>({
-    completedCycles: 0,
-    totalMinutes: 0,
-    pattern: 'box'
-  });
+  const [sessionStarted, setSessionStarted] = useState(false);
+  const [sessionComplete, setSessionComplete] = useState(false);
+  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
+  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  const [sessionData, setSessionData] = useState<BreathingSessionData | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
 
-  const handleSessionComplete = useCallback(() => {
-    setSessionState('completed');
-    setIsActive(false);
-    setStats({
-      completedCycles: Math.floor(sessionTime / 20), // Rough estimate
-      totalMinutes: Math.floor(sessionTime / 60),
-      pattern: selectedPattern
-    });
-    scrollToTop();
-  }, [sessionTime, selectedPattern]);
-
-  // Session timer
-  useEffect(() => {
-    let interval: ReturnType<typeof setInterval> | null = null;
-    
-    if (isActive && sessionState === 'active') {
-      interval = setInterval(() => {
-        setSessionTime(prev => {
-          const newTime = prev + 1;
-          
-          // Check if duration is reached (if not continuous)
-          if (selectedDuration > 0 && newTime >= selectedDuration * 60) {
-            handleSessionComplete();
-            return newTime;
-          }
-          
-          return newTime;
-        });
-      }, 1000);
-    } else {
-      if (interval) clearInterval(interval);
-    }
-
-    return () => {
-      if (interval) clearInterval(interval);
+  // Session completion handler
+  const handleSessionComplete = () => {
+    const completedSession: BreathingSessionData = {
+      duration: 5, // minutes
+      completedCycles: 12,
+      patternUsed: 'Coherent Breathing',
+      averageHeartRate: 72,
+      stressLevel: 'low',
     };
-  }, [isActive, sessionState, selectedDuration, handleSessionComplete]);
+    
+    setSessionData(completedSession);
+    setSessionComplete(true);
+    setSessionStarted(false);
+  };
 
-  // Handle session data from navigation state
-  useEffect(() => {
-    const sessionData = location.state as {
-      sessionId?: string;
-      sessionTitle?: string;
-      sessionDuration?: string;
-      sessionDescription?: string;
-    } | null;
-
-    if (sessionData?.sessionDuration) {
-      // Parse duration from string (e.g., "5 menit" -> 5)
-      const durationMatch = sessionData.sessionDuration.match(/(\d+)/);
-      if (durationMatch) {
-        const duration = parseInt(durationMatch[1]);
-        setSelectedDuration(duration);
-      }
+  // Voice interaction handlers
+  const handleVoiceToggle = () => {
+    setIsVoiceEnabled(!isVoiceEnabled);
+    if (!isVoiceEnabled) {
+      setIsVoiceListening(true);
+    } else {
+      setIsVoiceListening(false);
     }
-  }, [location.state]);
-
-  const handleStartSession = () => {
-    setSessionState('active');
-    setIsActive(true);
-    setSessionTime(0);
-    scrollToTop();
   };
 
-  const handlePauseSession = () => {
-    setSessionState('paused');
-    setIsActive(false);
-    scrollToTop();
+  const handleBackPress = () => {
+    if (sessionStarted) {
+      // Show confirmation dialog in real implementation
+      setSessionStarted(false);
+    } else {
+      navigate('/');
+    }
   };
 
-  const handleResumeSession = () => {
-    setSessionState('active');
-    setIsActive(true);
-    scrollToTop();
-  };
+  // Auto-hide UI during session
+  const [showUI, setShowUI] = useState(true);
+  useEffect(() => {
+    if (sessionStarted) {
+      const timer = setTimeout(() => setShowUI(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [sessionStarted]);
 
-  const handleStopSession = () => {
-    setSessionState('setup');
-    setIsActive(false);
-    setSessionTime(0);
-    scrollToTop();
-  };
+  return (
+    <div className="min-h-screen relative overflow-hidden">
+      {/* Background with breathing animation */}
+      <motion.div
+        className="absolute inset-0 bg-gradient-to-br from-meditation-focus-50 via-meditation-zen-50 to-meditation-calm-50"
+        animate={sessionStarted ? {
+          background: [
+            'linear-gradient(135deg, #eff8ff 0%, #f0f9f2 50%, #f7f8fa 100%)',
+            'linear-gradient(135deg, #def0ff 0%, #dcf1e1 50%, #eceef2 100%)',
+            'linear-gradient(135deg, #eff8ff 0%, #f0f9f2 50%, #f7f8fa 100%)',
+          ]
+        } : {}}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      />
 
-  const handleNewSession = () => {
-    setSessionState('setup');
-    setIsActive(false);
-    setSessionTime(0);
-    scrollToTop();
-  };
+      {/* Header - Hidden during active session */}
+      <AnimatePresence>
+        {(!sessionStarted || showUI) && (
+          <motion.header
+            initial={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="relative z-10 p-6 flex items-center justify-between"
+          >
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={handleBackPress}
+              className="backdrop-blur-md"
+            >
+              <ArrowLeft className="w-6 h-6" />
+            </Button>
 
-  // Format time display
-  const formatTime = (seconds: number): string => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-  };
+            <h1 className="text-fluid-xl font-heading font-semibold">
+              Breathing Session
+            </h1>
 
-  // Get remaining time for timed sessions
-  const getRemainingTime = (): string => {
-    if (selectedDuration === 0) return 'Terus menerus';
-    const remaining = (selectedDuration * 60) - sessionTime;
-    return remaining > 0 ? formatTime(remaining) : '00:00';
-  };
-
-  // Session completion screen
-  if (sessionState === 'completed') {
-    return (
-      <div className="min-h-screen relative">
-        
-        <div className="relative z-10">
-        <Header 
-          title="Sesi Selesai" 
-          showBack={true} 
-          onBack={() => navigate('/')} 
-        />
-        
-        <div className="px-4 py-6 space-y-6 max-w-md mx-auto">
-          <Card className="text-center">
-            <div className="space-y-6">
+            <div className="flex space-x-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowSettings(!showSettings)}
+                className="backdrop-blur-md"
+              >
+                <Settings className="w-6 h-6" />
+              </Button>
               
-              {/* Success animation */}
-              <div className="relative">
-                <div 
-                  className="w-20 h-20 mx-auto rounded-full flex items-center justify-center animate-pulse"
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(147, 51, 234, 0.2) 0%, rgba(219, 39, 119, 0.2) 100%)'
-                  }}
-                >
-                  <span className="text-3xl">🌸</span>
-                </div>
-                
-                {/* Celebration rings */}
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <div 
-                    className="w-32 h-32 rounded-full border-2 opacity-30 animate-ping"
-                    style={{ 
-                      borderColor: 'rgba(147, 51, 234, 0.5)',
-                      animationDuration: '2s'
-                    }}
-                  />
-                </div>
-              </div>
-
-              {/* Completion message */}
-              <div>
-                <h1 className="text-2xl font-heading text-gray-800 mb-2">
-                  Napas Teratur! 🌟
-                </h1>
-                <p className="text-gray-600 font-body leading-relaxed">
-                  Kamu telah menyelesaikan sesi pernapasan dengan teknik {breathingPatterns.find(p => p.id === stats.pattern)?.name}. 
-                  Rasakan ketenangan yang mengalir dalam dirimu.
-                </p>
-              </div>
-
-              {/* Session stats */}
-              <div className="grid grid-cols-2 gap-4 py-6 border-t border-b border-purple-100">
-                <div className="text-center">
-                  <div className="text-2xl font-heading text-purple-700 mb-1">
-                    {stats.totalMinutes}
-                  </div>
-                  <div className="text-xs text-gray-500 font-body">
-                    Menit bernapas
-                  </div>
-                </div>
-                <div className="text-center">
-                  <div className="text-2xl font-heading text-purple-700 mb-1">
-                    {stats.completedCycles}
-                  </div>
-                  <div className="text-xs text-gray-500 font-body">
-                    Siklus selesai
-                  </div>
-                </div>
-              </div>
-
-              {/* Action buttons */}
-              <div className="space-y-3">
-                <Button
-                  onClick={handleNewSession}
-                  className="w-full"
-                  style={{ 
-                    background: 'linear-gradient(135deg, rgba(147, 51, 234, 1) 0%, rgba(219, 39, 119, 1) 100%)' 
-                  }}
-                >
-                  Sesi Baru
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  onClick={() => navigate('/')}
-                  className="w-full"
-                  style={{ borderColor: 'rgba(147, 51, 234, 0.3)' }}
-                >
-                  Kembali ke Dashboard
-                </Button>
-              </div>
-
-              {/* Inspirational quote */}
-              <div className="pt-4 border-t border-purple-100">
-                <div className="space-y-2">
-                  <div className="text-lg">🌸</div>
-                  <blockquote className="text-gray-600 font-body text-xs italic leading-relaxed">
-                    "Napas adalah jembatan yang menghubungkan tubuh dan pikiran, mengantar kita ke kedamaian."
-                  </blockquote>
-                </div>
-              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={handleVoiceToggle}
+                className="backdrop-blur-md"
+              >
+                {isVoiceEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
+              </Button>
             </div>
-          </Card>
-        </div>
-        </div>
-      </div>
-    );
-  }
+          </motion.header>
+        )}
+      </AnimatePresence>
 
-  // Setup screen
-  if (sessionState === 'setup') {
-    return (
-      <div className="min-h-screen relative">
-        
-        <div className="relative z-10">
-        <Header 
-          title="Latihan Pernapasan" 
-          showBack={true} 
-          onBack={() => navigate('/')} 
-        />
-        
-        <div className="px-4 py-6 space-y-6 max-w-md mx-auto">
-          
-          {/* Pattern selection */}
-          <Card>
-            <h3 className="font-heading text-gray-800 mb-4">Pilih Teknik Pernapasan</h3>
-            <div className="space-y-3">
-              {breathingPatterns.map((pattern) => (
-                <button
-                  key={pattern.id}
-                  onClick={() => setSelectedPattern(pattern.id)}
-                  className={`
-                    w-full flex items-center space-x-4 p-4 rounded-xl transition-all duration-200
-                    hover:bg-gray-50 active:scale-98
-                    ${selectedPattern === pattern.id 
-                      ? 'border-2 shadow-sm' 
-                      : 'bg-white border-2 border-transparent'
-                    }
-                  `}
-                  style={{
-                    borderColor: selectedPattern === pattern.id ? 'rgba(147, 51, 234, 0.4)' : 'transparent',
-                    backgroundColor: selectedPattern === pattern.id ? 'rgba(147, 51, 234, 0.05)' : 'white'
-                  }}
+      {/* Voice UI Indicator */}
+      <AnimatePresence>
+        {isVoiceEnabled && (!sessionStarted || showUI) && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.9 }}
+            className="absolute top-24 left-1/2 transform -translate-x-1/2 z-10"
+          >
+            <VoiceUIIndicator
+              isListening={isVoiceListening}
+              isGuiding={sessionStarted}
+              volume={0.4}
+              onToggleListening={() => setIsVoiceListening(!isVoiceListening)}
+              onToggleGuiding={handleVoiceToggle}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Main Content */}
+      <div className="relative z-10 flex-1 flex items-center justify-center min-h-screen">
+        <AnimatePresence mode="wait">
+          {!sessionComplete ? (
+            <motion.div
+              key="breathing-session"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="w-full max-w-4xl mx-auto px-6"
+            >
+              {/* Pre-session Instructions */}
+              {!sessionStarted && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-center mb-8"
                 >
-                  <div 
-                    className="w-12 h-12 rounded-full flex items-center justify-center text-xl"
-                    style={{ 
-                      backgroundColor: selectedPattern === pattern.id 
-                        ? 'rgba(147, 51, 234, 0.15)' 
-                        : 'rgba(147, 51, 234, 0.08)'
+                  <Card variant="meditation" size="lg" className="max-w-2xl mx-auto mb-8">
+                    <h2 className="text-fluid-2xl font-heading font-bold mb-4">
+                      Prepare for Your Breathing Session
+                    </h2>
+                    <div className="space-y-4 meditation-body text-left">
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 rounded-full bg-meditation-zen-400 flex items-center justify-center text-white text-sm font-semibold mt-1">1</div>
+                        <p>Find a comfortable seated position with your back straight</p>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 rounded-full bg-meditation-zen-400 flex items-center justify-center text-white text-sm font-semibold mt-1">2</div>
+                        <p>Close your eyes or soften your gaze on the breathing visualization</p>
+                      </div>
+                      <div className="flex items-start space-x-3">
+                        <div className="w-6 h-6 rounded-full bg-meditation-zen-400 flex items-center justify-center text-white text-sm font-semibold mt-1">3</div>
+                        <p>Follow the visual guide and breathe naturally with the rhythm</p>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <Button
+                    variant="meditation"
+                    size="lg"
+                    onClick={() => setSessionStarted(true)}
+                    className="px-12"
+                  >
+                    Begin Breathing Session
+                  </Button>
+                </motion.div>
+              )}
+
+              {/* 3D Breathing Visualization */}
+              <BreathingVisualization3D
+                autoStart={sessionStarted}
+                onSessionComplete={handleSessionComplete}
+              />
+
+              {/* Session Controls - Shown briefly during session */}
+              {sessionStarted && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: showUI ? 1 : 0, y: showUI ? 0 : 20 }}
+                  className="mt-8 text-center"
+                  onMouseEnter={() => setShowUI(true)}
+                  onMouseLeave={() => setTimeout(() => setShowUI(false), 2000)}
+                >
+                  <div className="flex justify-center space-x-4">
+                    <Button
+                      variant="calm"
+                      onClick={() => setSessionStarted(false)}
+                    >
+                      Pause Session
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      onClick={handleBackPress}
+                    >
+                      End Session
+                    </Button>
+                  </div>
+                </motion.div>
+              )}
+            </motion.div>
+          ) : (
+            // Session Complete Screen
+            <motion.div
+              key="session-complete"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="w-full max-w-2xl mx-auto px-6 text-center"
+            >
+              <Card variant="meditation" size="lg" glow="meditation">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3, type: "spring" }}
+                  className="w-20 h-20 mx-auto mb-6 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center"
+                >
+                  <Heart className="w-10 h-10 text-white" />
+                </motion.div>
+
+                <h2 className="text-fluid-2xl font-heading font-bold mb-4">
+                  Session Complete! 🌱
+                </h2>
+
+                <p className="meditation-body text-lg mb-8 opacity-80">
+                  Well done! You've completed a {sessionData?.duration}-minute breathing session.
+                </p>
+
+                {/* Session Stats */}
+                <div className="grid grid-cols-2 gap-4 mb-8">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-meditation-zen-600">{sessionData?.completedCycles}</div>
+                    <div className="text-sm opacity-75">Breathing Cycles</div>
+                  </div>
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-meditation-focus-600">{sessionData?.duration} min</div>
+                    <div className="text-sm opacity-75">Duration</div>
+                  </div>
+                  {sessionData?.averageHeartRate && (
+                    <>
+                      <div className="text-center">
+                        <div className="text-2xl font-bold text-red-500">{sessionData.averageHeartRate} bpm</div>
+                        <div className="text-sm opacity-75">Avg Heart Rate</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="flex items-center justify-center space-x-1">
+                          <TrendingUp className="w-5 h-5 text-green-500" />
+                          <span className="text-2xl font-bold text-green-500 capitalize">{sessionData.stressLevel}</span>
+                        </div>
+                        <div className="text-sm opacity-75">Stress Level</div>
+                      </div>
+                    </>
+                  )}
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button
+                    variant="meditation"
+                    onClick={() => {
+                      setSessionComplete(false);
+                      setSessionData(null);
+                      setSessionStarted(true);
                     }}
                   >
-                    {pattern.icon}
-                  </div>
-                  
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-gray-800">
-                      {pattern.name}
-                    </div>
-                    <div className="text-gray-600 text-sm">
-                      {pattern.description}
-                    </div>
-                    <div className="text-xs text-purple-600 mt-1">
-                      {Object.entries(pattern.phases)
-                        .filter(([, duration]) => duration > 0)
-                        .map(([, duration]) => `${duration}s`)
-                        .join(' - ')}
-                    </div>
-                  </div>
-                  
-                  {selectedPattern === pattern.id && (
-                    <svg 
-                      width="20" 
-                      height="20" 
-                      viewBox="0 0 24 24" 
-                      fill="none" 
-                      stroke="rgba(147, 51, 234, 0.8)" 
-                      strokeWidth="2"
-                    >
-                      <path d="M20 6L9 17l-5-5"/>
-                    </svg>
-                  )}
-                </button>
-              ))}
-            </div>
-          </Card>
-
-          {/* Duration selection */}
-          <Card>
-            <h3 className="font-heading text-gray-800 mb-4">Durasi Sesi</h3>
-            <div className="grid grid-cols-2 gap-3">
-              {durationOptions.map((option) => (
-                <button
-                  key={option.value}
-                  onClick={() => setSelectedDuration(option.value)}
-                  className={`
-                    p-4 rounded-xl transition-all duration-200 text-center
-                    hover:bg-gray-50 active:scale-98
-                    ${selectedDuration === option.value 
-                      ? 'border-2 shadow-sm' 
-                      : 'bg-white border-2 border-transparent'
-                    }
-                  `}
-                  style={{
-                    borderColor: selectedDuration === option.value ? 'rgba(147, 51, 234, 0.4)' : 'transparent',
-                    backgroundColor: selectedDuration === option.value ? 'rgba(147, 51, 234, 0.05)' : 'white'
-                  }}
-                >
-                  <div className="font-medium text-gray-800">
-                    {option.label}
-                  </div>
-                  <div className="text-gray-600 text-xs mt-1">
-                    {option.description}
-                  </div>
-                </button>
-              ))}
-            </div>
-          </Card>
-
-          {/* Start button */}
-          <div className="pt-4">
-            <Button
-              onClick={handleStartSession}
-              size="large"
-              className="w-full py-4 text-lg font-medium"
-              style={{ 
-                background: 'linear-gradient(135deg, rgba(147, 51, 234, 1) 0%, rgba(219, 39, 119, 1) 100%)' 
-              }}
-            >
-              <div className="flex items-center justify-center space-x-3">
-                <span className="text-xl">🌸</span>
-                <span>Mulai Bernapas</span>
-              </div>
-            </Button>
-          </div>
-        </div>
-        </div>
-      </div>
-    );
-  }
-
-  // Active/Paused session screen
-  return (
-    <div className="min-h-screen relative">
-      
-      <div className="relative z-10">
-      <Header 
-        title={breathingPatterns.find(p => p.id === selectedPattern)?.name || 'Latihan Pernapasan'}
-        showBack={false}
-      />
-      
-      <div className="px-4 py-6 space-y-8 max-w-md mx-auto">
-
-        {/* Session timer */}
-        <Card padding="small" className="text-center">
-          <div className="flex items-center justify-center space-x-6">
-            <div>
-              <div className="text-sm text-gray-600 font-body mb-1">Waktu Berlalu</div>
-              <div className="text-lg font-heading text-purple-700">
-                {formatTime(sessionTime)}
-              </div>
-            </div>
-            
-            {selectedDuration > 0 && (
-              <>
-                <div className="w-px h-8 bg-purple-200" />
-                <div>
-                  <div className="text-sm text-gray-600 font-body mb-1">Sisa Waktu</div>
-                  <div className="text-lg font-heading text-purple-700">
-                    {getRemainingTime()}
-                  </div>
+                    <Timer className="w-4 h-4 mr-2" />
+                    Another Session
+                  </Button>
+                  <Button
+                    variant="calm"
+                    onClick={() => navigate('/')}
+                  >
+                    Return Home
+                  </Button>
                 </div>
-              </>
-            )}
-          </div>
-        </Card>
-
-        {/* Main breathing guide */}
-        <BreathingGuide
-          pattern={selectedPattern}
-          isActive={isActive}
-          onComplete={handleSessionComplete}
-        />
-
-        {/* Session guidance */}
-        {sessionState === 'paused' ? (
-          <Card className="text-center">
-            <div className="space-y-3">
-              <div 
-                className="w-12 h-12 mx-auto rounded-full flex items-center justify-center"
-                style={{ backgroundColor: 'rgba(147, 51, 234, 0.1)' }}
-              >
-                <span className="text-xl">⏸️</span>
-              </div>
-              
-              <div>
-                <h3 className="font-heading text-gray-800 mb-2">
-                  Sesi Dijeda
-                </h3>
-                <p className="text-gray-600 font-body text-sm leading-relaxed">
-                  Ambil waktu sejenak. Lanjutkan saat kamu siap untuk bernapas kembali.
-                </p>
-              </div>
-            </div>
-          </Card>
-        ) : (
-          <div className="text-center">
-            <p className="text-gray-600 font-body text-sm leading-relaxed opacity-70">
-              Ikuti ritme pernapasan dan rasakan ketenangan mengalir dalam dirimu
-            </p>
-          </div>
-        )}
-
-        {/* Control buttons */}
-        <div className="flex items-center justify-center space-x-4">
-          {sessionState === 'paused' ? (
-            <div className="flex items-center space-x-3">
-              <Button
-                onClick={handleResumeSession}
-                className="px-6 py-3 rounded-full"
-                style={{ 
-                  background: 'linear-gradient(135deg, rgba(147, 51, 234, 1) 0%, rgba(219, 39, 119, 1) 100%)' 
-                }}
-              >
-                <div className="flex items-center space-x-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M8 5v14l11-7z"/>
-                  </svg>
-                  <span>Lanjut</span>
-                </div>
-              </Button>
-              
-              <Button
-                onClick={handleStopSession}
-                variant="outline"
-                className="px-6 py-3 rounded-full"
-                style={{ borderColor: 'rgba(147, 51, 234, 0.3)' }}
-              >
-                <div className="flex items-center space-x-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <rect x="6" y="6" width="12" height="12"/>
-                  </svg>
-                  <span>Berhenti</span>
-                </div>
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center space-x-3">
-              <Button
-                onClick={handlePauseSession}
-                variant="outline"
-                className="px-6 py-3 rounded-full"
-                style={{ borderColor: 'rgba(147, 51, 234, 0.3)' }}
-              >
-                <div className="flex items-center space-x-2">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M6 4h4v16H6zM14 4h4v16h-4z"/>
-                  </svg>
-                  <span>Jeda</span>
-                </div>
-              </Button>
-              
-              {selectedDuration > 0 && (
-                <Button
-                  onClick={handleSessionComplete}
-                  variant="outline"
-                  className="px-6 py-3 rounded-full"
-                  style={{ borderColor: 'rgba(147, 51, 234, 0.3)' }}
-                >
-                  <div className="flex items-center space-x-2">
-                    <span className="text-sm">✓</span>
-                    <span>Selesai</span>
-                  </div>
-                </Button>
-              )}
-            </div>
+              </Card>
+            </motion.div>
           )}
-        </div>
+        </AnimatePresence>
+      </div>
 
-        {/* Breathing tip */}
-        <Card padding="small" className="text-center">
-          <p className="text-xs text-gray-500 font-body">
-            💡 Tip: Bernapaslah melalui hidung dan rasakan perut naik turun dengan lembut
-          </p>
-        </Card>
-      </div>
-      </div>
+      {/* Settings Panel */}
+      <AnimatePresence>
+        {showSettings && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4"
+            onClick={() => setShowSettings(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-full max-w-md"
+            >
+              <Card variant="heavy" size="lg">
+                <h3 className="text-xl font-bold mb-6">Session Settings</h3>
+                <div className="space-y-4">
+                  <div className="flex items-center justify-between">
+                    <span>Voice Guidance</span>
+                    <Button
+                      variant={isVoiceEnabled ? "meditation" : "ghost"}
+                      size="sm"
+                      onClick={handleVoiceToggle}
+                    >
+                      {isVoiceEnabled ? "On" : "Off"}
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Background Sounds</span>
+                    <Button variant="ghost" size="sm">
+                      Nature
+                    </Button>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span>Session Duration</span>
+                    <Button variant="ghost" size="sm">
+                      5 min
+                    </Button>
+                  </div>
+                </div>
+                <div className="mt-6 text-center">
+                  <Button variant="calm" onClick={() => setShowSettings(false)}>
+                    Done
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

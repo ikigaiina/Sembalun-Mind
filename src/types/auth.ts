@@ -209,6 +209,9 @@ export interface SupabaseAuthContextType {
   userProfile: UserProfile | null;
   loading: boolean;
   isGuest: boolean;
+  // Form errors and validation
+  formErrors: AuthFormErrors;
+  clearFormErrors: (fields?: string[]) => void;
   // Authentication methods
   signInWithGoogle: () => Promise<{ error: SupabaseAuthError | null }>;
   signInWithApple: () => Promise<{ error: SupabaseAuthError | null }>;

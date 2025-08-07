@@ -110,7 +110,7 @@ serve(async (req) => {
     // Analyze user patterns
     const userAnalysis = analyzeUserPatterns(sessions || [], userData, courseProgress || [])
 
-    let recommendations: any = {}
+    const recommendations: any = {}
 
     if (recommendation_type === 'courses' || recommendation_type === 'all') {
       const { data: allCourses, error: coursesError } = await supabaseClient
@@ -265,7 +265,7 @@ function recommendCourses(
 
   const scoredCourses = allCourses.map(course => {
     let score = 0
-    let reasons: string[] = []
+    const reasons: string[] = []
 
     // Skip completed courses
     if (completedCourseIds.has(course.id)) {
@@ -405,7 +405,7 @@ function recommendSessionTypes(
 
   const scoredTypes = sessionTypes.map(sessionType => {
     let score = 0
-    let reasons: string[] = []
+    const reasons: string[] = []
 
     // Base score from user's historical preference
     const userTypeCount = userAnalysis.type_distribution[sessionType.type] || 0

@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
-import { useSupabaseAuth } from '../contexts/SupabaseAuthContext';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const Login: React.FC = () => {
-  const { user, signInWithEmail, signInWithGoogle, continueAsGuest, loading } = useSupabaseAuth();
+  const { user, signInWithEmail, signInWithGoogle, continueAsGuest, loading } = useAuth();
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -44,8 +45,16 @@ const Login: React.FC = () => {
     }
   };
 
-  const handleGuestContinue = () => {
-    continueAsGuest();
+  const handleGuestContinue = async () => {
+    try {
+      console.log('🔄 Guest continue button clicked');
+      await continueAsGuest();
+      console.log('✅ Guest continue successful, navigating to dashboard');
+      navigate('/', { replace: true });
+    } catch (error) {
+      console.error('❌ Guest continue failed:', error);
+      setError('Gagal melanjutkan sebagai tamu. Silakan coba lagi.');
+    }
   };
 
   if (loading) {

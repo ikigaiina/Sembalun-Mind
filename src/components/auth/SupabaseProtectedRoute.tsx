@@ -1,5 +1,5 @@
 import React from 'react'
-import { useSupabaseAuth } from '../../contexts/SupabaseAuthContext'
+import { useAuth } from '../../hooks/useAuth'
 import { Navigate } from 'react-router-dom'
 
 interface ProtectedRouteProps {
@@ -11,7 +11,7 @@ export const SupabaseProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children, 
   requireAuth = true 
 }) => {
-  const { user, loading } = useSupabaseAuth()
+  const { user, loading, isGuest, userProfile } = useAuth()
 
   // Show loading spinner while checking authentication
   if (loading) {
@@ -26,8 +26,8 @@ export const SupabaseProtectedRoute: React.FC<ProtectedRouteProps> = ({
     )
   }
 
-  // If authentication is required but user is not logged in, show sign in page
-  if (requireAuth && !user) {
+  // If authentication is required but user is not logged in (and not a guest), show sign in page
+  if (requireAuth && !user && !isGuest && !userProfile) {
     return <Navigate to="/login" replace />
   }
 

@@ -77,7 +77,7 @@ interface UserAnalyticsDashboardProps {
 export const UserAnalyticsDashboard: React.FC<UserAnalyticsDashboardProps> = ({ className = '' }) => {
   const [metrics, setMetrics] = useState<UserMetrics | null>(null)
   const [segments, setSegments] = useState<UserSegment[]>([])
-  const [selectedFilter, setSelectedFilter] = useState<AnalyticsFilter>({
+  const [_selectedFilter] = useState<AnalyticsFilter>({ // Prefix unused vars
     dateRange: {
       start: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
       end: new Date()
@@ -92,7 +92,7 @@ export const UserAnalyticsDashboard: React.FC<UserAnalyticsDashboardProps> = ({ 
   
   useEffect(() => {
     loadAnalyticsData()
-  }, [selectedFilter])
+  }, [_selectedFilter])
   
   const loadAnalyticsData = async () => {
     setLoading(true)
@@ -387,7 +387,7 @@ export const UserAnalyticsDashboard: React.FC<UserAnalyticsDashboardProps> = ({ 
           ].map((tab) => (
             <button
               key={tab.key}
-              onClick={() => setSelectedView(tab.key as any)}
+              onClick={() => setSelectedView(tab.key as 'overview' | 'segments' | 'behavior' | 'revenue')}
               className={`py-2 px-1 border-b-2 font-medium text-sm ${
                 selectedView === tab.key
                   ? 'border-primary text-primary'

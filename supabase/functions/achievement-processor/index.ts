@@ -486,7 +486,7 @@ function calculateCurrentStreak(sessions: any[]): number {
   const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toDateString()
 
   if (sortedSessions.includes(today) || sortedSessions.includes(yesterday)) {
-    let currentDate = new Date()
+    const currentDate = new Date()
     
     for (const sessionDate of sortedSessions) {
       const checkDate = currentDate.toDateString()

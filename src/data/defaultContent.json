@@ -1,0 +1,454 @@
+{
+  "meditations": [
+    {
+      "id": "basic-breathing-01",
+      "title": "Pernapasan Dasar untuk Pemula",
+      "description": "Latihan pernapasan sederhana untuk mengenalkan konsep mindfulness",
+      "duration": 5,
+      "difficulty": "beginner",
+      "category": "breathing",
+      "tags": ["pemula", "pernapasan", "dasar", "stres"],
+      "instructions": [
+        "Duduklah dengan nyaman, punggung tegak",
+        "Letakkan satu tangan di dada, satu di perut",
+        "Tarik napas perlahan melalui hidung selama 4 detik",
+        "Rasakan perut mengembang",
+        "Hembuskan napas melalui mulut selama 6 detik",
+        "Ulangi 10 kali dengan ritme yang tenang"
+      ],
+      "benefits": [
+        "Mengurangi stres dan kecemasan",
+        "Meningkatkan konsentrasi",
+        "Menenangkan sistem saraf",
+        "Mudah dilakukan kapan saja"
+      ],
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": true,
+        "analytical": true,
+        "creative": false,
+        "emotional": true,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": true,
+        "sleep": false,
+        "anxiety": true,
+        "confidence": false,
+        "spiritual": false
+      },
+      "timeOfDay": ["morning", "afternoon", "evening"],
+      "mood": ["anxious", "tired", "stressed"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "body-scan-01",
+      "title": "Pemindaian Tubuh Santai",
+      "description": "Teknik body scan untuk melepas ketegangan dan meningkatkan kesadaran tubuh",
+      "duration": 15,
+      "difficulty": "beginner",
+      "category": "body-scan",
+      "tags": ["body-scan", "relaksasi", "kesadaran", "tidur"],
+      "instructions": [
+        "Berbaring dengan nyaman, mata tertutup",
+        "Mulai dari ujung jari kaki, rasakan sensasinya",
+        "Pindah perlahan ke kaki, betis, paha",
+        "Lanjut ke perut, dada, tangan",
+        "Akhiri di kepala dan wajah",
+        "Habiskan 2-3 menit di setiap bagian",
+        "Lepaskan ketegangan yang Anda rasakan"
+      ],
+      "benefits": [
+        "Melepas ketegangan fisik",
+        "Meningkatkan kesadaran tubuh",
+        "Membantu tidur lebih nyenyak",
+        "Mengurangi nyeri kronis"
+      ],
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": false,
+        "analytical": false,
+        "creative": true,
+        "emotional": true,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": false,
+        "sleep": true,
+        "anxiety": true,
+        "confidence": false,
+        "spiritual": false
+      },
+      "timeOfDay": ["evening", "night"],
+      "mood": ["tired", "anxious", "stressed"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "loving-kindness-01",
+      "title": "Meditasi Kasih Sayang",
+      "description": "Praktik loving-kindness dengan pendekatan budaya Indonesia",
+      "duration": 12,
+      "difficulty": "intermediate",
+      "category": "loving-kindness",
+      "tags": ["kasih-sayang", "empati", "komunitas", "hati"],
+      "culturalContext": {
+        "region": "jawa",
+        "tradition": "spiritual",
+        "language": "indonesia"
+      },
+      "instructions": [
+        "Duduk tenang, rasakan hati Anda",
+        "Mulai dengan doa untuk diri sendiri: 'Semoga saya bahagia dan damai'",
+        "Bayangkan orang yang Anda sayangi, kirim doa yang sama",
+        "Pikirkan teman atau tetangga, kirim doa kasih sayang",
+        "Ingat seseorang yang sulit, coba kirim doa dengan tulus",
+        "Akhiri dengan doa untuk semua makhluk hidup",
+        "Rasakan kehangatan di hati Anda"
+      ],
+      "benefits": [
+        "Meningkatkan empati dan belas kasih",
+        "Memperbaiki hubungan sosial",
+        "Mengurangi kemarahan dan dendam",
+        "Memperkuat rasa kebersamaan"
+      ],
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": true,
+        "analytical": false,
+        "creative": true,
+        "emotional": true,
+        "practical": false
+      },
+      "goalAlignment": {
+        "stress": false,
+        "focus": false,
+        "sleep": false,
+        "anxiety": false,
+        "confidence": true,
+        "spiritual": true
+      },
+      "timeOfDay": ["morning", "evening"],
+      "mood": ["angry", "sad", "lonely"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "walking-meditation-01",
+      "title": "Jalan Kaki Sadar",
+      "description": "Meditasi sambil berjalan untuk menghubungkan tubuh dan pikiran",
+      "duration": 20,
+      "difficulty": "beginner",
+      "category": "walking",
+      "tags": ["jalan", "gerakan", "alam", "outdoor"],
+      "instructions": [
+        "Pilih jalur tenang sepanjang 10-20 meter",
+        "Berjalan sangat perlahan, fokus pada kaki",
+        "Rasakan setiap langkah: angkat, gerak, letakkan",
+        "Saat sampai ujung, berbalik dengan sadar",
+        "Jika pikiran mengembara, kembali ke langkah",
+        "Lakukan selama 15-20 menit",
+        "Akhiri dengan berdiri diam sejenak"
+      ],
+      "benefits": [
+        "Menghubungkan tubuh dan pikiran",
+        "Cocok untuk yang sulit diam",
+        "Bisa dilakukan di mana saja",
+        "Meningkatkan kesadaran gerak"
+      ],
+      "personalityMatch": {
+        "introvert": false,
+        "extrovert": true,
+        "analytical": true,
+        "creative": false,
+        "emotional": false,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": true,
+        "sleep": false,
+        "anxiety": true,
+        "confidence": true,
+        "spiritual": false
+      },
+      "timeOfDay": ["morning", "afternoon"],
+      "mood": ["restless", "energetic", "anxious"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    }
+  ],
+  "quotes": [
+    {
+      "id": "quote-patience-01",
+      "text": "Sabar itu ada dua: sabar atas apa yang tidak kau sukai, dan sabar dalam menahan diri dari apa yang kau sukai",
+      "author": "Ali bin Abi Thalib",
+      "source": "Nahjul Balagha",
+      "category": "wisdom",
+      "tags": ["sabar", "kontrol-diri", "kebijaksanaan", "islam"],
+      "culturalContext": {
+        "tradition": "islam",
+        "language": "indonesia"
+      },
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": false,
+        "analytical": true,
+        "creative": false,
+        "emotional": true,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": false,
+        "sleep": false,
+        "anxiety": true,
+        "confidence": true,
+        "spiritual": true
+      },
+      "mood": ["anxious", "angry", "impatient"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "quote-peace-01",
+      "text": "Kedamaian bukanlah tidak adanya konflik, tetapi kemampuan untuk menangani konflik dengan cara yang damai",
+      "author": "Ronald Reagan",
+      "category": "peace",
+      "tags": ["damai", "konflik", "pengelolaan", "emosi"],
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": true,
+        "analytical": true,
+        "creative": false,
+        "emotional": true,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": false,
+        "sleep": false,
+        "anxiety": true,
+        "confidence": true,
+        "spiritual": false
+      },
+      "mood": ["angry", "anxious", "stressed"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "quote-morning-01",
+      "text": "Pagi adalah anugerah baru, kesempatan baru, hidup baru. Jangan sia-siakan dengan kekhawatiran kemarin",
+      "author": "Pramoedya Ananta Toer",
+      "category": "motivational",
+      "tags": ["pagi", "harapan", "kehidupan", "indonesia"],
+      "culturalContext": {
+        "region": "jawa",
+        "language": "indonesia"
+      },
+      "personalityMatch": {
+        "introvert": false,
+        "extrovert": true,
+        "analytical": false,
+        "creative": true,
+        "emotional": true,
+        "practical": false
+      },
+      "goalAlignment": {
+        "stress": false,
+        "focus": true,
+        "sleep": false,
+        "anxiety": false,
+        "confidence": true,
+        "spiritual": false
+      },
+      "mood": ["sad", "tired", "hopeless"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "quote-mindfulness-01",
+      "text": "Hidup ini seperti mengendarai sepeda. Untuk menjaga keseimbangan, kamu harus terus bergerak",
+      "author": "Albert Einstein",
+      "category": "mindfulness",
+      "tags": ["hidup", "keseimbangan", "gerakan", "kebijaksanaan"],
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": true,
+        "analytical": true,
+        "creative": true,
+        "emotional": false,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": false,
+        "focus": true,
+        "sleep": false,
+        "anxiety": false,
+        "confidence": true,
+        "spiritual": false
+      },
+      "mood": ["confused", "stuck", "unmotivated"],
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    }
+  ],
+  "breathingExercises": [
+    {
+      "id": "breathing-478",
+      "name": "Pernapasan 4-7-8",
+      "description": "Teknik pernapasan yang sangat efektif untuk mengurangi kecemasan dan membantu tidur",
+      "pattern": {
+        "inhale": 4,
+        "hold": 7,
+        "exhale": 8
+      },
+      "rounds": 8,
+      "duration": 5,
+      "difficulty": "beginner",
+      "benefits": [
+        "Mengurangi kecemasan dengan cepat",
+        "Membantu tidur lebih cepat",
+        "Menurunkan tekanan darah",
+        "Menenangkan sistem saraf"
+      ],
+      "instructions": [
+        "Duduk atau berbaring dengan nyaman",
+        "Letakkan ujung lidah di belakang gigi atas",
+        "Hembuskan napas sepenuhnya melalui mulut",
+        "Tutup mulut, tarik napas melalui hidung selama 4 detik",
+        "Tahan napas selama 7 detik",
+        "Hembuskan melalui mulut selama 8 detik dengan suara 'whoosh'",
+        "Ulangi siklus 3-4 kali"
+      ],
+      "culturalOrigin": "Ancient Pranayama",
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": false,
+        "analytical": true,
+        "creative": false,
+        "emotional": true,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": false,
+        "sleep": true,
+        "anxiety": true,
+        "confidence": false,
+        "spiritual": false
+      },
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "breathing-box",
+      "name": "Pernapasan Kotak",
+      "description": "Teknik pernapasan dengan ritme yang sama untuk meningkatkan fokus dan konsentrasi",
+      "pattern": {
+        "inhale": 4,
+        "hold": 4,
+        "exhale": 4,
+        "pause": 4
+      },
+      "rounds": 10,
+      "duration": 8,
+      "difficulty": "intermediate",
+      "benefits": [
+        "Meningkatkan konsentrasi",
+        "Menurunkan stres",
+        "Melatih kontrol pernapasan",
+        "Menyeimbangkan sistem saraf"
+      ],
+      "instructions": [
+        "Duduk tegak dengan mata tertutup",
+        "Tarik napas melalui hidung selama 4 detik",
+        "Tahan napas selama 4 detik",
+        "Hembuskan melalui mulut selama 4 detik",
+        "Jeda tanpa bernapas selama 4 detik",
+        "Ulangi selama 5-10 menit",
+        "Fokus pada hitungan yang konsisten"
+      ],
+      "culturalOrigin": "Navy SEALs Technique",
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": false,
+        "analytical": true,
+        "creative": false,
+        "emotional": false,
+        "practical": true
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": true,
+        "sleep": false,
+        "anxiety": true,
+        "confidence": true,
+        "spiritual": false
+      },
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    },
+    {
+      "id": "breathing-alternate",
+      "name": "Pernapasan Bergantian (Nadi Shodhana)",
+      "description": "Teknik pernapasan yoga untuk menyeimbangkan energi dan menenangkan pikiran",
+      "pattern": {
+        "inhale": 4,
+        "exhale": 4
+      },
+      "rounds": 12,
+      "duration": 10,
+      "difficulty": "intermediate",
+      "benefits": [
+        "Menyeimbangkan sistem saraf",
+        "Meningkatkan konsentrasi",
+        "Mengurangi stres mental",
+        "Menyeimbangkan energi tubuh"
+      ],
+      "instructions": [
+        "Duduk tegak dengan mata tertutup",
+        "Gunakan jari telunjuk kanan untuk menutup lubang hidung kiri",
+        "Tarik napas melalui lubang hidung kanan selama 4 detik",
+        "Tutup lubang hidung kanan, buka yang kiri",
+        "Hembuskan melalui lubang hidung kiri selama 4 detik",
+        "Tarik napas melalui lubang hidung kiri",
+        "Tutup lubang hidung kiri, hembuskan melalui yang kanan",
+        "Ini adalah satu siklus, ulangi 5-12 kali"
+      ],
+      "culturalOrigin": "Yoga Pranayama",
+      "personalityMatch": {
+        "introvert": true,
+        "extrovert": false,
+        "analytical": false,
+        "creative": true,
+        "emotional": false,
+        "practical": false
+      },
+      "goalAlignment": {
+        "stress": true,
+        "focus": true,
+        "sleep": false,
+        "anxiety": true,
+        "confidence": false,
+        "spiritual": true
+      },
+      "createdAt": "2025-01-01T00:00:00Z",
+      "updatedAt": "2025-01-01T00:00:00Z",
+      "status": "published"
+    }
+  ]
+}

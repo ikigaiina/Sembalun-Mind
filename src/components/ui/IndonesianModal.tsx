@@ -1,9 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { X, ChevronLeft } from 'lucide-react';
+import { cn } from '../../utils/cn';
 
 // Indonesian Cultural Colors - Earth Tones
-export const INDONESIAN_COLORS = {
+const INDONESIAN_COLORS = {
   primary: {
     green: '#2D7D32', // Deep forest green
     brown: '#5D4037', // Rich earth brown
@@ -25,13 +27,13 @@ export const INDONESIAN_COLORS = {
 };
 
 // Indonesian Cultural Patterns
-export const CULTURAL_PATTERNS = {
+const CULTURAL_PATTERNS = {
   batik: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIwIDEwQzE1LjU4IDEwIDEyIDEzLjU4IDEyIDEzSDI4QzI4IDEzLjU4IDI0LjQyIDEwIDIwIDEwWiIgZmlsbD0iIzJENzQzMiIgZmlsbC1vcGFjaXR5PSIwLjEiLz4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMyIgZmlsbD0iI0ZGOEYwMCIgZmlsbC1vcGFjaXR5PSIwLjIiLz4KPHN2Zz4K',
   geometric: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBvbHlnb24gcG9pbnRzPSIxMCwyIDEzLjUsNi41IDEwLDkgNi41LDYuNSIgZmlsbD0iIzJENzQzMiIgZmlsbC1vcGFjaXR5PSIwLjA1Ii8+Cjwvc3ZnPgo='
 };
 
 // Indonesian Gesture Patterns
-export const GESTURE_THRESHOLDS = {
+const GESTURE_THRESHOLDS = {
   swipeDown: 100,    // Close modal by swiping down
   swipeRight: 120,   // Navigate back with right swipe (Indonesian reading pattern)
   swipeLeft: 120,    // Navigate forward with left swipe
@@ -234,131 +236,184 @@ export const IndonesianModal: React.FC<IndonesianModalProps> = ({
   if (!isOpen && !isAnimating) return null;
 
   const modalContent = (
-    <div
-      ref={modalRef}
-      className={`
-        fixed inset-0 z-50 flex items-center justify-center
-        ${isOpen ? 'opacity-100' : 'opacity-0'}
-        transition-opacity duration-300 ease-out
-      `}
-      style={{
-        background: `linear-gradient(135deg, 
-          ${darkMode ? 'rgba(0,0,0,0.8)' : 'rgba(0,0,0,0.5)'} 0%, 
-          ${darkMode ? 'rgba(45,125,50,0.2)' : 'rgba(45,125,50,0.1)'} 100%
-        )`,
-        backdropFilter: 'blur(8px)'
-      }}
-      onClick={(e) => {
-        if (e.target === e.currentTarget) {
-          onClose();
-        }
-      }}
-    >
-      {/* Cultural pattern overlay */}
-      <div 
-        className="absolute inset-0 opacity-5"
-        style={{
-          backgroundImage: `url(${CULTURAL_PATTERNS.batik})`,
-          backgroundRepeat: 'repeat',
-          backgroundSize: '40px 40px'
-        }}
-      />
-
-      <div
-        ref={contentRef}
-        className={`
-          relative bg-white rounded-3xl shadow-2xl
-          ${getSizeClasses()}
-          ${className}
-          transform transition-all duration-300 ease-out
-          ${isOpen ? 'scale-100 translate-y-0' : 'scale-95 translate-y-4'}
-        `}
-        style={{
-          backgroundColor: themeColors.background,
-          transform: `translate(${dragPosition.x}px, ${dragPosition.y}px) ${
-            isOpen ? 'scale(1)' : 'scale(0.95)'
-          }`,
-          border: `2px solid ${themeColors.primary}20`,
-          boxShadow: `
-            0 25px 50px -12px ${themeColors.primary}40,
-            0 8px 16px -4px ${themeColors.primary}20,
-            inset 0 1px 0 ${themeColors.accent}20
-          `
-        }}
-      >
-        {/* Header */}
-        {showHeader && (
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          ref={modalRef}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.3, ease: "easeOut" }}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          style={{
+            background: `linear-gradient(135deg, 
+              ${darkMode ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)'} 0%, 
+              ${darkMode ? 'rgba(45,125,50,0.3)' : 'rgba(45,125,50,0.15)'} 100%
+            )`,
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)'
+          }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              onClose();
+            }
+          }}
+        >
+          {/* Enhanced Cultural Pattern Overlay with 2025 Design */}
           <div 
-            className="flex items-center justify-between p-6 border-b"
-            style={{ 
-              borderColor: `${themeColors.primary}20`,
-              backgroundColor: `${themeColors.primary}05`
+            className="absolute inset-0 opacity-[0.03]"
+            style={{
+              backgroundImage: `url(${CULTURAL_PATTERNS.batik})`,
+              backgroundRepeat: 'repeat',
+              backgroundSize: '60px 60px',
+              animation: 'float 20s ease-in-out infinite'
+            }}
+          />
+
+          <motion.div
+            ref={contentRef}
+            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            animate={{ 
+              opacity: 1, 
+              scale: 1, 
+              y: 0,
+              x: dragPosition.x,
+              y: dragPosition.y
+            }}
+            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+            transition={{ 
+              type: "spring", 
+              stiffness: 300, 
+              damping: 30,
+              opacity: { duration: 0.2 }
+            }}
+            className={cn(
+              "relative overflow-hidden shadow-glassmorphism-lg border border-white/20",
+              "bg-white/15 backdrop-blur-xl",
+              getSizeClasses().replace('bg-white', ''),
+              className
+            )}
+            style={{
+              borderRadius: size === 'fullscreen' ? '0' : '24px',
+              boxShadow: `
+                0 32px 64px -12px ${themeColors.primary}30,
+                0 20px 25px -5px ${themeColors.primary}20,
+                inset 0 1px 0 rgba(255,255,255,0.2),
+                0 0 40px ${themeColors.accent}10
+              `,
+              background: darkMode 
+                ? `linear-gradient(135deg, rgba(0,0,0,0.4) 0%, rgba(45,125,50,0.2) 100%)`
+                : `linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(45,125,50,0.05) 100%)`
             }}
           >
-            <div className="flex items-center space-x-4">
-              {showBackButton && onBack && (
-                <button
-                  onClick={onBack}
-                  className="p-2 rounded-full transition-all duration-200 hover:scale-105"
-                  style={{ 
-                    backgroundColor: `${themeColors.secondary}20`,
-                    color: themeColors.secondary
-                  }}
-                  aria-label="Kembali"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-              )}
-              
-              {title && (
-                <div>
-                  <h2 
-                    className="text-xl font-semibold font-heading"
-                    style={{ color: darkMode ? '#FFFFFF' : themeColors.primary }}
-                  >
-                    {title}
-                  </h2>
-                  {/* Cultural accent line */}
-                  <div 
-                    className="mt-1 h-0.5 w-12 rounded-full"
-                    style={{ 
-                      background: `linear-gradient(90deg, ${themeColors.accent}, ${themeColors.secondary})`
-                    }}
-                  />
+            {/* Glassmorphic Header with Enhanced Design */}
+            {showHeader && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="flex items-center justify-between p-6 border-b border-white/10"
+                style={{ 
+                  background: `linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)`,
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                <div className="flex items-center space-x-4">
+                  {showBackButton && onBack && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={onBack}
+                      className="p-3 rounded-2xl transition-all duration-200 bg-white/10 backdrop-blur-md hover:bg-white/15 border border-white/20"
+                      style={{ 
+                        color: darkMode ? '#FFFFFF' : themeColors.secondary
+                      }}
+                      aria-label="Back"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </motion.button>
+                  )}
+                  
+                  {title && (
+                    <div>
+                      <h2 
+                        className="text-fluid-xl font-heading font-semibold"
+                        style={{ color: darkMode ? '#FFFFFF' : 'rgba(0,0,0,0.85)' }}
+                      >
+                        {title}
+                      </h2>
+                      {/* Enhanced Cultural Accent Line */}
+                      <motion.div 
+                        initial={{ scaleX: 0 }}
+                        animate={{ scaleX: 1 }}
+                        transition={{ delay: 0.3, duration: 0.6 }}
+                        className="mt-2 h-1 w-16 rounded-full origin-left"
+                        style={{ 
+                          background: `linear-gradient(90deg, ${themeColors.accent}, ${themeColors.secondary}, ${themeColors.primary})`
+                        }}
+                      />
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
 
-            <button
-              onClick={onClose}
-              className="p-2 rounded-full transition-all duration-200 hover:scale-105"
-              style={{ 
-                backgroundColor: `${themeColors.primary}10`,
-                color: darkMode ? '#FFFFFF80' : themeColors.neutral.shadow
+                <motion.button
+                  whileHover={{ scale: 1.05, rotate: 90 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={onClose}
+                  className="p-3 rounded-2xl transition-all duration-200 bg-white/10 backdrop-blur-md hover:bg-white/15 border border-white/20"
+                  style={{ 
+                    color: darkMode ? '#FFFFFF80' : 'rgba(0,0,0,0.6)'
+                  }}
+                  aria-label="Close"
+                >
+                  <X className="w-5 h-5" />
+                </motion.button>
+              </motion.div>
+            )}
+
+            {/* Enhanced Content with Glassmorphic Background */}
+            <motion.div 
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+              className="relative"
+              style={{
+                background: size === 'fullscreen' ? 'transparent' : `linear-gradient(135deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.02) 100%)`
               }}
-              aria-label="Tutup"
             >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        )}
+              {children}
+            </motion.div>
 
-        {/* Content */}
-        <div className="relative">
-          {children}
-        </div>
+            {/* Enhanced Drag Indicator with 2025 Design */}
+            {gestureEnabled && (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 0.4 }}
+                transition={{ delay: 0.4 }}
+                className="absolute top-3 left-1/2 transform -translate-x-1/2"
+              >
+                <div 
+                  className="w-12 h-1.5 rounded-full"
+                  style={{ 
+                    background: `linear-gradient(90deg, ${themeColors.primary}60, ${themeColors.accent}60)`,
+                    boxShadow: `0 2px 4px ${themeColors.primary}20`
+                  }}
+                />
+              </motion.div>
+            )}
 
-        {/* Drag indicator for mobile */}
-        {gestureEnabled && (
-          <div className="absolute top-2 left-1/2 transform -translate-x-1/2">
+            {/* Subtle Ambient Glow Effect */}
             <div 
-              className="w-8 h-1 rounded-full opacity-30"
-              style={{ backgroundColor: themeColors.primary }}
+              className="absolute inset-0 rounded-inherit pointer-events-none"
+              style={{
+                background: `radial-gradient(circle at 50% 0%, ${themeColors.accent}05 0%, transparent 50%)`,
+                borderRadius: 'inherit'
+              }}
             />
-          </div>
-        )}
-      </div>
-    </div>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 
   return createPortal(modalContent, document.body);

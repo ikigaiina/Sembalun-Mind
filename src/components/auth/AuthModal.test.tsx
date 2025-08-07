@@ -68,7 +68,7 @@ describe('AuthModal', () => {
   })
 
   it('handles email signin successfully', async () => {
-
+    const user = userEvent.setup()
     mockUseAuth.signInWithEmail.mockResolvedValueOnce({})
     
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
@@ -85,7 +85,7 @@ describe('AuthModal', () => {
   })
 
   it('handles Google signin', async () => {
-
+    const user = userEvent.setup()
     mockUseAuth.signInWithGoogle.mockResolvedValueOnce({})
     
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
@@ -118,7 +118,7 @@ describe('AuthModal', () => {
   })
 
   it('handles guest mode continuation', async () => {
-
+    const user = userEvent.setup()
     
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
     
@@ -129,7 +129,7 @@ describe('AuthModal', () => {
   })
 
   it('shows loading state during authentication', async () => {
-
+    const user = userEvent.setup()
     mockUseAuth.signInWithEmail.mockImplementation(() => new Promise(() => {})) // Never resolves
     
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
@@ -146,7 +146,7 @@ describe('AuthModal', () => {
   })
 
   it('handles password reset flow', async () => {
-
+    const user = userEvent.setup()
     mockUseAuth.resetPassword.mockResolvedValueOnce({})
     
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
@@ -166,8 +166,6 @@ describe('AuthModal', () => {
   })
 
   it('validates required fields', async () => {
-
-    
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
     
     fireEvent.submit(screen.getByRole('form'))
@@ -177,7 +175,7 @@ describe('AuthModal', () => {
   })
 
   it('closes modal when close button is clicked', async () => {
-
+    const user = userEvent.setup()
     
     render(<AuthModal isOpen={true} onClose={mockOnClose} />)
     
@@ -188,7 +186,7 @@ describe('AuthModal', () => {
 
   // Security test cases
   it('sanitizes error messages to prevent XSS', async () => {
-
+    const user = userEvent.setup()
     const maliciousError = new Error('<script>alert("xss")</script>')
     
     mockUseAuth.signInWithEmail.mockRejectedValueOnce(maliciousError)

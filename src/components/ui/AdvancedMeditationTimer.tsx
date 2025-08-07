@@ -294,9 +294,9 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
           <div className="flex justify-center space-x-3">
             <Button
               onClick={handlePlayPause}
-              size="large"
+              variant="meditation"
+              size="lg"
               className="px-8"
-              style={{ backgroundColor: currentPhase.color }}
             >
               {isRunning ? (
                 <Pause className="w-5 h-5 mr-2" />
@@ -308,8 +308,8 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
 
             <Button
               onClick={handleStop}
-              variant="outline"
-              size="large"
+              variant="control"
+              size="lg"
             >
               <Square className="w-4 h-4 mr-2" />
               Stop
@@ -317,8 +317,8 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
 
             <Button
               onClick={handleReset}
-              variant="outline"
-              size="large"
+              variant="control"
+              size="lg"
             >
               <RotateCcw className="w-4 h-4 mr-2" />
               Reset
@@ -330,8 +330,8 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
             {currentPhaseIndex < phases.length - 1 && (
               <Button
                 onClick={handleSkipPhase}
-                variant="outline"
-                size="small"
+                variant="control"
+                size="sm"
               >
                 Skip Phase
               </Button>
@@ -339,8 +339,8 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
 
             <Button
               onClick={() => setIsMuted(!isMuted)}
-              variant="outline"
-              size="small"
+              variant="control"
+              size="sm"
             >
               {isMuted ? (
                 <VolumeX className="w-4 h-4 mr-1" />

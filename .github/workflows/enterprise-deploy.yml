@@ -1,0 +1,441 @@
+name: Enterprise Production Deployment
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened, ready_for_review ]
+
+env:
+  NODE_VERSION: '18.x'
+  FORCE_COLOR: 3
+
+jobs:
+  # Security and Dependency Scanning
+  security-scan:
+    name: Security & Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run security audit
+        run: |
+          npm audit --audit-level high
+          npm audit --audit-level moderate --json > audit-results.json
+
+      - name: Upload audit results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: security-audit
+          path: audit-results.json
+
+      - name: Check for vulnerabilities
+        run: |
+          VULNS=$(npm audit --audit-level high --parseable | wc -l)
+          if [ $VULNS -gt 0 ]; then
+            echo "❌ High severity vulnerabilities found"
+            exit 1
+          fi
+          echo "✅ No high severity vulnerabilities"
+
+  # Code Quality and Linting
+  code-quality:
+    name: Code Quality
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        run: |
+          npm run lint:production
+          npm run lint:production -- --format json --output-file eslint-results.json
+
+      - name: TypeScript type checking
+        run: npm run typecheck
+
+      - name: Upload lint results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: lint-results
+          path: eslint-results.json
+
+  # Unit Testing
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run unit tests
+        run: npm run test:coverage
+
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          flags: unittests
+          name: unit-tests
+          fail_ci_if_error: false
+
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(grep -o '"lines":{"total":[0-9]*,"covered":[0-9]*' coverage/coverage-summary.json | grep -o '[0-9]*' | tail -2 | head -1)
+          COVERED=$(grep -o '"lines":{"total":[0-9]*,"covered":[0-9]*' coverage/coverage-summary.json | grep -o '[0-9]*' | tail -1)
+          PERCENTAGE=$(echo "scale=2; $COVERED * 100 / $COVERAGE" | bc)
+          echo "Coverage: $PERCENTAGE%"
+          if (( $(echo "$PERCENTAGE < 85" | bc -l) )); then
+            echo "❌ Coverage below 85% threshold"
+            exit 1
+          fi
+
+  # Integration Testing
+  integration-tests:
+    name: Integration Tests
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test_db
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup test database
+        run: |
+          npm run test:setup-db
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+      - name: Run integration tests
+        run: npm run test:integration
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+
+  # Build and Performance Testing
+  build-and-performance:
+    name: Build & Performance
+    runs-on: ubuntu-latest
+    needs: [security-scan, code-quality, unit-tests]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build:enterprise
+        env:
+          NODE_ENV: production
+
+      - name: Analyze bundle size
+        run: |
+          npm run build:analyze
+          ls -la dist/
+          du -sh dist/
+
+      - name: Check bundle size limits
+        run: |
+          # Check main bundle size (should be < 1MB)
+          MAIN_SIZE=$(find dist/js -name "*.js" -exec du -k {} \; | sort -n | tail -1 | cut -f1)
+          if [ $MAIN_SIZE -gt 1024 ]; then
+            echo "❌ Main bundle too large: ${MAIN_SIZE}KB"
+            exit 1
+          fi
+          echo "✅ Bundle size OK: ${MAIN_SIZE}KB"
+
+      - name: Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v10
+        with:
+          configPath: './lighthouserc.json'
+          uploadArtifacts: true
+          temporaryPublicStorage: true
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+          retention-days: 7
+
+  # End-to-End Testing
+  e2e-tests:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    needs: [build-and-performance]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+      - name: Start preview server
+        run: |
+          npm run preview &
+          npx wait-on http://localhost:4173
+
+      - name: Run E2E tests
+        run: npm run test:e2e
+
+      - name: Upload E2E results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: e2e-results
+          path: test-results/
+
+  # Load Testing
+  load-testing:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    needs: [build-and-performance]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install K6
+        run: |
+          sudo gpg -k
+          sudo gpg --no-default-keyring --keyring /usr/share/keyrings/k6-archive-keyring.gpg --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys C5AD17C747E3415A3642D57D77C6C491D6AC1D69
+          echo "deb [signed-by=/usr/share/keyrings/k6-archive-keyring.gpg] https://dl.k6.io/deb stable main" | sudo tee /etc/apt/sources.list.d/k6.list
+          sudo apt-get update
+          sudo apt-get install k6
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build-artifacts
+          path: dist/
+
+      - name: Start preview server
+        run: |
+          npm run preview &
+          npx wait-on http://localhost:4173
+
+      - name: Run load tests
+        run: |
+          k6 run --out json=load-test-results.json tests/load/meditation-session.js
+          k6 run --out json=audio-streaming-results.json tests/load/audio-streaming.js
+
+      - name: Upload load test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: load-test-results
+          path: |
+            load-test-results.json
+            audio-streaming-results.json
+
+  # Staging Deployment
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [integration-tests, e2e-tests]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: staging
+      url: https://sembalun-staging.vercel.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for staging
+        run: npm run build:enterprise
+        env:
+          NODE_ENV: production
+          VITE_SUPABASE_URL: ${{ secrets.STAGING_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.STAGING_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Vercel Staging
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-args: '--prod'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+          working-directory: ./
+
+      - name: Run staging smoke tests
+        run: |
+          npx wait-on https://sembalun-staging.vercel.app
+          npm run test:smoke -- --baseURL=https://sembalun-staging.vercel.app
+
+  # Production Deployment
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [deploy-staging, load-testing]
+    if: github.ref == 'refs/heads/main'
+    environment:
+      name: production
+      url: https://sembalun.app
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build for production
+        run: npm run build:enterprise
+        env:
+          NODE_ENV: production
+          VITE_SUPABASE_URL: ${{ secrets.PROD_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.PROD_SUPABASE_ANON_KEY }}
+
+      - name: Deploy to Production
+        uses: amondnet/vercel-action@v25
+        with:
+          vercel-token: ${{ secrets.VERCEL_TOKEN }}
+          vercel-args: '--prod'
+          vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+          vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID_PROD }}
+          working-directory: ./
+
+      - name: Post-deployment validation
+        run: |
+          npx wait-on https://sembalun.app
+          npm run test:production-health -- --baseURL=https://sembalun.app
+
+      - name: Notify deployment success
+        uses: 8398a7/action-slack@v3
+        if: success()
+        with:
+          status: success
+          text: '🚀 Production deployment successful! https://sembalun.app'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+      - name: Notify deployment failure
+        uses: 8398a7/action-slack@v3
+        if: failure()
+        with:
+          status: failure
+          text: '❌ Production deployment failed'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Security Monitoring Post-Deployment
+  security-monitoring:
+    name: Security Monitoring
+    runs-on: ubuntu-latest
+    needs: [deploy-production]
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Security Headers Check
+        run: |
+          curl -I https://sembalun.app | grep -E "(X-Frame-Options|X-Content-Type-Options|X-XSS-Protection|Strict-Transport-Security)"
+
+      - name: SSL Labs Test
+        run: |
+          # Trigger SSL Labs test (async)
+          curl -s "https://api.ssllabs.com/api/v3/analyze?host=sembalun.app&startNew=on" > /dev/null
+
+      - name: Check Performance Metrics
+        run: |
+          # Basic performance check
+          RESPONSE_TIME=$(curl -o /dev/null -s -w "%{time_total}" https://sembalun.app)
+          echo "Response time: ${RESPONSE_TIME}s"
+          if (( $(echo "$RESPONSE_TIME > 2" | bc -l) )); then
+            echo "❌ Response time too slow"
+            exit 1
+          fi

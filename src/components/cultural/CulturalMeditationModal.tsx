@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
 
@@ -231,7 +231,7 @@ export const CulturalMeditationModal: React.FC<CulturalMeditationModalProps> = (
   onClose,
   onStartSession,
   currentTime,
-  userRegion = 'Jakarta'
+  userRegion = 'Jakarta' // eslint-disable-line @typescript-eslint/no-unused-vars
 }) => {
   const [selectedLocation, setSelectedLocation] = useState<CulturalLocation | null>(null);
   const [selectedPattern, setSelectedPattern] = useState<CulturalBreathingPattern | null>(null);

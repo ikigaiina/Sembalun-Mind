@@ -3,7 +3,8 @@ import { Header } from '../components/ui/Header';
 import { Card } from '../components/ui/Card';
 import { CairnIcon } from '../components/ui/CairnIcon';
 import { BreathingCard } from '../components/ui/BreathingCard';
-import { MoodSelector, type MoodType } from '../components/ui/MoodSelector';
+import { MoodSelector } from '../components/ui/MoodSelector';
+import type { MoodType } from '../types/mood';
 import { FloatingButton } from '../components/ui/FloatingButton';
 import { Button } from '../components/ui/Button';
 

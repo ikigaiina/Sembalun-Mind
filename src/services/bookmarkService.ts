@@ -235,7 +235,7 @@ export class BookmarkService {
     tags?: string[]
   ): Promise<UserBookmark[]> {
     try {
-      let queryBuilder = supabase
+      const queryBuilder = supabase
         .from('user_bookmarks')
         .select('*')
         .eq('user_id', userId)
