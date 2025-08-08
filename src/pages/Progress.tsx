@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart3, TrendingUp, Calendar, Target, Award,
   Brain, Heart, Flame, Activity, Filter, Eye, EyeOff,
-  Download, Share2, RefreshCw, Settings, Mountain
+  Download, Share2, RefreshCw, Settings, Mountain, Trophy, BookOpen
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -12,12 +12,14 @@ import { CulturalProgressTracker } from '../components/analytics/CulturalProgres
 import { MeditationAnalytics } from '../components/analytics/MeditationAnalytics';
 import { StreakTracker } from '../components/analytics/StreakTracker';
 import { MoodPatternAnalysis } from '../components/analytics/MoodPatternAnalysis';
+import { CulturalAchievementSystem } from '../components/achievements/CulturalAchievementSystem';
+import { IndonesianWisdomCollection } from '../components/wisdom/IndonesianWisdomCollection';
 
 interface Props {
   className?: string;
 }
 
-type AnalyticsView = 'overview' | 'meditation' | 'mood' | 'streaks' | 'cultural';
+type AnalyticsView = 'overview' | 'meditation' | 'mood' | 'streaks' | 'cultural' | 'achievements' | 'wisdom';
 
 export const Progress: React.FC<Props> = ({ className = '' }) => {
   const [currentView, setCurrentView] = useState<AnalyticsView>('overview');
@@ -83,6 +85,18 @@ export const Progress: React.FC<Props> = ({ className = '' }) => {
       label: 'Budaya', 
       icon: Mountain, 
       description: 'Progress tradisi Indonesia' 
+    },
+    { 
+      id: 'achievements', 
+      label: 'Pencapaian', 
+      icon: Trophy, 
+      description: 'Sistem pencapaian budaya' 
+    },
+    { 
+      id: 'wisdom', 
+      label: 'Kebijaksanaan', 
+      icon: BookOpen, 
+      description: 'Koleksi wisdom Indonesia' 
     }
   ];
 
@@ -306,6 +320,28 @@ export const Progress: React.FC<Props> = ({ className = '' }) => {
               <motion.div variants={itemVariants}>
                 <CulturalProgressTracker 
                   className="mb-6"
+                />
+              </motion.div>
+            )}
+
+            {/* Cultural Achievement System */}
+            {currentView === 'achievements' && (
+              <motion.div variants={itemVariants}>
+                <CulturalAchievementSystem 
+                  className="mb-6"
+                />
+              </motion.div>
+            )}
+
+            {/* Indonesian Wisdom Collection */}
+            {currentView === 'wisdom' && (
+              <motion.div variants={itemVariants}>
+                <IndonesianWisdomCollection 
+                  className="mb-6"
+                  onQuoteSelect={(quote) => {
+                    console.log('Selected wisdom quote:', quote);
+                    // Could trigger a modal or detailed view
+                  }}
                 />
               </motion.div>
             )}
