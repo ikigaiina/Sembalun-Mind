@@ -32,10 +32,10 @@ const introductionSlides = [
     bgColor: "from-meditation-zen-50 to-meditation-zen-100"
   },
   {
-    title: "Gratis dan Aman",
-    subtitle: "Tanpa Komitmen, Tanpa Biaya Tersembunyi",
-    content: "Mulai eksplorasi perjalanan mindfulness Anda tanpa perlu registrasi. Privasi Anda terjamin sesuai Undang-Undang Pelindungan Data Pribadi Indonesia.",
-    icon: "🔒",
+    title: "Waktunya Menemukan Ketenangan",
+    subtitle: "Sembalun Menanti Perjalanan Anda",
+    content: "Seperti keindahan Gunung Rinjani yang menenangkan jiwa, Sembalun hadir untuk membimbing Anda menemukan kedamaian batin melalui praktik meditasi yang penuh makna.",
+    icon: "🌄",
     bgColor: "from-green-50 to-green-100"
   }
 ];
@@ -137,13 +137,147 @@ export const SembalunIntroductionStep: React.FC<SembalunIntroductionStepProps> =
                 className="cursor-pointer select-none"
                 whileDrag={{ scale: 0.95 }}
               >
-              <Card className={`bg-gradient-to-br ${currentSlideData.bgColor} border-none shadow-lg mb-8`}>
-                <div className="p-8">
-                  {/* Icon with breathing animation - reduced size */}
+              {/* Enhanced Decorated Frame */}
+              <motion.div 
+                className={`relative bg-gradient-to-br ${currentSlideData.bgColor} rounded-3xl shadow-2xl mb-8 overflow-hidden`}
+                style={{
+                  background: `linear-gradient(135deg, ${currentSlideData.bgColor.includes('primary') ? 'rgba(99, 102, 241, 0.1)' : currentSlideData.bgColor.includes('accent') ? 'rgba(236, 72, 153, 0.1)' : currentSlideData.bgColor.includes('meditation') ? 'rgba(34, 197, 94, 0.1)' : 'rgba(14, 165, 233, 0.1)'}, rgba(255, 255, 255, 0.2))`
+                }}
+                whileHover={{ scale: 1.02, y: -3 }}
+                transition={{ duration: 0.3 }}
+              >
+
+                {/* Multiple Sparkle Layers */}
+                <motion.div
+                  className="absolute top-4 right-4 text-2xl z-20"
+                  animate={{ 
+                    scale: [1, 1.3, 1],
+                    rotate: [0, 15, -15, 0],
+                    opacity: [0.7, 1, 0.7]
+                  }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity,
+                    delay: currentSlide * 0.2
+                  }}
+                >
+                  ✨
+                </motion.div>
+
+                <motion.div
+                  className="absolute top-4 left-4 text-xl opacity-80 z-20"
+                  animate={{ 
+                    scale: [0.8, 1.2, 0.8],
+                    rotate: [0, -10, 10, 0]
+                  }}
+                  transition={{ 
+                    duration: 2.5, 
+                    repeat: Infinity,
+                    delay: currentSlide * 0.3
+                  }}
+                >
+                  🌟
+                </motion.div>
+
+                <motion.div
+                  className="absolute bottom-4 right-4 text-lg opacity-70 z-20"
+                  animate={{ 
+                    scale: [0.9, 1.4, 0.9],
+                    opacity: [0.5, 0.9, 0.5]
+                  }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity,
+                    delay: currentSlide * 0.4
+                  }}
+                >
+                  💫
+                </motion.div>
+
+                <motion.div
+                  className="absolute bottom-4 left-4 text-lg opacity-60 z-20"
+                  animate={{ 
+                    scale: [1, 1.5, 1],
+                    rotate: [0, 20, -20, 0]
+                  }}
+                  transition={{ 
+                    duration: 2.8, 
+                    repeat: Infinity,
+                    delay: currentSlide * 0.1
+                  }}
+                >
+                  🌸
+                </motion.div>
+
+                {/* Floating Nature Elements */}
+                <motion.div
+                  className="absolute top-1/4 right-8 text-base opacity-50 z-10"
+                  animate={{ 
+                    y: [0, -12, 0],
+                    rotate: [0, 8, -8, 0],
+                    opacity: [0.3, 0.7, 0.3]
+                  }}
+                  transition={{ 
+                    duration: 4, 
+                    repeat: Infinity,
+                    delay: 1
+                  }}
+                >
+                  🍃
+                </motion.div>
+
+                <motion.div
+                  className="absolute top-1/3 left-8 text-base opacity-50 z-10"
+                  animate={{ 
+                    y: [0, 10, 0],
+                    x: [0, 5, 0],
+                    scale: [1, 1.1, 1]
+                  }}
+                  transition={{ 
+                    duration: 5, 
+                    repeat: Infinity,
+                    delay: 1.5
+                  }}
+                >
+                  🦋
+                </motion.div>
+
+                <motion.div
+                  className="absolute top-2/3 right-12 text-sm opacity-40 z-10"
+                  animate={{ 
+                    scale: [0.8, 1.2, 0.8],
+                    rotate: [0, 360, 0],
+                    opacity: [0.2, 0.6, 0.2]
+                  }}
+                  transition={{ 
+                    duration: 6, 
+                    repeat: Infinity,
+                    delay: 2
+                  }}
+                >
+                  🌿
+                </motion.div>
+
+                {/* Enhanced Shimmer Overlay */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent z-5"
+                  initial={{ x: '-100%' }}
+                  animate={{ x: '100%' }}
+                  transition={{ 
+                    duration: 3, 
+                    repeat: Infinity, 
+                    repeatDelay: 5,
+                    ease: "linear"
+                  }}
+                />
+
+                {/* Content Container with Glass Effect */}
+                <div className="relative z-15 p-8 backdrop-blur-sm">
+                  {/* Enhanced Icon with Multiple Glow Effects */}
                   <motion.div 
-                    className="text-4xl mb-6"
+                    className="relative text-5xl mb-6 flex justify-center"
                     animate={{ 
-                      scale: [1, 1.05, 1],
+                      scale: [1, 1.1, 1],
                     }}
                     transition={{
                       duration: 4,
@@ -151,12 +285,45 @@ export const SembalunIntroductionStep: React.FC<SembalunIntroductionStepProps> =
                       ease: "easeInOut"
                     }}
                   >
-                    {currentSlideData.icon}
+                    {/* Multiple Glow Layers */}
+                    <motion.div
+                      className="absolute inset-0 bg-yellow-300/20 rounded-full blur-2xl"
+                      animate={{ 
+                        scale: [0.8, 1.3, 0.8],
+                        opacity: [0.3, 0.7, 0.3]
+                      }}
+                      transition={{
+                        duration: 3,
+                        repeat: Infinity,
+                      }}
+                    />
+                    <motion.div
+                      className="absolute inset-0 bg-pink-300/15 rounded-full blur-xl"
+                      animate={{ 
+                        scale: [1, 1.4, 1],
+                        opacity: [0.2, 0.5, 0.2]
+                      }}
+                      transition={{
+                        duration: 4,
+                        repeat: Infinity,
+                        delay: 0.5
+                      }}
+                    />
+                    <span className="relative z-10 drop-shadow-2xl filter">
+                      {currentSlideData.icon}
+                    </span>
                   </motion.div>
 
-                  {/* Title */}
+                  {/* Enhanced Title with Gradient Text */}
                   <motion.h1 
-                    className="text-2xl font-heading font-bold text-gray-800 mb-2"
+                    className="text-3xl font-heading font-bold mb-3 text-center"
+                    style={{
+                      background: 'linear-gradient(135deg, #1f2937, #374151, #1f2937)',
+                      backgroundClip: 'text',
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      textShadow: '0 2px 4px rgba(0,0,0,0.1)'
+                    }}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.2 }}
@@ -164,27 +331,114 @@ export const SembalunIntroductionStep: React.FC<SembalunIntroductionStepProps> =
                     {currentSlideData.title}
                   </motion.h1>
 
-                  {/* Subtitle */}
+                  {/* Enhanced Subtitle with Decorative Elements */}
                   <motion.h2 
-                    className="text-lg font-body text-primary-700 mb-4"
+                    className="text-lg font-body font-semibold text-primary-600 mb-5 text-center"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.3 }}
                   >
+                    <span className="inline-block mr-2 text-pink-500">🌺</span>
                     {currentSlideData.subtitle}
+                    <span className="inline-block ml-2 text-pink-500">🌺</span>
                   </motion.h2>
 
-                  {/* Content */}
-                  <motion.p 
-                    className="text-gray-700 font-body leading-relaxed text-base"
+                  {/* Animated Decorative Divider */}
+                  <motion.div
+                    className="flex justify-center mb-5"
+                    initial={{ opacity: 0, scale: 0 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ duration: 0.5, delay: 0.4 }}
+                  >
+                    <div className="flex items-center space-x-3">
+                      <motion.div 
+                        className="w-8 h-0.5 bg-gradient-to-r from-transparent via-primary-400 to-primary-500 rounded-full"
+                        animate={{ scaleX: [0.8, 1.2, 0.8] }}
+                        transition={{ duration: 3, repeat: Infinity }}
+                      />
+                      <motion.div 
+                        className="w-3 h-3 bg-gradient-to-r from-primary-500 to-pink-500 rounded-full"
+                        animate={{ 
+                          scale: [1, 1.3, 1],
+                          rotate: [0, 180, 360]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity }}
+                      />
+                      <motion.div 
+                        className="w-16 h-0.5 bg-gradient-to-r from-primary-500 via-pink-400 to-accent-400 rounded-full"
+                        animate={{ scaleX: [0.9, 1.1, 0.9] }}
+                        transition={{ duration: 2.5, repeat: Infinity, delay: 0.3 }}
+                      />
+                      <motion.div 
+                        className="w-3 h-3 bg-gradient-to-r from-accent-500 to-cyan-500 rounded-full"
+                        animate={{ 
+                          scale: [1, 1.4, 1],
+                          rotate: [360, 180, 0]
+                        }}
+                        transition={{ duration: 4, repeat: Infinity, delay: 0.5 }}
+                      />
+                      <motion.div 
+                        className="w-8 h-0.5 bg-gradient-to-r from-accent-500 via-cyan-400 to-transparent rounded-full"
+                        animate={{ scaleX: [0.8, 1.2, 0.8] }}
+                        transition={{ duration: 3, repeat: Infinity, delay: 0.7 }}
+                      />
+                    </div>
+                  </motion.div>
+
+                  {/* Enhanced Content with Glass Background */}
+                  <motion.div
+                    className="relative"
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
+                    transition={{ duration: 0.6, delay: 0.5 }}
                   >
-                    {currentSlideData.content}
-                  </motion.p>
+                    {/* Glass Background Effect */}
+                    <div className="absolute inset-0 bg-white/25 rounded-2xl backdrop-blur-md border border-white/30 shadow-inner"></div>
+                    
+                    <p className="relative text-gray-700 font-body leading-relaxed text-base text-center px-6 py-4 rounded-2xl">
+                      {currentSlideData.content}
+                    </p>
+                  </motion.div>
+
+                  {/* Bottom Animated Dots */}
+                  <motion.div
+                    className="flex justify-center mt-6 space-x-2"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.6, delay: 0.6 }}
+                  >
+                    {[...Array(5)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        className="w-2 h-2 rounded-full bg-gradient-to-r from-primary-400 via-pink-400 to-accent-400"
+                        animate={{ 
+                          scale: [0.8, 1.4, 0.8],
+                          opacity: [0.4, 0.9, 0.4],
+                          backgroundColor: [
+                            'rgba(99, 102, 241, 0.6)',
+                            'rgba(236, 72, 153, 0.6)',
+                            'rgba(14, 165, 233, 0.6)',
+                            'rgba(99, 102, 241, 0.6)'
+                          ]
+                        }}
+                        transition={{ 
+                          duration: 2.5, 
+                          repeat: Infinity,
+                          delay: i * 0.2
+                        }}
+                      />
+                    ))}
+                  </motion.div>
                 </div>
-              </Card>
+
+                {/* Enhanced Inner Shadow and Highlights */}
+                <div 
+                  className="absolute inset-0 rounded-3xl pointer-events-none z-10" 
+                  style={{ 
+                    boxShadow: 'inset 0 1px 3px rgba(255,255,255,0.4), inset 0 -1px 3px rgba(0,0,0,0.1)' 
+                  }}
+                />
+              </motion.div>
               </motion.div>
             </AnimatePresence>
           </div>
@@ -297,19 +551,6 @@ export const SembalunIntroductionStep: React.FC<SembalunIntroductionStepProps> =
                     </motion.span>
                   </div>
                   
-                  {/* Glowing border */}
-                  <motion.div
-                    className="absolute inset-0 rounded-2xl border-2 border-yellow-400/60"
-                    animate={{ 
-                      scale: [1, 1.02, 1],
-                      opacity: [0.4, 0.8, 0.4]
-                    }}
-                    transition={{ 
-                      duration: 2, 
-                      repeat: Infinity,
-                      ease: "easeInOut"
-                    }}
-                  />
                   
                   {/* Inner glow effect */}
                   <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-transparent to-white/10 pointer-events-none" />
