@@ -56,7 +56,8 @@
       "Bash(npm update:*)",
       "Bash(git restore:*)",
       "Bash(timeout 15 npm run dev)",
-      "Bash(timeout 30 npm run typecheck)"
+      "Bash(timeout 30 npm run typecheck)",
+      "Bash(npm --version)"
     ],
     "deny": []
   }
