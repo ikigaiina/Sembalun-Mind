@@ -7,6 +7,7 @@ import { PasswordChange } from '../components/account/PasswordChange';
 import { AccountSecurity } from '../components/account/AccountSecurity';
 import { OfflineModeManager } from '../components/offline/OfflineModeManager';
 import { SessionExporter } from '../components/export/SessionExporter';
+import { EnhancedSettingsPanel } from '../components/enhanced/EnhancedSettingsPanel';
 
 export const Settings: React.FC = () => {
   const { user, userProfile, isGuest, signOut, updateUserProfile, deleteAccount, exportUserData, reauthenticateUser } = useAuth();
@@ -385,6 +386,12 @@ export const Settings: React.FC = () => {
 
         {/* Account Security Component */}
         <AccountSecurity />
+
+        {/* Enhanced Settings Panel */}
+        <div className="bg-white rounded-3xl p-8 shadow-lg">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">Pengaturan Lanjutan</h3>
+          <EnhancedSettingsPanel />
+        </div>
 
         {/* Offline Mode Manager */}
         <div className="bg-white rounded-3xl p-8 shadow-lg">
