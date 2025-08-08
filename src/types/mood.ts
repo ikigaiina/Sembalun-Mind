@@ -13,8 +13,9 @@ interface MoodStats {
   totalEntries: number;
   averageMood: number;
   streakDays: number;
-  mostCommonMood: MoodType;
+  mostCommonMood?: MoodType;
   moodDistribution: Record<MoodType, number>;
+  weeklyAverage: number[];
 }
 
 interface MoodOption {
@@ -24,18 +25,26 @@ interface MoodOption {
   color: string;
 }
 
-const moodOptions: MoodOption[] = [
-  { id: 'very-sad', emoji: '😢', label: 'Sangat sedih', color: '#E53E3E' },
-  { id: 'sad', emoji: '😔', label: 'Sedih', color: '#F56565' },
-  { id: 'neutral', emoji: '😐', label: 'Biasa saja', color: '#A0AEC0' },
-  { id: 'happy', emoji: '😊', label: 'Senang', color: '#48BB78' },
-  { id: 'very-happy', emoji: '😄', label: 'Sangat senang', color: '#38A169' },
-  { id: 'anxious', emoji: '😰', label: 'Cemas', color: '#ED8936' },
-  { id: 'angry', emoji: '😠', label: 'Marah', color: '#E53E3E' },
-  { id: 'calm', emoji: '😌', label: 'Tenang', color: '#4299E1' },
-  { id: 'excited', emoji: '🤩', label: 'Bersemangat', color: '#9F7AEA' },
-  { id: 'tired', emoji: '😴', label: 'Lelah', color: '#718096' }
+// Main 5 moods for primary selection
+const primaryMoods: MoodOption[] = [
+  { id: 'very-sad', emoji: '😭', label: 'Sangat sedih', color: '#DC2626' },
+  { id: 'sad', emoji: '😔', label: 'Sedih', color: '#F59E0B' },
+  { id: 'neutral', emoji: '😐', label: 'Biasa saja', color: '#6B7280' },
+  { id: 'happy', emoji: '😊', label: 'Senang', color: '#10B981' },
+  { id: 'very-happy', emoji: '😄', label: 'Sangat senang', color: '#059669' }
 ];
+
+// Extended moods for detailed tracking
+const extendedMoods: MoodOption[] = [
+  { id: 'anxious', emoji: '😰', label: 'Cemas', color: '#F59E0B' },
+  { id: 'angry', emoji: '😠', label: 'Marah', color: '#DC2626' },
+  { id: 'calm', emoji: '😌', label: 'Tenang', color: '#06B6D4' },
+  { id: 'excited', emoji: '🤩', label: 'Bersemangat', color: '#8B5CF6' },
+  { id: 'tired', emoji: '😴', label: 'Lelah', color: '#6B7280' }
+];
+
+// All mood options combined
+const moodOptions: MoodOption[] = [...primaryMoods, ...extendedMoods];
 
 const getMoodColor = (mood: MoodType): string => {
   const moodOption = moodOptions.find(option => option.id === mood);
@@ -60,7 +69,9 @@ export type {
 };
 
 export { 
-  moodOptions, 
+  moodOptions,
+  primaryMoods,
+  extendedMoods,
   getMoodColor, 
   getMoodEmoji, 
   getMoodLabel 

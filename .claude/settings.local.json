@@ -54,7 +54,8 @@
       "Bash(npm run open:stats:*)",
       "Bash(npm run analyze:fast:*)",
       "Bash(npm update:*)",
-      "Bash(git restore:*)"
+      "Bash(git restore:*)",
+      "Bash(timeout 15 npm run dev)"
     ],
     "deny": []
   }

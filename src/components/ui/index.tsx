@@ -23,6 +23,7 @@ export { CairnIcon } from './CairnIcon';
 export { BreathingCard } from './BreathingCard';
 export { MoodSelector } from './MoodSelector';
 export { MoodHistory } from './MoodHistory';
+export { MoodNoteModal } from './MoodNoteModal';
 export { FloatingButton } from './FloatingButton';
 export { DashboardLayout } from './DashboardLayout';
 
