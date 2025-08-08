@@ -19,6 +19,7 @@ import { Explore } from './pages/Explore';
 import { Journal } from './pages/Journal';
 import { Profile } from './pages/Profile';
 import { Settings } from './pages/Settings';
+import { Progress } from './pages/Progress';
 import { ComponentsDemo } from './pages/ComponentsDemo';
 import FrameworkDemo from './pages/FrameworkDemo';
 import DesignSystemDemo from './pages/DesignSystemDemo';
@@ -114,6 +115,14 @@ const AppContent: React.FC = () => {
           <Route path="/journal" element={<Journal />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/settings" element={<Settings />} />
+          <Route 
+            path="/progress" 
+            element={
+              <DashboardLayout showBottomNav={true}>
+                <Progress />
+              </DashboardLayout>
+            } 
+          />
           <Route 
             path="/breathing" 
             element={
