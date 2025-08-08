@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
 import IndonesianCTA from '../ui/IndonesianCTA';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
+import SembalunIntroductionStep from './SembalunIntroductionStep';
 import { CulturalPersonalizationScreen, type CulturalData } from './CulturalPersonalizationScreen';
 import FiveMinuteMeditationExperience from './FiveMinuteMeditationExperience';
 import InstantMoodTracking from './InstantMoodTracking';
@@ -13,7 +14,7 @@ import type { PersonalizationGoal } from '../../types/onboarding';
 
 export type OnboardingStrategy = 'experience-first' | 'auth-first' | 'progressive-trust';
 export type UserCommitmentLevel = 'curious' | 'interested' | 'committed' | 'loyal';
-export type OnboardingStep = 'cultural' | 'experience' | 'mood' | 'conversion' | 'social-auth' | 'complete';
+export type OnboardingStep = 'introduction' | 'cultural' | 'experience' | 'mood' | 'conversion' | 'social-auth' | 'complete';
 
 interface IndonesianUserBehavior {
   trustBuildingRequired: boolean;
@@ -113,7 +114,7 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
   onStepComplete,
   onFlowComplete,
   culturalHints,
-  initialStep = 'cultural'
+  initialStep = 'introduction'
 }) => {
   const { updateFromOnboarding } = usePersonalization();
   
@@ -121,7 +122,7 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
   const [flow, setFlow] = useState<ExperienceFirstFlow>({
     currentStep: initialStep,
     stepProgress: 0,
-    totalSteps: 5,
+    totalSteps: 6,
     userEngagement: {
       culturalRelevance: 0,
       experienceCompletion: 0,
@@ -139,6 +140,15 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
 
   // Step configuration with enhanced metadata
   const stepConfig = {
+    introduction: { 
+      order: 0, 
+      title: 'Pengenalan Sembalun', 
+      subtitle: 'Kenali aplikasi meditasi Indonesia',
+      icon: '🏔️',
+      duration: 180, // 3 minutes expected
+      authRequired: false,
+      valueProposition: 'Aplikasi meditasi pertama yang memahami budaya Indonesia'
+    },
     cultural: { 
       order: 1, 
       title: 'Personalisasi Budaya', 
@@ -257,6 +267,11 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
   }, [flow.currentStep, stepConfig]);
 
   // Step completion handlers
+  const handleIntroductionComplete = useCallback(() => {
+    onStepComplete('introduction', stepData);
+    transitionToStep('cultural');
+  }, [stepData, onStepComplete, transitionToStep]);
+
   const handleCulturalComplete = useCallback((culturalData: CulturalData) => {
     const updatedData = { ...stepData, cultural: culturalData };
     setStepData(updatedData);
@@ -480,6 +495,16 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
     };
 
     switch (flow.currentStep) {
+      case 'introduction':
+        return (
+          <motion.div key="introduction" variants={stepVariants} initial="initial" animate="animate" exit="exit">
+            <SembalunIntroductionStep 
+              onContinue={handleIntroductionComplete}
+              onSkip={handleIntroductionComplete}
+            />
+          </motion.div>
+        );
+
       case 'cultural':
         return (
           <motion.div key="cultural" variants={stepVariants} initial="initial" animate="animate" exit="exit">

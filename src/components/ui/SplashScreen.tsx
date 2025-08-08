@@ -75,12 +75,15 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
         <div 
           className={`
             mb-8 transition-all duration-1000 ease-out
+            flex items-center justify-center
             ${animationPhase === 'fade-in' ? 'scale-75 translate-y-4' : 'scale-100 translate-y-0'}
             ${animationPhase === 'breathing' ? 'scale-105' : ''}
             ${animationPhase === 'fade-out' ? 'scale-110 translate-y-[-8px]' : ''}
           `}
         >
-          <AnimatedCairn size={160} animate={animationPhase !== 'fade-in'} />
+          <div className="flex items-center justify-center">
+            <AnimatedCairn size={160} animate={animationPhase !== 'fade-in'} />
+          </div>
         </div>
 
         {/* App name */}

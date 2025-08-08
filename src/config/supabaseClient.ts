@@ -5,38 +5,45 @@ import type { Database } from '../types/supabase';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
-// Validation
+// Validation with graceful fallback
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error(
+  console.error(
     'Missing Supabase environment variables. Please check your .env file:\n' +
     '- VITE_SUPABASE_URL\n' +
     '- VITE_SUPABASE_ANON_KEY'
   );
+  
+  // In development, provide more details
+  if (import.meta.env.DEV) {
+    console.warn('Supabase client will be null - auth features will be disabled');
+  }
 }
 
-// Create typed Supabase client
-export const supabase: SupabaseClient<Database> = createClient<Database>(
-  supabaseUrl,
-  supabaseAnonKey,
-  {
-    auth: {
-      autoRefreshToken: true,
-      persistSession: true,
-      detectSessionInUrl: true,
-      flowType: 'pkce'
-    },
-    realtime: {
-      params: {
-        eventsPerSecond: 10
+// Create typed Supabase client with null fallback
+export const supabase: SupabaseClient<Database> | null = 
+  (supabaseUrl && supabaseAnonKey) ? 
+    createClient<Database>(
+      supabaseUrl,
+      supabaseAnonKey,
+      {
+        auth: {
+          autoRefreshToken: true,
+          persistSession: true,
+          detectSessionInUrl: true,
+          flowType: 'pkce'
+        },
+        realtime: {
+          params: {
+            eventsPerSecond: 10
+          }
+        },
+        global: {
+          headers: {
+            'X-Client-Info': 'sembalun-meditation-app'
+          }
+        }
       }
-    },
-    global: {
-      headers: {
-        'X-Client-Info': 'sembalun-meditation-app'
-      }
-    }
-  }
-);
+    ) : null;
 
 // Error handler for Supabase operations
 export const handleSupabaseError = (error: any) => {
@@ -60,6 +67,11 @@ export const handleSupabaseError = (error: any) => {
 // Health check function
 export const checkSupabaseConnection = async (): Promise<boolean> => {
   try {
+    if (!supabase) {
+      console.warn('Supabase client not available');
+      return false;
+    }
+
     const { data, error } = await supabase
       .from('courses')
       .select('id')

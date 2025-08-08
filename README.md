@@ -1,81 +1,164 @@
-# Sembalun - Meditation & Mindfulness App
+# Sembalun - Advanced Indonesian Meditation Platform 🧘‍♀️
 
-[![Production Status](https://img.shields.io/badge/status-production-green.svg)](https://sembalun-app.vercel.app)
+> **Production-Ready** • **AI-Powered Personalization** • **Culturally Authentic** • **Enterprise-Grade**
+
+[![Production Status](https://img.shields.io/badge/status-production_ready-green.svg)](https://sembalun-app.vercel.app)
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-2.53.0-green.svg)](https://supabase.com/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.4-purple.svg)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-blue.svg)](https://tailwindcss.com/)
+[![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.23.12-orange.svg)](https://www.framer.com/motion/)
+[![Multi-Agent](https://img.shields.io/badge/Multi_Agent-Enabled-brightgreen.svg)]()[![Indonesian Cultural](https://img.shields.io/badge/Indonesian_Cultural-Authentic-yellow.svg)]()
 
 ## 🧘‍♀️ Overview
 
-Sembalun is a comprehensive meditation and mindfulness application designed to help users develop a consistent meditation practice through guided sessions, breathing exercises, progress tracking, and personalized insights. The app combines traditional meditation wisdom with modern technology to create an accessible and engaging mindfulness experience.
+**Sembalun** is a sophisticated, production-ready Indonesian meditation platform that represents the next generation of mindfulness applications. It seamlessly blends cutting-edge AI personalization technology with authentic Indonesian cultural wisdom across four major traditions (Javanese, Balinese, Sundanese, Minangkabau).
 
-### ✨ Key Features
+Featuring a **60+ service architecture**, **multi-agent task orchestration**, and **enterprise-grade performance monitoring**, Sembalun delivers deeply personalized meditation experiences that adapt to user behavior, cultural preferences, and environmental context.
 
-- **🎯 Guided Meditations**: Comprehensive library of guided meditation sessions
-- **🫁 Breathing Exercises**: Various breathing patterns and techniques
-- **📊 Progress Tracking**: Detailed analytics and streak monitoring
-- **🎨 Cultural Integration**: Indonesian-inspired design and content
-- **👤 User Profiles**: Personalized experience with preferences and goals
-- **📱 PWA Support**: Installable web app with offline capabilities
-- **🔐 Secure Authentication**: Supabase-powered authentication system
-- **🌙 Guest Mode**: Try the app without creating an account
-- **🔄 Real-time Sync**: Cross-device synchronization
-- **📈 Analytics Dashboard**: Comprehensive progress insights
+### 🎯 Mission
+To revolutionize mindfulness practice by delivering deeply personalized meditation experiences rooted in Indonesian cultural authenticity, powered by advanced AI personalization and multi-agent coordination systems.
 
-## 🏗️ Technical Architecture
+### ✨ Advanced Features
 
-### Frontend Stack
-- **React 19.1.0** - Modern UI framework with concurrent features
-- **TypeScript 5.8.3** - Type-safe JavaScript
-- **Vite 7.0.4** - Fast build tool and dev server
-- **TailwindCSS 4.1.11** - Utility-first CSS framework
-- **React Router 7.7.1** - Client-side routing
-- **Lucide React** - Beautiful SVG icons
+#### 🤖 AI-Powered Personalization Engine
+- **Behavioral Analytics**: Deep learning from 60+ user interaction patterns
+- **Mood-Based Adaptation**: Content automatically adjusts to emotional state
+- **Smart Scheduling**: AI-optimized meditation timing recommendations
+- **Cultural Context Awareness**: Indonesian tradition-specific personalization
+- **Predictive Insights**: Forecasts optimal meditation times and content
 
-### Backend & Services
-- **Supabase** - Backend-as-a-Service
-  - Authentication & User Management
-  - PostgreSQL Database
-  - Real-time subscriptions
-  - Row Level Security (RLS)
-  - Storage for media files
-- **Vercel** - Deployment and hosting platform
+#### 🏛️ Authentic Indonesian Cultural Integration
+- **Four Regional Traditions**: Javanese, Balinese, Sundanese, Minangkabau meditation systems
+- **Cultural Design Cards**: Authentic regional patterns (batik-kawung, pura-ornament, bamboo-motif, rumah-gadang)
+- **Traditional Wisdom Integration**: Daily Indonesian proverbs and spiritual guidance
+- **Regional Music**: Traditional Indonesian ambient sounds and gamelan
+- **Cultural Calendar Awareness**: Meditation aligned with Indonesian cultural events
 
-### Testing & Quality
-- **Vitest** - Fast unit testing framework
-- **Testing Library** - React component testing
-- **ESLint** - Code linting and formatting
-- **TypeScript Compiler** - Static type checking
+#### 🚀 Enterprise-Grade Technical Excellence
+- **Multi-Agent System**: 5+ specialized AI agents for task orchestration and coordination
+- **60+ Specialized Services**: Modular architecture with single-responsibility services
+- **Offline-First Architecture**: Complete functionality without internet connection
+- **Real-time Synchronization**: Conflict-free cross-device data consistency
+- **Performance Monitoring**: Enterprise-grade telemetry and Core Web Vitals tracking
+- **Indonesian Network Optimization**: Adaptive quality for local network conditions
 
-## 📁 Project Structure
+#### 🎨 Design System 2025
+- **Indonesian Cultural Cards**: Authentic ornamental patterns and regional color schemes
+- **Personalized Dashboard**: AI-driven layout adaptation based on user preferences
+- **Adaptive Theming**: Dynamic styling based on cultural preferences and accessibility needs
+- **WCAG 2.1 AA Compliance**: Full accessibility with screen reader and keyboard support
+- **Mobile-First Indonesian UX**: Optimized for Indonesian mobile usage patterns
+
+## 🏗️ Advanced Technical Architecture
+
+### Multi-Context State Management
+- **SupabaseAuthContext** - Advanced authentication with guest mode and profile management
+- **PersonalizationContext** - AI-driven user preference and behavior analytics engine
+- **OfflineContext** - Comprehensive offline functionality with intelligent synchronization
+- **ThemeContext** - Cultural theme management with Indonesian design tokens
+- **OnboardingContext** - Complete user onboarding flow with cultural preferences
+
+### Frontend Excellence
+- **React 19.1.0** - Latest React with concurrent rendering and server components
+- **TypeScript 5.8.3** - Full type safety with advanced cultural type systems
+- **Vite 7.0.4** - Optimized build with Indonesian mobile network optimizations
+- **TailwindCSS 4.1.11** - Custom Indonesian cultural design tokens and utilities
+- **Framer Motion 12.23.12** - Advanced animations with cultural-sensitive motion design
+
+### Service Layer Architecture (60+ Services)
+- **Cultural Services** - Indonesian wisdom integration, cultural personalization
+- **Analytics Services** - Behavioral tracking, mood analysis, progress insights
+- **Multi-Agent Services** - Task orchestration, agent coordination, intelligent task distribution
+- **Offline Services** - IndexedDB management, intelligent sync, conflict resolution
+- **Performance Services** - Core Web Vitals tracking, Indonesian network optimization
+
+### Backend & Infrastructure
+- **Supabase** - Production-grade Backend-as-a-Service
+  - Advanced PostgreSQL with JSONB cultural data structures
+  - Row Level Security with user isolation and cultural data protection
+  - Real-time subscriptions with conflict-free synchronization
+  - Multi-bucket storage with Indonesian cultural content CDN
+- **Enterprise Monitoring** - Performance tracking, error reporting, cultural engagement analytics
+
+### Quality & Performance
+- **Vitest 3.2.4** - Fast unit testing with cultural context testing
+- **Playwright 1.54.2** - End-to-end testing across Indonesian mobile devices
+- **ESLint 9.30.1** - Comprehensive linting with Indonesian development rules
+- **Enterprise Performance Monitor** - Real-time performance optimization
+
+## 📁 Advanced Project Architecture
 
 ```
-sembalun/
+Sembalun Production Architecture/
 ├── src/
-│   ├── components/          # Reusable UI components
-│   │   ├── ui/             # Base UI components
-│   │   ├── auth/           # Authentication components
-│   │   ├── admin/          # Admin panel components
-│   │   ├── analytics/      # Analytics and reporting
-│   │   ├── account/        # User account management
-│   │   ├── meditation/     # Meditation-specific components
-│   │   ├── notifications/  # Notification system
-│   │   ├── personalization/# User customization
-│   │   └── tracking/       # Progress tracking
-│   ├── pages/              # Page components (routes)
-│   ├── contexts/           # React contexts
-│   ├── hooks/              # Custom React hooks
-│   ├── services/           # Business logic and API calls
-│   ├── types/              # TypeScript type definitions
-│   ├── utils/              # Utility functions
-│   ├── config/             # Configuration files
-│   └── test/               # Test utilities and setup
-├── public/                 # Static assets
-├── supabase/               # Database schema and migrations
-├── docs/                   # Documentation
-└── scripts/                # Build and utility scripts
+│   ├── components/              # 80+ Advanced Components
+│   │   ├── ui/                 # Core UI with Indonesian design system
+│   │   ├── cultural/           # Indonesian cultural components (cards, wisdom, patterns)
+│   │   ├── analytics/          # Behavioral analytics and progress insights
+│   │   ├── onboarding/         # Complete cultural personalization onboarding
+│   │   ├── personalization/    # AI personalization and recommendation components
+│   │   ├── multiagent/         # Multi-agent system interface and coordination
+│   │   ├── auth/               # Advanced authentication with guest mode
+│   │   ├── admin/              # Admin dashboard with cultural analytics
+│   │   ├── account/            # User profile with cultural preferences
+│   │   ├── meditation/         # Advanced meditation timer and guidance
+│   │   ├── notifications/      # Smart notification system
+│   │   └── tracking/           # Comprehensive progress tracking
+│   ├── pages/                  # 30+ Page components with cultural routing
+│   ├── contexts/               # 5 Specialized contexts for state management
+│   │   ├── SupabaseAuthContext    # Authentication with cultural profiles
+│   │   ├── PersonalizationContext # AI personalization engine
+│   │   ├── OfflineContext         # Offline-first with intelligent sync
+│   │   ├── ThemeContext           # Cultural theme management
+│   │   └── OnboardingContext      # Cultural preference onboarding
+│   ├── services/               # 60+ Specialized Services
+│   │   ├── api/               # Supabase integration services
+│   │   ├── analytics/         # Behavioral and cultural analytics
+│   │   ├── cultural/          # Indonesian wisdom and tradition services
+│   │   ├── multiagent/        # Multi-agent coordination services
+│   │   ├── offline/           # Offline queue and synchronization
+│   │   └── performance/       # Enterprise performance monitoring
+│   ├── types/                  # Comprehensive TypeScript definitions
+│   │   ├── auth.ts            # Authentication and user profiles
+│   │   ├── cultural.ts        # Indonesian cultural type system
+│   │   ├── personalization.ts # AI personalization interfaces
+│   │   └── multiagent.ts      # Multi-agent system types
+│   ├── utils/                  # Indonesian-specific utilities
+│   │   ├── indonesian-mobile-optimization.ts
+│   │   ├── cultural-personalization.ts
+│   │   └── enterprise-performance-monitor.ts
+│   ├── design-system/         # Indonesian Cultural Design System 2025
+│   │   ├── foundations/       # Design tokens and cultural colors
+│   │   ├── components/        # Cultural component specifications
+│   │   └── themes/           # Regional theme definitions
+│   └── hooks/                 # Advanced custom hooks
+├── supabase/                  # Production database with cultural schema
+├── docs/                      # Comprehensive documentation
+│   ├── WIKI.md               # Complete project wiki
+│   ├── CULTURAL_INTEGRATION.md
+│   ├── PERSONALIZATION.md
+│   ├── MULTIAGENT_SYSTEM.md
+│   └── INDONESIAN_OPTIMIZATION.md
+└── .claude-flow/             # Claude Flow AI coordination
+    ├── metrics/              # Performance and coordination metrics
+    └── swarms/              # Multi-agent swarm configurations
+```
+
+### Multi-Context Provider Hierarchy
+```typescript
+<ThemeProvider>
+  <OfflineProvider>
+    <SupabaseAuthProvider>
+      <PersonalizationProvider>
+        <OnboardingProvider>
+          <App /> // All contexts available with full coordination
+        </OnboardingProvider>
+      </PersonalizationProvider>
+    </SupabaseAuthProvider>
+  </OfflineProvider>
+</ThemeProvider>
 ```
 
 ## 🚀 Getting Started

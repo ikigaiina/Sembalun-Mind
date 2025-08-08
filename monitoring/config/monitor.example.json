@@ -1,0 +1,115 @@
+{
+  "appUrl": "http://localhost:5173",
+  "supabaseUrl": "https://your-project.supabase.co",
+  "supabaseKey": "your-supabase-anon-key",
+  "port": 3001,
+  "dashboardPort": 3002,
+  "checkInterval": 30000,
+  "logLevel": "info",
+  "maxAlerts": 1000,
+  "maxLogs": 10000,
+  "dataRetentionDays": 30,
+  "alerts": {
+    "email": {
+      "enabled": false,
+      "smtp": {
+        "host": "smtp.gmail.com",
+        "port": 587,
+        "secure": false,
+        "auth": {
+          "user": "your-email@gmail.com",
+          "pass": "your-app-password"
+        }
+      },
+      "recipients": ["admin@yourapp.com"],
+      "subject": "Sembalun Monitor Alert"
+    },
+    "webhook": {
+      "enabled": false,
+      "url": "https://hooks.slack.com/services/YOUR/WEBHOOK/URL",
+      "method": "POST",
+      "headers": {
+        "Content-Type": "application/json"
+      },
+      "template": {
+        "text": "🚨 Sembalun Alert: {{message}}",
+        "level": "{{level}}",
+        "timestamp": "{{timestamp}}"
+      }
+    },
+    "telegram": {
+      "enabled": false,
+      "botToken": "your-bot-token",
+      "chatId": "your-chat-id"
+    }
+  },
+  "thresholds": {
+    "responseTime": {
+      "warning": 2000,
+      "error": 5000
+    },
+    "cpu": {
+      "warning": 80,
+      "error": 90
+    },
+    "memory": {
+      "warning": 85,
+      "error": 95
+    },
+    "disk": {
+      "warning": 85,
+      "error": 95
+    },
+    "errorRate": {
+      "warning": 5,
+      "error": 10
+    }
+  },
+  "monitoring": {
+    "endpoints": [
+      "/",
+      "/dashboard",
+      "/meditation",
+      "/profile",
+      "/settings"
+    ],
+    "supabaseTables": [
+      "users",
+      "meditation_sessions",
+      "cairn_progress",
+      "user_streaks"
+    ],
+    "customMetrics": {
+      "culturalEngagement": {
+        "enabled": true,
+        "query": "SELECT COUNT(*) FROM cultural_interactions WHERE created_at > NOW() - INTERVAL '1 day'"
+      },
+      "aiPersonalization": {
+        "enabled": true,
+        "query": "SELECT COUNT(*) FROM personalization_events WHERE created_at > NOW() - INTERVAL '1 day'"
+      }
+    }
+  },
+  "security": {
+    "httpsOnly": false,
+    "apiKey": null,
+    "allowedOrigins": ["http://localhost:3002"],
+    "rateLimiting": {
+      "enabled": true,
+      "maxRequests": 100,
+      "windowMs": 900000
+    }
+  },
+  "performance": {
+    "enableCaching": true,
+    "cacheTimeout": 300000,
+    "enableCompression": true,
+    "maxConcurrentChecks": 5
+  },
+  "backup": {
+    "enabled": true,
+    "interval": "0 2 * * *",
+    "retention": 7,
+    "destination": "./backups"
+  }
+}

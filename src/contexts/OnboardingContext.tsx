@@ -77,8 +77,8 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
   if (!isLoaded) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ backgroundColor: 'var(--color-background)' }}>
-        <div className="text-center">
-          <div className="flex justify-center space-x-1 mb-4">
+        <div className="text-center w-full max-w-xs mx-auto px-4">
+          <div className="flex justify-center items-center space-x-1 mb-4">
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
@@ -91,7 +91,7 @@ export const OnboardingProvider: React.FC<OnboardingProviderProps> = ({ children
               />
             ))}
           </div>
-          <p className="text-gray-600 font-body text-sm">Memuat Sembalun...</p>
+          <p className="text-gray-600 font-body text-sm text-center">Memuat Sembalun...</p>
         </div>
       </div>
     );

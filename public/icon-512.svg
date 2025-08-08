@@ -1,45 +1,118 @@
 <svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-  <!-- Background -->
+  <!-- Enhanced Sembalun Logo Background - 512px -->
   <defs>
-    <linearGradient id="bg512" x1="0%" y1="0%" x2="100%" y2="100%">
+    <linearGradient id="bg-512" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:#E1E8F0;stop-opacity:1" />
-      <stop offset="50%" style="stop-color:#F7F9FC;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:#E8F0E1;stop-opacity:1" />
+      <stop offset="25%" style="stop-color:#F7F9FC;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#E8F0E1;stop-opacity:1" />
+      <stop offset="75%" style="stop-color:#D4E6D4;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#C7DCF0;stop-opacity:1" />
     </linearGradient>
+    
+    <!-- Enhanced stone gradients for depth -->
+    <radialGradient id="stone-base-512" cx="0.25" cy="0.25" r="1.2">
+      <stop offset="0%" stopColor="#A3B3A3" />
+      <stop offset="30%" stopColor="#8AAF8F" />
+      <stop offset="100%" stopColor="#6A8F6F" />
+    </radialGradient>
+    <radialGradient id="stone-mid1-512" cx="0.25" cy="0.25" r="1.2">
+      <stop offset="0%" stopColor="#B5C5B5" />
+      <stop offset="30%" stopColor="#9ABF9F" />
+      <stop offset="100%" stopColor="#7A9F7F" />
+    </radialGradient>
+    <radialGradient id="stone-mid2-512" cx="0.25" cy="0.25" r="1.2">
+      <stop offset="0%" stopColor="#C5D5C5" />
+      <stop offset="30%" stopColor="#AACFAF" />
+      <stop offset="100%" stopColor="#8AAF8F" />
+    </radialGradient>
+    <radialGradient id="stone-mid3-512" cx="0.25" cy="0.25" r="1.2">
+      <stop offset="0%" stopColor="#D5E5D5" />
+      <stop offset="30%" stopColor="#BACFBF" />
+      <stop offset="100%" stopColor="#9ABF9F" />
+    </radialGradient>
+    <radialGradient id="stone-top1-512" cx="0.25" cy="0.25" r="1.2">
+      <stop offset="0%" stopColor="#E5F5E5" />
+      <stop offset="30%" stopColor="#CADFD9" />
+      <stop offset="100%" stopColor="#AACFAF" />
+    </radialGradient>
+    <radialGradient id="stone-top2-512" cx="0.25" cy="0.25" r="1.2">
+      <stop offset="0%" stopColor="#F0F8F0" />
+      <stop offset="30%" stopColor="#DAEFD9" />
+      <stop offset="100%" stopColor="#BACFBF" />
+    </radialGradient>
+    
+    <!-- Enhanced shadow gradient -->
+    <radialGradient id="shadow-512" cx="0.5" cy="0.9" r="0.8">
+      <stop offset="0%" stopColor="rgba(106,143,111,0.4)" />
+      <stop offset="50%" stopColor="rgba(106,143,111,0.2)" />
+      <stop offset="100%" stopColor="rgba(106,143,111,0)" />
+    </radialGradient>
+    
+    <!-- Meditation aura gradient -->
+    <radialGradient id="aura-512" cx="0.5" cy="0.4" r="0.6">
+      <stop offset="0%" stopColor="rgba(169,193,217,0.1)" />
+      <stop offset="50%" stopColor="rgba(106,143,111,0.05)" />
+      <stop offset="100%" stopColor="rgba(106,143,111,0)" />
+    </radialGradient>
   </defs>
   
-  <rect width="512" height="512" fill="url(#bg512)" rx="64"/>
+  <rect width="512" height="512" fill="url(#bg-512)" rx="80"/>
   
-  <!-- Cairn Stack (Stone Meditation Symbol) - Larger Version -->
-  <!-- Bottom stone -->
-  <ellipse cx="256" cy="380" rx="85" ry="32" fill="#6A8F6F" opacity="0.8"/>
-  <ellipse cx="256" cy="375" rx="85" ry="32" fill="#6A8F6F"/>
+  <!-- Meditation aura background -->
+  <ellipse cx="256" cy="280" rx="220" ry="180" fill="url(#aura-512)" opacity="0.6"/>
   
-  <!-- Second stone -->
-  <ellipse cx="256" cy="315" rx="65" ry="26" fill="#7A9F7F" opacity="0.8"/>
-  <ellipse cx="256" cy="310" rx="65" ry="26" fill="#7A9F7F"/>
+  <!-- Enhanced Cairn Stack with realistic shadows and highlights -->
+  <!-- Detailed shadows for each stone -->
+  <ellipse cx="256" cy="390" rx="80" ry="8" fill="url(#shadow-512)" opacity="0.7"/>
+  <ellipse cx="256" cy="325" rx="60" ry="6" fill="url(#shadow-512)" opacity="0.6"/>
+  <ellipse cx="256" cy="270" rx="45" ry="5" fill="url(#shadow-512)" opacity="0.5"/>
+  <ellipse cx="256" cy="220" rx="35" ry="4" fill="url(#shadow-512)" opacity="0.4"/>
+  <ellipse cx="256" cy="180" rx="25" ry="3" fill="url(#shadow-512)" opacity="0.3"/>
+  <ellipse cx="256" cy="150" rx="18" ry="2" fill="url(#shadow-512)" opacity="0.2"/>
   
-  <!-- Third stone -->
-  <ellipse cx="256" cy="260" rx="50" ry="22" fill="#8AAF8F" opacity="0.8"/>
-  <ellipse cx="256" cy="255" rx="50" ry="22" fill="#8AAF8F"/>
+  <!-- Bottom stone (largest) -->
+  <ellipse cx="256" cy="380" rx="85" ry="32" fill="url(#stone-base-512)"/>
+  <ellipse cx="230" cy="370" rx="32" ry="10" fill="rgba(255,255,255,0.4)" opacity="0.8"/>
+  <ellipse cx="240" cy="375" rx="15" ry="4" fill="rgba(255,255,255,0.6)" opacity="0.6"/>
+  
+  <!-- Fifth stone -->
+  <ellipse cx="256" cy="315" rx="65" ry="26" fill="url(#stone-mid1-512)"/>
+  <ellipse cx="235" cy="308" rx="24" ry="8" fill="rgba(255,255,255,0.4)" opacity="0.8"/>
+  <ellipse cx="245" cy="312" rx="12" ry="3" fill="rgba(255,255,255,0.6)" opacity="0.6"/>
   
   <!-- Fourth stone -->
-  <ellipse cx="256" cy="210" rx="38" ry="18" fill="#9ABF9F" opacity="0.8"/>
-  <ellipse cx="256" cy="205" rx="38" ry="18" fill="#9ABF9F"/>
+  <ellipse cx="256" cy="260" rx="50" ry="22" fill="url(#stone-mid2-512)"/>
+  <ellipse cx="238" cy="254" rx="18" ry="6" fill="rgba(255,255,255,0.4)" opacity="0.8"/>
+  <ellipse cx="246" cy="257" rx="9" ry="2.5" fill="rgba(255,255,255,0.6)" opacity="0.6"/>
+  
+  <!-- Third stone -->
+  <ellipse cx="256" cy="210" rx="38" ry="18" fill="url(#stone-mid3-512)"/>
+  <ellipse cx="242" cy="205" rx="14" ry="5" fill="rgba(255,255,255,0.5)" opacity="0.8"/>
+  <ellipse cx="248" cy="207" rx="7" ry="2" fill="rgba(255,255,255,0.7)" opacity="0.6"/>
+  
+  <!-- Second stone -->
+  <ellipse cx="256" cy="170" rx="28" ry="14" fill="url(#stone-top1-512)"/>
+  <ellipse cx="245" cy="166" rx="10" ry="4" fill="rgba(255,255,255,0.5)" opacity="0.8"/>
+  <ellipse cx="250" cy="168" rx="5" ry="1.5" fill="rgba(255,255,255,0.7)" opacity="0.7"/>
   
   <!-- Top stone -->
-  <ellipse cx="256" cy="170" rx="28" ry="14" fill="#AACFAF" opacity="0.8"/>
-  <ellipse cx="256" cy="165" rx="28" ry="14" fill="#AACFAF"/>
+  <ellipse cx="256" cy="140" rx="20" ry="10" fill="url(#stone-top2-512)"/>
+  <ellipse cx="248" cy="137" rx="7" ry="3" fill="rgba(255,255,255,0.6)" opacity="0.9"/>
+  <ellipse cx="251" cy="138" rx="3" ry="1" fill="rgba(255,255,255,0.8)" opacity="0.8"/>
   
-  <!-- Tiny top stone -->
-  <ellipse cx="256" cy="140" rx="20" ry="10" fill="#BACFBF" opacity="0.8"/>
-  <ellipse cx="256" cy="135" rx="20" ry="10" fill="#BACFBF"/>
+  <!-- Meditation energy rings -->
+  <circle cx="256" cy="256" r="180" fill="none" stroke="rgba(106,143,111,0.1)" stroke-width="2" opacity="0.8"/>
+  <circle cx="256" cy="256" r="200" fill="none" stroke="rgba(169,193,217,0.08)" stroke-width="1.5" opacity="0.6"/>
+  <circle cx="256" cy="256" r="220" fill="none" stroke="rgba(199,220,240,0.06)" stroke-width="1" opacity="0.4"/>
   
-  <!-- App name -->
-  <text x="256" y="450" font-family="serif" font-size="42" font-weight="600" 
-        text-anchor="middle" fill="#6A8F6F">Sembalun</text>
+  <!-- Enhanced typography with shadow effects -->
+  <text x="256" y="450" font-family="serif" font-size="48" font-weight="800" 
+        text-anchor="middle" fill="rgba(0,0,0,0.1)" opacity="0.5">Sembalun</text>
+  <text x="256" y="447" font-family="serif" font-size="48" font-weight="800" 
+        text-anchor="middle" fill="#4A6F4F" opacity="0.95">Sembalun</text>
   
-  <!-- Subtitle -->
-  <text x="256" y="480" font-family="sans-serif" font-size="20" font-weight="400" 
-        text-anchor="middle" fill="#A9C1D9" opacity="0.8">Perjalanan Kedamaian</text>
+  <text x="256" y="485" font-family="sans-serif" font-size="22" font-weight="500" 
+        text-anchor="middle" fill="rgba(0,0,0,0.1)" opacity="0.4">Perjalanan Kedamaian</text>
+  <text x="256" y="482" font-family="sans-serif" font-size="22" font-weight="500" 
+        text-anchor="middle" fill="#6A8F6F" opacity="0.8">Perjalanan Kedamaian</text>
 </svg>

@@ -333,7 +333,8 @@ export default defineConfig(({ mode }) => {
   define: {
     __DEV__: isDev,
     __PROD__: isProd,
-    'process.env.NODE_ENV': JSON.stringify(mode)
+    'process.env.NODE_ENV': JSON.stringify(mode),
+    global: 'globalThis'
   },
   // Development-specific optimizations
   ...(isDev && {
@@ -351,7 +352,7 @@ export default defineConfig(({ mode }) => {
         'react',
         'react-dom',
         'react-router-dom',
-        
+        'scheduler'
       ],
       exclude: ['@vite/env']
     }
