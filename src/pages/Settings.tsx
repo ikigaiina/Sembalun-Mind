@@ -5,6 +5,8 @@ import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { PasswordChange } from '../components/account/PasswordChange';
 import { AccountSecurity } from '../components/account/AccountSecurity';
+import { OfflineModeManager } from '../components/offline/OfflineModeManager';
+import { SessionExporter } from '../components/export/SessionExporter';
 
 export const Settings: React.FC = () => {
   const { user, userProfile, isGuest, signOut, updateUserProfile, deleteAccount, exportUserData, reauthenticateUser } = useAuth();
@@ -384,6 +386,18 @@ export const Settings: React.FC = () => {
         {/* Account Security Component */}
         <AccountSecurity />
 
+        {/* Offline Mode Manager */}
+        <div className="bg-white rounded-3xl p-8 shadow-lg">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">Mode Offline</h3>
+          <OfflineModeManager />
+        </div>
+
+        {/* Data Export/Import */}
+        <div className="bg-white rounded-3xl p-8 shadow-lg">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6">Kelola Data</h3>
+          <SessionExporter />
+        </div>
+
         {/* Account Actions */}
         <div className="bg-white rounded-3xl p-8 shadow-lg space-y-6">
           <h3 className="text-xl font-semibold text-gray-900">Account Actions</h3>
@@ -394,7 +408,7 @@ export const Settings: React.FC = () => {
               onClick={handleExportData}
               className="flex-1"
             >
-              Export My Data
+              Export My Data (Simple)
             </Button>
             
             <Button
