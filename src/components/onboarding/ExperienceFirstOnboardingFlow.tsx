@@ -192,7 +192,7 @@ export const ExperienceFirstOnboardingFlow: React.FC<ExperienceFirstOnboardingFl
               onStepComplete={handleStepComplete}
               onFlowComplete={handleFlowComplete}
               culturalHints={culturalHints}
-              initialStep="cultural"
+              initialStep="introduction"
             />
           </motion.div>
         )}

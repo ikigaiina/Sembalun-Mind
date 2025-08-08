@@ -5,7 +5,7 @@ import type {
   Session, 
   AuthError as SupabaseAuthError
 } from '@supabase/supabase-js';
-import { supabase } from '../config/supabase';
+import { supabase } from '../config/supabaseClient';
 import type { 
   SupabaseAuthContextType, 
   UserProfile, 
@@ -136,6 +136,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Create new user profile
   const createUserProfile = useCallback(async (userId: string) => {
+    if (!supabase) {
+      console.warn('Supabase client not available, skipping profile creation');
+      return;
+    }
+
     const newProfile: Partial<UserProfile> = {
       uid: userId,
       email: user?.email || null,
@@ -177,6 +182,12 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Load user profile from Supabase database
   const loadUserProfile = useCallback(async (userId: string) => {
+    if (!supabase) {
+      console.warn('Supabase client not available, skipping profile loading');
+      updateLoadingState('profileLoading', false);
+      return;
+    }
+
     updateLoadingState('profileLoading', true);
     try {
       const { data: profile, error } = await supabase
@@ -215,6 +226,13 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
     const initializeAuth = async () => {
       try {
+        // Check if supabase client is available
+        if (!supabase) {
+          console.warn('Supabase client not available, skipping auth initialization');
+          updateLoadingState('loading', false);
+          return;
+        }
+
         const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
@@ -262,28 +280,33 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     loadGuestData();
 
     // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        if (!mounted) return;
+    let subscription: { unsubscribe: () => void } | null = null;
+    
+    if (supabase?.auth) {
+      const { data: { subscription: authSubscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (!mounted) return;
 
-        console.log('Auth state changed:', event, session?.user?.email);
-        
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (session?.user) {
-          setIsGuest(false);
-          await loadUserProfile(session.user.id);
-        } else {
-          setUserProfile(null);
-          setIsGuest(false);
+          console.log('Auth state changed:', event, session?.user?.email);
+          
+          setSession(session);
+          setUser(session?.user ?? null);
+          
+          if (session?.user) {
+            setIsGuest(false);
+            await loadUserProfile(session.user.id);
+          } else {
+            setUserProfile(null);
+            setIsGuest(false);
+          }
         }
-      }
-    );
+      );
+      subscription = authSubscription;
+    }
 
     return () => {
       mounted = false;
-      subscription.unsubscribe();
+      subscription?.unsubscribe();
     };
   }, [loadUserProfile, updateLoadingState, user]);
 
@@ -293,6 +316,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
     password: string, 
     displayName?: string
   ) => {
+    if (!supabase) {
+      setFormErrorsCallback({ general: 'Authentication service not available' });
+      return { error: new Error('Authentication service not available') };
+    }
+
     updateLoadingState('emailAuthLoading', true);
     clearFormErrors();
 
@@ -325,6 +353,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Sign in with email and password
   const signInWithEmail = useCallback(async (email: string, password: string) => {
+    if (!supabase) {
+      setFormErrorsCallback({ general: 'Authentication service not available' });
+      return { error: new Error('Authentication service not available') };
+    }
+
     updateLoadingState('emailAuthLoading', true);
     clearFormErrors();
 
@@ -352,6 +385,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Sign in with Google
   const signInWithGoogle = useCallback(async () => {
+    if (!supabase) {
+      setFormErrorsCallback({ general: 'Authentication service not available' });
+      return { error: new Error('Authentication service not available') };
+    }
+
     updateLoadingState('oauthLoading', true);
     clearFormErrors();
 
@@ -384,6 +422,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Sign in with Apple
   const signInWithApple = useCallback(async () => {
+    if (!supabase) {
+      setFormErrorsCallback({ general: 'Authentication service not available' });
+      return { error: new Error('Authentication service not available') };
+    }
+
     updateLoadingState('oauthLoading', true);
     clearFormErrors();
 
@@ -412,6 +455,10 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Sign out
   const signOut = useCallback(async () => {
+    if (!supabase) {
+      return { error: new Error('Authentication service not available') };
+    }
+
     updateLoadingState('loading', true);
 
     try {
@@ -435,6 +482,11 @@ export const SupabaseAuthProvider: React.FC<SupabaseAuthProviderProps> = ({ chil
 
   // Reset password
   const resetPassword = useCallback(async (email: string) => {
+    if (!supabase) {
+      setFormErrorsCallback({ general: 'Authentication service not available' });
+      return { error: new Error('Authentication service not available') };
+    }
+
     updateLoadingState('resetPasswordLoading', true);
     clearFormErrors();
 

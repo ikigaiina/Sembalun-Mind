@@ -1,0 +1,57 @@
+{
+  "name": "sembalun-monitor",
+  "version": "1.0.0",
+  "description": "External monitoring library for Sembalun meditation platform - completely independent and self-contained",
+  "type": "module",
+  "scripts": {
+    "start": "node src/monitor.js",
+    "dashboard": "node src/dashboard-server.js",
+    "health": "node src/health-checker.js",
+    "logs": "node src/log-aggregator.js",
+    "alerts": "node src/alert-system.js",
+    "dev": "nodemon src/monitor.js",
+    "build": "rollup -c",
+    "install-global": "npm install -g ."
+  },
+  "main": "src/monitor.js",
+  "bin": {
+    "sembalun-monitor": "./bin/cli.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "ws": "^8.14.2",
+    "node-fetch": "^3.3.2",
+    "fs-extra": "^11.1.1",
+    "chalk": "^5.3.0",
+    "ora": "^7.0.1",
+    "inquirer": "^9.2.12",
+    "cron": "^3.1.6",
+    "winston": "^3.11.0",
+    "blessed": "^0.1.81",
+    "blessed-contrib": "^4.11.0",
+    "systeminformation": "^5.21.20",
+    "puppeteer": "^21.6.1",
+    "lighthouse": "^11.4.0",
+    "nodemailer": "^6.9.7",
+    "telegram-bot-api": "^2.1.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2",
+    "rollup": "^4.9.1"
+  },
+  "keywords": [
+    "monitoring",
+    "sembalun",
+    "meditation",
+    "dashboard",
+    "analytics",
+    "health-check",
+    "performance",
+    "alerting"
+  ],
+  "author": "Sembalun Development Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

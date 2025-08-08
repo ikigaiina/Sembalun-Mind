@@ -1,0 +1,40 @@
+<svg width="32" height="32" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  <!-- Optimized for small favicon size -->
+  <defs>
+    <linearGradient id="bg-favicon" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6A8F6F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#A9C1D9;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="stone1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8AAF8F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#6A8F6F;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="stone2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9ABF9F;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#7A9F7F;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="stone3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#AACFAF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#8AAF8F;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background circle for better contrast -->
+  <circle cx="16" cy="16" r="15" fill="url(#bg-favicon)" opacity="0.1"/>
+  
+  <!-- Simplified Cairn Stack for favicon -->
+  <!-- Bottom stone -->
+  <ellipse cx="16" cy="25" rx="9" ry="3.5" fill="url(#stone1)"/>
+  
+  <!-- Middle stone -->
+  <ellipse cx="16" cy="19" rx="7" ry="2.8" fill="url(#stone2)"/>
+  
+  <!-- Top stone -->
+  <ellipse cx="16" cy="13.5" rx="5" ry="2" fill="url(#stone3)"/>
+  
+  <!-- Small top stone -->
+  <ellipse cx="16" cy="9" rx="3" ry="1.5" fill="#BACFBF"/>
+  
+  <!-- Tiny highlight for depth -->
+  <ellipse cx="14" cy="8" rx="1" ry="0.5" fill="rgba(255,255,255,0.5)"/>
+</svg>
