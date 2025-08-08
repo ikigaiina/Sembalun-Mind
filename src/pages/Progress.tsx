@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart3, TrendingUp, Calendar, Target, Award,
   Brain, Heart, Flame, Activity, Filter, Eye, EyeOff,
-  Download, Share2, RefreshCw, Settings, Mountain, Trophy, BookOpen
+  Download, Share2, RefreshCw, Settings, Mountain, Trophy, BookOpen, Sparkles
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
@@ -14,12 +14,13 @@ import { StreakTracker } from '../components/analytics/StreakTracker';
 import { MoodPatternAnalysis } from '../components/analytics/MoodPatternAnalysis';
 import { CulturalAchievementSystem } from '../components/achievements/CulturalAchievementSystem';
 import { IndonesianWisdomCollection } from '../components/wisdom/IndonesianWisdomCollection';
+import { CulturalPracticeRecommendations } from '../components/recommendations/CulturalPracticeRecommendations';
 
 interface Props {
   className?: string;
 }
 
-type AnalyticsView = 'overview' | 'meditation' | 'mood' | 'streaks' | 'cultural' | 'achievements' | 'wisdom';
+type AnalyticsView = 'overview' | 'meditation' | 'mood' | 'streaks' | 'cultural' | 'achievements' | 'wisdom' | 'recommendations';
 
 export const Progress: React.FC<Props> = ({ className = '' }) => {
   const [currentView, setCurrentView] = useState<AnalyticsView>('overview');
@@ -97,6 +98,12 @@ export const Progress: React.FC<Props> = ({ className = '' }) => {
       label: 'Kebijaksanaan', 
       icon: BookOpen, 
       description: 'Koleksi wisdom Indonesia' 
+    },
+    { 
+      id: 'recommendations', 
+      label: 'Rekomendasi', 
+      icon: Sparkles, 
+      description: 'Praktik yang dipersonalisasi' 
     }
   ];
 
@@ -341,6 +348,19 @@ export const Progress: React.FC<Props> = ({ className = '' }) => {
                   onQuoteSelect={(quote) => {
                     console.log('Selected wisdom quote:', quote);
                     // Could trigger a modal or detailed view
+                  }}
+                />
+              </motion.div>
+            )}
+
+            {/* Cultural Practice Recommendations */}
+            {currentView === 'recommendations' && (
+              <motion.div variants={itemVariants}>
+                <CulturalPracticeRecommendations 
+                  className="mb-6"
+                  onPracticeSelect={(practiceId) => {
+                    console.log('Selected practice:', practiceId);
+                    // Could navigate to meditation page with selected practice
                   }}
                 />
               </motion.div>
