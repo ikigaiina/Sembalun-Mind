@@ -49,7 +49,10 @@
       "Bash(npm create:*)",
       "Bash(timeout 90 npm run build)",
       "Bash(awk:*)",
-      "Bash(sed:*)"
+      "Bash(sed:*)",
+      "Bash(timeout 60 npm run typecheck)",
+      "Bash(npm run open:stats:*)",
+      "Bash(npm run analyze:fast:*)"
     ],
     "deny": []
   }

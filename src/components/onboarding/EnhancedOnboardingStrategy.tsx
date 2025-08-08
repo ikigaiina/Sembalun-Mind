@@ -3,7 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
 import IndonesianCTA from '../ui/IndonesianCTA';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
-import type { CulturalData } from './CulturalPersonalizationScreen';
+import { CulturalPersonalizationScreen, type CulturalData } from './CulturalPersonalizationScreen';
+import FiveMinuteMeditationExperience from './FiveMinuteMeditationExperience';
+import InstantMoodTracking from './InstantMoodTracking';
+import SoftConversionAsk from './SoftConversionAsk';
+import SocialProofAuthentication from './SocialProofAuthentication';
 import type { MoodType } from '../../types/mood';
 import type { PersonalizationGoal } from '../../types/onboarding';
 
@@ -479,9 +483,9 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
       case 'cultural':
         return (
           <motion.div key="cultural" variants={stepVariants} initial="initial" animate="animate" exit="exit">
-            <CulturalPersonalizationStep 
+            <CulturalPersonalizationScreen 
               onComplete={handleCulturalComplete}
-              strategy={strategy}
+              onSkip={() => transitionToStep('experience')}
             />
           </motion.div>
         );
@@ -492,6 +496,7 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
             <FiveMinuteMeditationExperience 
               culturalData={stepData.cultural}
               onComplete={handleExperienceComplete}
+              onSkip={() => transitionToStep('mood')}
             />
           </motion.div>
         );
@@ -501,6 +506,7 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
           <motion.div key="mood" variants={stepVariants} initial="initial" animate="animate" exit="exit">
             <InstantMoodTracking 
               onComplete={handleMoodComplete}
+              onSkip={() => transitionToStep('conversion')}
             />
           </motion.div>
         );
@@ -600,84 +606,5 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
   );
 };
 
-// Placeholder step components (to be implemented next)
-const CulturalPersonalizationStep: React.FC<{
-  onComplete: (data: CulturalData) => void;
-  strategy: OnboardingDecisionEngine;
-}> = ({ onComplete, strategy }) => (
-  <Card className="max-w-lg mx-auto p-8 text-center">
-    <h2 className="text-xl font-bold mb-4">🌺 Personalisasi Budaya</h2>
-    <p className="text-gray-600 mb-6">
-      Mari sesuaikan pengalaman meditasi dengan latar belakang budaya Anda
-    </p>
-    <IndonesianCTA onClick={() => onComplete({ region: 'jawa', spiritualTradition: 'islam' })}>
-      Mulai Personalisasi
-    </IndonesianCTA>
-  </Card>
-);
-
-const FiveMinuteMeditationExperience: React.FC<{
-  culturalData?: CulturalData;
-  onComplete: (rating: number, goal: PersonalizationGoal) => void;
-}> = ({ culturalData, onComplete }) => (
-  <Card className="max-w-lg mx-auto p-8 text-center">
-    <h2 className="text-xl font-bold mb-4">🧘‍♀️ Pengalaman 5 Menit</h2>
-    <p className="text-gray-600 mb-6">
-      Rasakan manfaat meditasi dengan sesi singkat yang disesuaikan untuk Anda
-    </p>
-    <IndonesianCTA onClick={() => onComplete(5, 'stress')}>
-      Mulai Meditasi
-    </IndonesianCTA>
-  </Card>
-);
-
-const InstantMoodTracking: React.FC<{
-  onComplete: (before: MoodType, after: MoodType) => void;
-}> = ({ onComplete }) => (
-  <Card className="max-w-lg mx-auto p-8 text-center">
-    <h2 className="text-xl font-bold mb-4">💫 Pelacakan Mood</h2>
-    <p className="text-gray-600 mb-6">
-      Lihat bagaimana perasaan Anda berubah setelah meditasi
-    </p>
-    <IndonesianCTA onClick={() => onComplete('neutral', 'happy')}>
-      Lacak Mood Saya
-    </IndonesianCTA>
-  </Card>
-);
-
-const SoftConversionAsk: React.FC<{
-  userEngagement: ExperienceFirstFlow['userEngagement'];
-  onDecision: (save: boolean) => void;
-}> = ({ userEngagement, onDecision }) => (
-  <Card className="max-w-lg mx-auto p-8 text-center">
-    <h2 className="text-xl font-bold mb-4">💾 Simpan Progress Anda?</h2>
-    <p className="text-gray-600 mb-6">
-      Anda telah merasakan manfaat meditasi. Jangan kehilangan kemajuan yang sudah Anda capai!
-    </p>
-    <div className="flex space-x-4">
-      <IndonesianCTA variant="secondary" onClick={() => onDecision(false)}>
-        Nanti Saja
-      </IndonesianCTA>
-      <IndonesianCTA onClick={() => onDecision(true)}>
-        Simpan Progress
-      </IndonesianCTA>
-    </div>
-  </Card>
-);
-
-const SocialProofAuthentication: React.FC<{
-  conversionReadiness: number;
-  onComplete: (authenticated: boolean) => void;
-}> = ({ conversionReadiness, onComplete }) => (
-  <Card className="max-w-lg mx-auto p-8 text-center">
-    <h2 className="text-xl font-bold mb-4">🤝 Bergabung dengan Komunitas</h2>
-    <p className="text-gray-600 mb-6">
-      Bergabunglah dengan 10,000+ pengguna Indonesia yang sudah merasakan manfaat meditasi
-    </p>
-    <IndonesianCTA onClick={() => onComplete(true)}>
-      Bergabung Sekarang
-    </IndonesianCTA>
-  </Card>
-);
 
 export default EnhancedOnboardingStrategy;
