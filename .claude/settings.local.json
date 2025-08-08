@@ -53,7 +53,8 @@
       "Bash(timeout 60 npm run typecheck)",
       "Bash(npm run open:stats:*)",
       "Bash(npm run analyze:fast:*)",
-      "Bash(npm update:*)"
+      "Bash(npm update:*)",
+      "Bash(git restore:*)"
     ],
     "deny": []
   }
