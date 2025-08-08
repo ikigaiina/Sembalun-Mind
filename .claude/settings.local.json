@@ -55,7 +55,8 @@
       "Bash(npm run analyze:fast:*)",
       "Bash(npm update:*)",
       "Bash(git restore:*)",
-      "Bash(timeout 15 npm run dev)"
+      "Bash(timeout 15 npm run dev)",
+      "Bash(timeout 30 npm run typecheck)"
     ],
     "deny": []
   }

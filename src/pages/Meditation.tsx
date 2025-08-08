@@ -8,6 +8,7 @@ import BreathingVisualization3D from '../components/meditation/BreathingVisualiz
 import VoiceUIIndicator from '../components/ui/VoiceUIIndicator';
 import { AdvancedMeditationTimer } from '../components/ui/AdvancedMeditationTimer';
 import { IndonesianGuidedMeditation } from '../components/meditation/IndonesianGuidedMeditation';
+import { EnhancedIndonesianMeditation } from '../components/meditation/EnhancedIndonesianMeditation';
 
 // 2025 Enhanced Meditation Session Interface
 interface MeditationSession {
@@ -305,11 +306,19 @@ export const Meditation: React.FC = () => {
             </Button>
           </motion.header>
 
-          {/* Indonesian Guided Meditation Component */}
+          {/* Enhanced Indonesian Guided Meditation Component */}
           <div className="relative z-10 px-6 py-6">
-            <IndonesianGuidedMeditation 
-              onSessionComplete={(data) => {
-                setSessionData(data);
+            <EnhancedIndonesianMeditation 
+              onComplete={(session) => {
+                setSessionData({
+                  duration: session.duration,
+                  completedCycles: Math.floor(session.duration * 60 / 4),
+                  sessionType: 'Indonesian Cultural Meditation',
+                  category: 'indonesian',
+                  timestamp: new Date().toISOString(),
+                  practiceId: session.practiceId,
+                  culturalPractice: true
+                });
                 setMeditationState('completed');
               }}
             />
