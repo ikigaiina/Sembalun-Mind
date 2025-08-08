@@ -576,10 +576,151 @@ export const ComprehensiveProgressDashboard: React.FC<Props> = ({
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-center py-12"
           >
-            <Mountain className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <p className="text-gray-600">Analisis budaya akan segera hadir!</p>
+            <div className="mb-6">
+              <h3 className="text-xl font-semibold text-gray-800 mb-2">Praktik Budaya Indonesia</h3>
+              <p className="text-gray-600">
+                Jelajahi dan kuasai tradisi meditasi Nusantara yang kaya akan kebijaksanaan lokal
+              </p>
+            </div>
+            
+            {/* Cultural Progress Summary */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+              <Card className="p-4 bg-gradient-to-br from-emerald-50 to-teal-100 border-emerald-200">
+                <div className="text-center">
+                  <Mountain className="w-8 h-8 text-emerald-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-emerald-900">{progressMetrics.culturalSessionsCount}</div>
+                  <div className="text-sm text-emerald-700">Sesi Budaya</div>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-amber-50 to-orange-100 border-amber-200">
+                <div className="text-center">
+                  <Target className="w-8 h-8 text-amber-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-amber-900">3</div>
+                  <div className="text-sm text-amber-700">Wilayah Aktif</div>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-purple-50 to-violet-100 border-purple-200">
+                <div className="text-center">
+                  <Star className="w-8 h-8 text-purple-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-purple-900">75%</div>
+                  <div className="text-sm text-purple-700">Kemajuan</div>
+                </div>
+              </Card>
+              
+              <Card className="p-4 bg-gradient-to-br from-blue-50 to-cyan-100 border-blue-200">
+                <div className="text-center">
+                  <Award className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+                  <div className="text-2xl font-bold text-blue-900">2</div>
+                  <div className="text-sm text-blue-700">Pencapaian</div>
+                </div>
+              </Card>
+            </div>
+            
+            {/* Cultural Practices Learned */}
+            <Card className="p-6 mb-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Praktik yang Dipelajari</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {[
+                  { name: 'Sembalun Valley Dawn', region: 'NTB', completed: true },
+                  { name: 'Javanese Royal Court', region: 'Jawa', completed: true },
+                  { name: 'Balinese Temple Reflection', region: 'Bali', completed: true },
+                  { name: 'Borobudur Sunrise', region: 'Jawa', completed: false },
+                  { name: 'Prambanan Meditation', region: 'Jawa', completed: false },
+                  { name: 'Lombok Sacred Waters', region: 'NTB', completed: false }
+                ].map((practice, index) => (
+                  <div 
+                    key={index}
+                    className={`flex items-center space-x-3 p-3 rounded-lg ${
+                      practice.completed ? 'bg-green-50 border border-green-200' : 'bg-gray-50 border border-gray-200'
+                    }`}
+                  >
+                    <div className={`w-3 h-3 rounded-full ${
+                      practice.completed ? 'bg-green-500' : 'bg-gray-300'
+                    }`} />
+                    <div className="flex-1">
+                      <div className={`font-medium text-sm ${
+                        practice.completed ? 'text-green-900' : 'text-gray-600'
+                      }`}>
+                        {practice.name}
+                      </div>
+                      <div className={`text-xs ${
+                        practice.completed ? 'text-green-700' : 'text-gray-500'
+                      }`}>
+                        {practice.region}
+                      </div>
+                    </div>
+                    {practice.completed && (
+                      <div className="text-green-600">
+                        <Star className="w-4 h-4 fill-current" />
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Card>
+            
+            {/* Regional Exploration */}
+            <Card className="p-6">
+              <h4 className="text-lg font-semibold text-gray-800 mb-4">Eksplorasi Regional</h4>
+              <div className="space-y-4">
+                {[
+                  { region: 'Sembalun Valley', progress: 85, sessions: 1, color: 'emerald' },
+                  { region: 'Java Traditions', progress: 65, sessions: 1, color: 'amber' },
+                  { region: 'Balinese Harmony', progress: 40, sessions: 1, color: 'blue' },
+                  { region: 'Sumatra Wilderness', progress: 0, sessions: 0, color: 'gray', locked: true },
+                ].map((region, index) => (
+                  <div key={index} className="flex items-center space-x-4">
+                    <div className={`w-12 h-12 rounded-lg bg-${region.color}-100 flex items-center justify-center ${
+                      region.locked ? 'opacity-50' : ''
+                    }`}>
+                      <Mountain className={`w-6 h-6 text-${region.color}-600`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className={`font-medium ${region.locked ? 'text-gray-500' : 'text-gray-800'}`}>
+                          {region.region}
+                        </span>
+                        {region.locked && (
+                          <span className="text-xs text-yellow-600 bg-yellow-100 px-2 py-1 rounded">
+                            Terkunci
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <div className="flex-1 bg-gray-200 rounded-full h-2">
+                          <motion.div
+                            className={`bg-${region.color}-500 h-2 rounded-full`}
+                            initial={{ width: 0 }}
+                            animate={{ width: `${region.progress}%` }}
+                            transition={{ duration: 0.8, delay: index * 0.1 }}
+                          />
+                        </div>
+                        <span className="text-sm text-gray-600">
+                          {region.sessions} sesi
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              <div className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-purple-100 rounded-lg">
+                <div className="flex items-center space-x-3">
+                  <div className="p-2 bg-blue-500 rounded-lg">
+                    <Zap className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h5 className="font-medium text-blue-900">Tip Budaya</h5>
+                    <p className="text-sm text-blue-700">
+                      Selesaikan 5 sesi Sembalun untuk membuka tradisi Sumatra yang penuh dengan kebijaksanaan hutan
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Card>
           </motion.div>
         )}
         {selectedMetric === 'achievements' && (

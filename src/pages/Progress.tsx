@@ -3,11 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   BarChart3, TrendingUp, Calendar, Target, Award,
   Brain, Heart, Flame, Activity, Filter, Eye, EyeOff,
-  Download, Share2, RefreshCw, Settings
+  Download, Share2, RefreshCw, Settings, Mountain
 } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { ComprehensiveProgressDashboard } from '../components/analytics/ComprehensiveProgressDashboard';
+import { CulturalProgressTracker } from '../components/analytics/CulturalProgressTracker';
 import { MeditationAnalytics } from '../components/analytics/MeditationAnalytics';
 import { StreakTracker } from '../components/analytics/StreakTracker';
 import { MoodPatternAnalysis } from '../components/analytics/MoodPatternAnalysis';
@@ -16,7 +17,7 @@ interface Props {
   className?: string;
 }
 
-type AnalyticsView = 'overview' | 'meditation' | 'mood' | 'streaks' | 'patterns';
+type AnalyticsView = 'overview' | 'meditation' | 'mood' | 'streaks' | 'cultural';
 
 export const Progress: React.FC<Props> = ({ className = '' }) => {
   const [currentView, setCurrentView] = useState<AnalyticsView>('overview');
@@ -76,6 +77,12 @@ export const Progress: React.FC<Props> = ({ className = '' }) => {
       label: 'Streak', 
       icon: Flame, 
       description: 'Konsistensi & pencapaian' 
+    },
+    { 
+      id: 'cultural', 
+      label: 'Budaya', 
+      icon: Mountain, 
+      description: 'Progress tradisi Indonesia' 
     }
   ];
 
@@ -289,6 +296,15 @@ export const Progress: React.FC<Props> = ({ className = '' }) => {
               <motion.div variants={itemVariants}>
                 <StreakTracker 
                   meditationSessions={mockMeditationSessions}
+                  className="mb-6"
+                />
+              </motion.div>
+            )}
+
+            {/* Cultural Progress Tracker */}
+            {currentView === 'cultural' && (
+              <motion.div variants={itemVariants}>
+                <CulturalProgressTracker 
                   className="mb-6"
                 />
               </motion.div>
