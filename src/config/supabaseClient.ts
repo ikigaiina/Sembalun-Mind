@@ -30,7 +30,8 @@ export const supabase: SupabaseClient<Database> | null =
           autoRefreshToken: true,
           persistSession: true,
           detectSessionInUrl: true,
-          flowType: 'pkce'
+          flowType: 'pkce',
+          debug: import.meta.env.DEV
         },
         realtime: {
           params: {

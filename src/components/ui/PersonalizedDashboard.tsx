@@ -16,6 +16,7 @@ import {
 } from './index';
 import IndonesianCTA, { useCulturalCTA } from './IndonesianCTA';
 import IndonesianWisdomQuote from './IndonesianWisdomQuote';
+import { IndonesianWisdomDisplay } from '../cultural/IndonesianWisdomDisplay';
 import type { MoodType } from '../../types/mood';
 import { moodOptions, getMoodColor } from '../../types/mood';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
@@ -441,6 +442,28 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
                 </p>
               </div>
             </Card>
+          </motion.div>
+        );
+
+      case 'wisdom':
+        return (
+          <motion.div
+            key="wisdom-section"
+            variants={sectionVariants}
+            className="mb-6 max-w-4xl mx-auto w-full"
+          >
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <BookOpen className="w-5 h-5 text-amber-600" />
+              <h2 className="text-xl font-heading font-semibold text-gray-800">
+                Kebijaksanaan Nusantara
+              </h2>
+            </div>
+            
+            <IndonesianWisdomDisplay 
+              category="random"
+              autoRotate={false}
+              className="max-w-2xl mx-auto"
+            />
           </motion.div>
         );
 

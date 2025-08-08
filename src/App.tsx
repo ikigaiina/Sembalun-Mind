@@ -36,6 +36,7 @@ import { MultiagentDashboard } from './pages/MultiagentDashboard';
 import Help from './pages/Help';
 import Login from './pages/Login';
 import SignUp from './pages/SignUp';
+import AuthCallback from './pages/AuthCallback';
 import { OfflineToast } from './components/ui/OfflineToast';
 import { InstallPrompt } from './components/ui/InstallPrompt';
 import { SplashScreen } from './components/ui/SplashScreen';
@@ -220,6 +221,7 @@ function App() {
                     {/* Public routes */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/signup" element={<SignUp />} />
+                    <Route path="/auth/callback" element={<AuthCallback />} />
                     
                     {/* Protected routes */}
                     <Route path="/*" element={<AppContent />} />
