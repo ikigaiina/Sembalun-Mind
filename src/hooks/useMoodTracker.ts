@@ -63,46 +63,70 @@ export const useMoodTracker = () => {
     }
   };
 
-  // Add or update today's mood entry
+  // Add or update today's mood entry with enhanced error handling
   const logMood = (mood: MoodType, note?: string, tags?: string[]) => {
-    const now = new Date();
-    const today = now.toDateString();
-    
-    setCurrentMood(mood);
-    
-    setMoodHistory((prev) => {
-      // Check if there's already an entry for today
-      const existingIndex = prev.findIndex(
-        (entry) => entry.timestamp.toDateString() === today
-      );
+    try {
+      const now = new Date();
+      const today = now.toDateString();
       
-      const newEntry: MoodEntry = {
-        id: existingIndex >= 0 ? prev[existingIndex].id : `mood_${Date.now()}`,
-        mood,
-        timestamp: now,
-        note,
-        tags,
-      };
+      console.log(`Logging mood: ${mood} for ${today}`);
       
-      let updatedHistory: MoodEntry[];
-      if (existingIndex >= 0) {
-        // Update existing entry
-        updatedHistory = [...prev];
-        updatedHistory[existingIndex] = newEntry;
-      } else {
-        // Add new entry
-        updatedHistory = [...prev, newEntry].sort(
-          (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+      setCurrentMood(mood);
+      
+      setMoodHistory((prev) => {
+        // Check if there's already an entry for today
+        const existingIndex = prev.findIndex(
+          (entry) => entry.timestamp.toDateString() === today
         );
-      }
-      
-      saveMoodHistory(updatedHistory);
-      return updatedHistory;
-    });
+        
+        const newEntry: MoodEntry = {
+          id: existingIndex >= 0 ? prev[existingIndex].id : `mood_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+          mood,
+          timestamp: now,
+          note: note?.trim() || undefined,
+          tags: tags?.filter(tag => tag.trim()) || undefined,
+        };
+        
+        let updatedHistory: MoodEntry[];
+        if (existingIndex >= 0) {
+          // Update existing entry
+          updatedHistory = [...prev];
+          updatedHistory[existingIndex] = newEntry;
+          console.log(`Updated existing mood entry for ${today}`);
+        } else {
+          // Add new entry
+          updatedHistory = [...prev, newEntry].sort(
+            (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
+          );
+          console.log(`Added new mood entry for ${today}`);
+        }
+        
+        // Save to localStorage with error handling
+        try {
+          saveMoodHistory(updatedHistory);
+          console.log(`Successfully saved ${updatedHistory.length} mood entries`);
+        } catch (saveError) {
+          console.error('Failed to save mood history:', saveError);
+          // Try to save to a backup key if main storage fails
+          try {
+            localStorage.setItem('sembalun_mood_backup', JSON.stringify(updatedHistory));
+          } catch (backupError) {
+            console.error('Failed to save backup:', backupError);
+          }
+        }
+        
+        return updatedHistory;
+      });
+    } catch (error) {
+      console.error('Error in logMood:', error);
+      throw error;
+    }
   };
 
-  // Get mood statistics
+  // Get mood statistics with improved calculations
   const getMoodStats = (): MoodStats => {
+    console.log(`Calculating stats for ${moodHistory.length} entries`);
+    
     if (moodHistory.length === 0) {
       return {
         averageMood: 0,
@@ -110,6 +134,7 @@ export const useMoodTracker = () => {
         streakDays: 0,
         moodDistribution: {} as Record<MoodType, number>,
         weeklyAverage: [],
+        mostCommonMood: undefined,
       };
     }
 
@@ -122,6 +147,10 @@ export const useMoodTracker = () => {
       acc[entry.mood] = (acc[entry.mood] || 0) + 1;
       return acc;
     }, {} as Record<MoodType, number>);
+    
+    // Find most common mood
+    const mostCommonMood = Object.entries(moodDistribution)
+      .sort(([,a], [,b]) => b - a)[0]?.[0] as MoodType | undefined;
 
     // Fill missing moods with 0
     Object.keys(moodValues).forEach(mood => {
@@ -180,13 +209,17 @@ export const useMoodTracker = () => {
       }
     }
 
-    return {
+    const stats = {
       averageMood,
       totalEntries: moodHistory.length,
       streakDays,
       moodDistribution,
       weeklyAverage,
+      mostCommonMood,
     };
+    
+    console.log('Generated mood stats:', stats);
+    return stats;
   };
 
   // Get mood entries for a specific date range

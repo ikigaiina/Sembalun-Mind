@@ -11,11 +11,13 @@ import {
   CairnIcon,
   BreathingCard,
   MoodSelector,
-  MoodHistory
+  MoodHistory,
+  MoodNoteModal
 } from './index';
 import IndonesianCTA, { useCulturalCTA } from './IndonesianCTA';
 import IndonesianWisdomQuote from './IndonesianWisdomQuote';
 import type { MoodType } from '../../types/mood';
+import { moodOptions, getMoodColor } from '../../types/mood';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
 
 interface PersonalizedDashboardProps {
@@ -43,6 +45,8 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   const [selectedMood, setSelectedMood] = useState<MoodType>('happy');
   const [activeSection, setActiveSection] = useState<string>('overview');
   const [showMoodHistory, setShowMoodHistory] = useState(false);
+  const [showMoodNote, setShowMoodNote] = useState(false);
+  const [showHistoryToast, setShowHistoryToast] = useState(false);
   
   // Cultural CTA optimization
   const { getOptimalVariant, getOptimalLocalization } = useCulturalCTA(personalization?.culturalData);
@@ -61,6 +65,18 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   const handleMoodSelect = (mood: MoodType) => {
     setSelectedMood(mood);
     updateMoodPattern(mood, 'dashboard_selection');
+  };
+  
+  const handleMoodNoteOpen = () => {
+    setShowMoodNote(true);
+  };
+  
+  const handleMoodNoteSave = (note: string, tags: string[]) => {
+    // Update the current mood entry with note and tags if mood is already selected
+    if (selectedMood) {
+      updateMoodPattern(selectedMood, 'dashboard_note_added', { note, tags });
+    }
+    setShowMoodNote(false);
   };
 
   // Dynamic style based on user preferences
@@ -92,27 +108,112 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           <motion.div
             key="mood-section"
             variants={sectionVariants}
-            className={`mb-6 ${section.size === 'large' ? 'col-span-2' : ''}`}
+            className={`mb-6 ${section.size === 'large' ? 'md:col-span-2 lg:col-span-3' : 'col-span-full'} max-w-2xl mx-auto w-full`}
           >
-            <Card className="p-6">
-              <h2 className="text-lg font-heading font-semibold text-gray-800 mb-4 text-center">
-                Bagaimana perasaan Anda hari ini?
-              </h2>
-              <MoodSelector
-                selectedMood={selectedMood}
-                onMoodSelect={handleMoodSelect}
-                autoSave={true}
-                showLabels={true}
-              />
-              <div className="mt-4 text-center">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowMoodHistory(!showMoodHistory)}
-                  className="text-primary-600 hover:bg-primary-50"
+            <Card className="p-6 sm:p-8 bg-gradient-to-br from-white via-blue-50/30 to-green-50/30 border-blue-100/50 shadow-lg overflow-visible">
+              <div className="text-center mb-6">
+                <motion.div
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="mb-4"
                 >
-                  <TrendingUp className="w-4 h-4 mr-2" />
-                  {showMoodHistory ? 'Sembunyikan' : 'Lihat'} Riwayat
+                  <div className="w-16 h-16 bg-gradient-to-r from-blue-400 to-green-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+                    <Heart className="w-8 h-8 text-white" />
+                  </div>
+                  <h2 className="text-2xl sm:text-3xl font-heading font-semibold text-gray-800 mb-3">
+                    Perasaan Hari Ini
+                  </h2>
+                  <p className="text-base sm:text-lg text-gray-600 max-w-md mx-auto">
+                    Bagaimana kabar hati Anda hari ini?
+                  </p>
+                </motion.div>
+              </div>
+              
+              {/* Current Mood Display with Clear Feedback */}
+              <AnimatePresence>
+                {selectedMood && (
+                  <motion.div
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="text-center mb-6"
+                  >
+                    <div className="inline-flex items-center space-x-3 bg-white/80 backdrop-blur-sm rounded-2xl px-6 py-3 shadow-md border border-blue-200/50">
+                      <motion.div
+                        className="text-4xl"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 0.5 }}
+                      >
+                        {moodOptions.find(m => m.id === selectedMood)?.emoji}
+                      </motion.div>
+                      <div className="text-left">
+                        <p className="text-sm font-medium text-gray-600">Anda merasa</p>
+                        <p 
+                          className="text-lg font-semibold capitalize"
+                          style={{ color: getMoodColor(selectedMood) }}
+                        >
+                          {moodOptions.find(m => m.id === selectedMood)?.label}
+                        </p>
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+              
+              <div className="flex justify-center mb-12 relative" style={{ minHeight: '120px' }}>
+                <MoodSelector
+                  selectedMood={selectedMood}
+                  onMoodSelect={handleMoodSelect}
+                  autoSave={true}
+                  showLabels={false}
+                  size="large"
+                  label=""
+                  className="w-full max-w-2xl"
+                />
+              </div>
+              
+              <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
+                <motion.div whileTap={{ scale: 0.95 }}>
+                  <Button
+                    variant={showMoodHistory ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => {
+                      const newState = !showMoodHistory;
+                      console.log('Toggling mood history:', newState);
+                      setShowMoodHistory(newState);
+                      
+                      // Show feedback toast
+                      if (newState) {
+                        setShowHistoryToast(true);
+                        setTimeout(() => setShowHistoryToast(false), 3000);
+                      }
+                    }}
+                    className={`w-full sm:w-auto transition-all duration-300 hover:shadow-md px-6 py-3 font-medium ${
+                      showMoodHistory 
+                        ? 'bg-blue-600 text-white hover:bg-blue-700 border-blue-600' 
+                        : 'text-blue-600 hover:bg-blue-50 border-blue-200'
+                    }`}
+                  >
+                    <motion.div
+                      animate={{ rotate: showMoodHistory ? 180 : 0 }}
+                      transition={{ duration: 0.3 }}
+                    >
+                      <TrendingUp className="w-4 h-4 mr-2" />
+                    </motion.div>
+                    {showMoodHistory ? 'Sembunyikan' : 'Lihat'} Riwayat
+                  </Button>
+                </motion.div>
+                
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleMoodNoteOpen}
+                  className="w-full sm:w-auto text-gray-500 hover:text-gray-700 hover:bg-gray-100 transition-all duration-300 px-6 py-3 font-medium"
+                  disabled={!selectedMood}
+                >
+                  <MessageCircle className="w-4 h-4 mr-2" />
+                  Tambah Catatan
                 </Button>
               </div>
             </Card>
@@ -124,7 +225,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           <motion.div
             key="recommendations-section"
             variants={sectionVariants}
-            className={`mb-6 ${section.size === 'large' ? 'col-span-2' : ''}`}
+            className="mb-6 max-w-4xl mx-auto w-full"
           >
             <div className="flex items-center justify-center space-x-2 mb-4">
               <Star className="w-5 h-5 text-accent-600" />
@@ -133,8 +234,8 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
               </h2>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recommendations.slice(0, section.size === 'large' ? 4 : 2).map((rec) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {recommendations.slice(0, 4).map((rec) => (
                 <Card key={rec.id} className="p-5 hover:shadow-lg transition-all duration-300 cursor-pointer group border-l-4 border-accent-400">
                   <div className="flex items-start space-x-4">
                     <div className="w-12 h-12 bg-accent-100 rounded-xl flex items-center justify-center flex-shrink-0">
@@ -182,7 +283,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           <motion.div
             key="schedule-section"
             variants={sectionVariants}
-            className={`mb-6 ${section.size === 'large' ? 'col-span-2' : ''}`}
+            className="mb-6 max-w-4xl mx-auto w-full"
           >
             <Card className="p-6">
               <div className="flex items-center space-x-2 mb-4">
@@ -192,7 +293,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
                 </h3>
               </div>
               <div className="space-y-3">
-                {smartSchedule.slice(0, section.size === 'large' ? 6 : 3).map((schedule) => (
+                {smartSchedule.slice(0, 6).map((schedule) => (
                   <div key={schedule.id} className="flex items-center space-x-3 p-3 rounded-lg bg-gray-50 hover:bg-gray-100 transition-colors">
                     <div className="text-sm font-mono text-primary-600 min-w-[60px]">
                       {schedule.time}
@@ -220,7 +321,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           <motion.div
             key="progress-section"
             variants={sectionVariants}
-            className={`mb-6 ${section.size === 'large' ? 'col-span-2' : ''}`}
+            className="mb-6 max-w-4xl mx-auto w-full"
           >
             <Card className="p-6">
               <div className="flex items-center space-x-2 mb-4">
@@ -251,7 +352,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
               </div>
 
               {/* Achievements */}
-              {section.size === 'large' && behaviorInsights.achievements.milestones.length > 0 && (
+              {behaviorInsights.achievements.milestones.length > 0 && (
                 <div className="border-t pt-4">
                   <h4 className="font-medium text-gray-800 mb-3">Pencapaian Terkini</h4>
                   <div className="grid grid-cols-2 gap-3">
@@ -279,7 +380,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           <motion.div
             key="insights-section"
             variants={sectionVariants}
-            className={`mb-6 ${section.size === 'large' ? 'col-span-2' : ''}`}
+            className="mb-6 max-w-4xl mx-auto w-full"
           >
             <Card className="p-6">
               <div className="flex items-center space-x-2 mb-4">
@@ -306,7 +407,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
               {/* Personalized Tips */}
               <div className="space-y-2">
                 <h4 className="font-medium text-gray-800 mb-2">Tips Personal Hari Ini:</h4>
-                {progressInsights.personalizedTips.slice(0, section.size === 'large' ? 4 : 2).map((tip, index) => (
+                {progressInsights.personalizedTips.slice(0, 4).map((tip, index) => (
                   <div key={index} className="flex items-start space-x-2 text-sm">
                     <Sparkles className="w-4 h-4 text-accent-600 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{tip}</span>
@@ -322,7 +423,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           <motion.div
             key="community-section"
             variants={sectionVariants}
-            className={`mb-6 ${section.size === 'large' ? 'col-span-2' : ''}`}
+            className="mb-6 max-w-4xl mx-auto w-full"
           >
             <Card className="p-6">
               <div className="flex items-center space-x-2 mb-4">
@@ -450,7 +551,17 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           )}
         </motion.div>
 
-        {/* Dynamic Dashboard Layout */}
+        {/* Mood Section - Always Full Width and Centered */}
+        <motion.div
+          variants={containerVariants}
+          initial="hidden"
+          animate="visible"
+          className="mb-8"
+        >
+          {renderSection('mood')}
+        </motion.div>
+
+        {/* Other Dashboard Sections */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -462,6 +573,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           }`}
         >
           {Object.keys(dashboardConfig.sections)
+            .filter(sectionKey => sectionKey !== 'mood') // Exclude mood section as it's rendered separately
             .sort((a, b) => {
               const sectionA = dashboardConfig.sections[a as keyof typeof dashboardConfig.sections];
               const sectionB = dashboardConfig.sections[b as keyof typeof dashboardConfig.sections];
@@ -470,20 +582,48 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
             .map(sectionKey => renderSection(sectionKey))}
         </motion.div>
 
-        {/* Mood History Modal */}
-        <AnimatePresence>
+        {/* Mood History Section with Enhanced Visibility */}
+        <AnimatePresence mode="wait">
           {showMoodHistory && (
             <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -30, scale: 0.95 }}
+              transition={{ 
+                duration: 0.4,
+                type: "spring",
+                stiffness: 200,
+                damping: 20
+              }}
               className="mt-8"
             >
-              <MoodHistory
-                showStats={true}
-                showChart={true}
-                showCalendar={true}
-              />
+              {/* Section Header */}
+              <motion.div 
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 }}
+                className="text-center mb-6"
+              >
+                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full shadow-lg">
+                  <TrendingUp className="w-5 h-5" />
+                  <span className="font-semibold">Riwayat Perasaan Anda</span>
+                </div>
+              </motion.div>
+              
+              {/* History Component */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className="border-t-4 border-gradient-to-r from-blue-400 to-purple-500 pt-6"
+              >
+                <MoodHistory
+                  showStats={true}
+                  showChart={true}
+                  showCalendar={true}
+                  className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-blue-100/50"
+                />
+              </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -537,6 +677,34 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
         {/* Bottom padding for navigation */}
         <div className="h-6"></div>
       </div>
+
+      {/* History Toggle Toast */}
+      <AnimatePresence>
+        {showHistoryToast && (
+          <motion.div
+            initial={{ opacity: 0, y: -50, scale: 0.8 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -50, scale: 0.8 }}
+            className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg font-medium flex items-center space-x-2"
+          >
+            <motion.span
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 0.5 }}
+            >
+              📊
+            </motion.span>
+            <span>Riwayat perasaan ditampilkan di bawah</span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mood Note Modal */}
+      <MoodNoteModal
+        isOpen={showMoodNote}
+        onClose={() => setShowMoodNote(false)}
+        onSave={handleMoodNoteSave}
+        selectedMood={selectedMood || 'neutral'}
+      />
     </div>
   );
 };

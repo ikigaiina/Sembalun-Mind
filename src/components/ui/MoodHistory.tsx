@@ -14,12 +14,31 @@ interface MoodHistoryProps {
   showCalendar?: boolean;
 }
 
+// Mood to numeric value mapping for calculations
+const moodValues: Record<MoodType, number> = {
+  'very-sad': 1,
+  'sad': 2,
+  'neutral': 3,
+  'happy': 4,
+  'very-happy': 5,
+  'anxious': 2,
+  'angry': 1,
+  'calm': 4,
+  'excited': 5,
+  'tired': 2,
+};
+
 const moodLabels: Record<MoodType, string> = {
   'very-sad': 'Sangat Sedih',
   'sad': 'Sedih',
   'neutral': 'Biasa',
   'happy': 'Senang',
   'very-happy': 'Sangat Senang',
+  'anxious': 'Cemas',
+  'angry': 'Marah',
+  'calm': 'Tenang',
+  'excited': 'Bersemangat',
+  'tired': 'Lelah',
 };
 
 const moodEmojis: Record<MoodType, string> = {
@@ -28,6 +47,11 @@ const moodEmojis: Record<MoodType, string> = {
   'neutral': '😐',
   'happy': '😊',
   'very-happy': '😄',
+  'anxious': '😰',
+  'angry': '😠',
+  'calm': '😌',
+  'excited': '🤩',
+  'tired': '😴',
 };
 
 export const MoodHistory: React.FC<MoodHistoryProps> = ({
@@ -36,19 +60,33 @@ export const MoodHistory: React.FC<MoodHistoryProps> = ({
   showChart = true,
   showCalendar = true,
 }) => {
-  const { moodHistory, getMoodStats, loading } = useMoodTracker();
+  const { moodHistory, getMoodStats, loading, currentMood, getTodaysMood } = useMoodTracker();
+  
+  // Get today's mood for better display
+  const todaysMood = getTodaysMood();
+  const [refreshKey, setRefreshKey] = React.useState(0);
+  
+  // Force refresh when mood history changes
+  React.useEffect(() => {
+    setRefreshKey(prev => prev + 1);
+  }, [moodHistory.length, currentMood]);
 
   if (loading) {
     return (
       <div className={`space-y-6 ${className}`}>
-        <div className="animate-pulse space-y-4">
-          <div className="h-8 bg-gray-200 rounded-lg w-1/2"></div>
-          <div className="h-40 bg-gray-200 rounded-lg"></div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="h-24 bg-gray-200 rounded-lg"></div>
-            <div className="h-24 bg-gray-200 rounded-lg"></div>
+        <Card className="p-8">
+          <div className="animate-pulse space-y-4">
+            <div className="h-8 bg-gradient-to-r from-blue-200 to-purple-200 rounded-lg w-1/2 mx-auto"></div>
+            <div className="h-40 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg"></div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="h-24 bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg"></div>
+              <div className="h-24 bg-gradient-to-r from-purple-100 to-pink-100 rounded-lg"></div>
+            </div>
           </div>
-        </div>
+          <div className="text-center mt-4">
+            <p className="text-sm text-gray-600 animate-pulse">Memuat riwayat perasaan Anda...</p>
+          </div>
+        </Card>
       </div>
     );
   }
@@ -78,15 +116,16 @@ export const MoodHistory: React.FC<MoodHistoryProps> = ({
   const formatTooltipValue = (value: number) => {
     if (value === 0) return 'Tidak ada data';
     const moodNames = ['', 'Sangat Sedih', 'Sedih', 'Biasa', 'Senang', 'Sangat Senang'];
-    return `${value.toFixed(1)} (${moodNames[Math.round(value)]})`;
+    const roundedValue = Math.max(1, Math.min(5, Math.round(value)));
+    return `${value.toFixed(1)} (${moodNames[roundedValue]})`;
   };
 
   const getMoodEmoji = (value: number) => {
-    if (value <= 1.5) return '😢';
-    if (value <= 2.5) return '😔';
-    if (value <= 3.5) return '😐';
-    if (value <= 4.5) return '😊';
-    return '😄';
+    if (value <= 1.5) return '😢'; // very-sad
+    if (value <= 2.5) return '😔'; // sad  
+    if (value <= 3.5) return '😐'; // neutral
+    if (value <= 4.5) return '😊'; // happy
+    return '😄'; // very-happy
   };
 
   return (
@@ -105,6 +144,39 @@ export const MoodHistory: React.FC<MoodHistoryProps> = ({
         </p>
       </motion.div>
 
+      {/* Today's Summary */}
+      {todaysMood && (
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6"
+        >
+          <Card className="p-4 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-100">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="text-3xl">
+                  {moodEmojis[todaysMood.mood]}
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-800">
+                    Hari Ini: {moodLabels[todaysMood.mood]}
+                  </h3>
+                  <p className="text-sm text-gray-600">
+                    Dicatat pada {todaysMood.timestamp.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-lg font-bold" style={{ color: getMoodColor(todaysMood.mood) }}>
+                  {moodValues[todaysMood.mood]}/5
+                </div>
+                <div className="text-xs text-gray-500">Skor hari ini</div>
+              </div>
+            </div>
+          </Card>
+        </motion.div>
+      )}
+      
       {/* Stats Cards */}
       {showStats && stats.totalEntries > 0 && (
         <motion.div
@@ -164,7 +236,7 @@ export const MoodHistory: React.FC<MoodHistoryProps> = ({
                 <TrendingUp className="w-5 h-5 text-meditation-energy-600" />
               </div>
               <div className="text-2xl font-bold text-meditation-energy-600">
-                {stats.weeklyAverage[stats.weeklyAverage.length - 1]?.toFixed(1) || '0'}
+                {stats.weeklyAverage[0]?.toFixed(1) || '0'}
               </div>
               <div className="text-xs text-gray-600">Minggu Ini</div>
               <div className="text-sm font-medium text-gray-800">
@@ -356,21 +428,60 @@ export const MoodHistory: React.FC<MoodHistoryProps> = ({
         </motion.div>
       )}
 
-      {/* Empty State */}
+      {/* Enhanced Empty State */}
       {stats.totalEntries === 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="text-center py-12"
-        >
-          <div className="text-6xl mb-4">😊</div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
-            Belum Ada Riwayat Suasana Hati
-          </h3>
-          <p className="text-gray-600 max-w-md mx-auto">
-            Mulai catat suasana hati Anda setiap hari untuk melihat pola dan tren emosional Anda
-          </p>
-        </motion.div>
+        <Card className="p-8 border-2 border-dashed border-gray-200 bg-gradient-to-br from-blue-50/50 via-white to-purple-50/50">
+          <motion.div
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ duration: 0.5 }}
+            className="text-center py-8"
+          >
+            <motion.div 
+              className="w-20 h-20 bg-gradient-to-r from-blue-400 to-purple-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg"
+              animate={{ 
+                boxShadow: ['0 4px 6px rgba(59, 130, 246, 0.3)', '0 8px 25px rgba(147, 51, 234, 0.4)', '0 4px 6px rgba(59, 130, 246, 0.3)']
+              }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Heart className="w-10 h-10 text-white" />
+            </motion.div>
+            <h3 className="text-2xl font-semibold text-gray-800 mb-4">
+              Mulai Perjalanan Emosional Anda
+            </h3>
+            <p className="text-gray-600 max-w-lg mx-auto mb-8 leading-relaxed text-base">
+              Belum ada riwayat perasaan yang tercatat. Mulai catat perasaan Anda setiap hari untuk memahami pola emosi dan meningkatkan kesejahteraan mental.
+            </p>
+            <motion.div 
+              className="flex justify-center space-x-3 text-3xl mb-6"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3, staggerChildren: 0.1 }}
+            >
+              {['😢', '😔', '😐', '😊', '😄'].map((emoji, index) => (
+                <motion.span
+                  key={index}
+                  className="hover:scale-125 transition-transform cursor-pointer"
+                  animate={{ y: [0, -10, 0] }}
+                  transition={{ 
+                    duration: 2, 
+                    repeat: Infinity, 
+                    delay: index * 0.2,
+                    ease: "easeInOut"
+                  }}
+                >
+                  {emoji}
+                </motion.span>
+              ))}
+            </motion.div>
+            <div className="bg-gradient-to-r from-blue-100 to-purple-100 rounded-lg p-4 max-w-md mx-auto">
+              <p className="text-sm text-gray-700 font-medium flex items-center justify-center">
+                <Calendar className="w-4 h-4 mr-2 text-blue-600" />
+                Pilih suasana hati Anda di bagian atas untuk mulai tracking
+              </p>
+            </div>
+          </motion.div>
+        </Card>
       )}
     </div>
   );
