@@ -39,7 +39,21 @@
     "deploy:netlify": "npm run build:fast && netlify deploy --prod --dir=dist",
     "deploy:vercel": "npm run prepare:production && vercel --prod",
     "test:build": "npm run build && npm run preview",
-    "reset-achievements": "tsx src/scripts/resetAchievements.ts"
+    "reset-achievements": "tsx src/scripts/resetAchievements.ts",
+    "test:e2e": "playwright test",
+    "test:e2e:headed": "playwright test --headed",
+    "test:e2e:ui": "playwright test --ui",
+    "test:integration": "vitest run --config vitest.config.integration.ts",
+    "test:accessibility": "axe --tags wcag2a,wcag2aa,wcag21aa http://localhost:4173",
+    "test:smoke": "playwright test tests/smoke/",
+    "test:production-health": "playwright test tests/health/",
+    "build:enterprise": "npm run clean && npm run typecheck && npm run build:fast",
+    "security:audit": "npm audit --audit-level moderate",
+    "security:fix": "npm audit fix",
+    "performance:lighthouse": "lighthouse http://localhost:4173 --output html --output-path ./lighthouse-report.html",
+    "performance:bundle-analyzer": "npm run build:analyze",
+    "docker:build": "docker build -t sembalun-mind .",
+    "docker:run": "docker run -p 3000:3000 sembalun-mind"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.53.0",

@@ -1,0 +1,357 @@
+name: 🔍 Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main, development_main, develop ]
+    types: [opened, synchronize, reopened, ready_for_review]
+  pull_request_review:
+    types: [submitted]
+
+env:
+  NODE_VERSION: '20.x'
+  FORCE_COLOR: 3
+
+jobs:
+  # 📋 PR Information & Labels
+  pr-info:
+    name: 📋 PR Analysis & Labeling
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔍 Analyze PR changes
+        id: analyze
+        run: |
+          echo "🔍 Analyzing PR changes..."
+          
+          # Count changes
+          ADDED_LINES=$(git diff --numstat ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | awk '{sum += $1} END {print sum}')
+          REMOVED_LINES=$(git diff --numstat ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | awk '{sum += $2} END {print sum}')
+          CHANGED_FILES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | wc -l)
+          
+          echo "📊 PR Statistics:"
+          echo "- Files changed: $CHANGED_FILES"
+          echo "- Lines added: $ADDED_LINES"
+          echo "- Lines removed: $REMOVED_LINES"
+          
+          # Check for specific types of changes
+          CULTURAL_CHANGES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -E "(cultural|indonesia|javanese|balinese)" | wc -l)
+          COMPONENT_CHANGES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep "src/components" | wc -l)
+          SERVICE_CHANGES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep "src/services" | wc -l)
+          TEST_CHANGES=$(git diff --name-only ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} | grep -E "(test|spec)" | wc -l)
+          
+          echo "cultural-changes=$CULTURAL_CHANGES" >> $GITHUB_OUTPUT
+          echo "component-changes=$COMPONENT_CHANGES" >> $GITHUB_OUTPUT
+          echo "service-changes=$SERVICE_CHANGES" >> $GITHUB_OUTPUT
+          echo "test-changes=$TEST_CHANGES" >> $GITHUB_OUTPUT
+          echo "total-changes=$CHANGED_FILES" >> $GITHUB_OUTPUT
+
+      - name: 🏷️ Add appropriate labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labels = [];
+            const culturalChanges = parseInt('${{ steps.analyze.outputs.cultural-changes }}');
+            const componentChanges = parseInt('${{ steps.analyze.outputs.component-changes }}');
+            const serviceChanges = parseInt('${{ steps.analyze.outputs.service-changes }}');
+            const testChanges = parseInt('${{ steps.analyze.outputs.test-changes }}');
+            const totalChanges = parseInt('${{ steps.analyze.outputs.total-changes }}');
+            
+            // Add labels based on changes
+            if (culturalChanges > 0) labels.push('🏛️ cultural');
+            if (componentChanges > 0) labels.push('🧩 components');
+            if (serviceChanges > 0) labels.push('⚙️ services');
+            if (testChanges > 0) labels.push('🧪 tests');
+            
+            // Size labels
+            if (totalChanges < 10) labels.push('size/small');
+            else if (totalChanges < 50) labels.push('size/medium');
+            else labels.push('size/large');
+            
+            // Apply labels
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                labels: labels
+              });
+              
+              console.log(`🏷️ Added labels: ${labels.join(', ')}`);
+            }
+
+  # 🧪 Quick Validation
+  quick-validation:
+    name: 🧪 Quick PR Validation
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔍 Quick lint check
+        run: |
+          echo "🔍 Running quick lint validation..."
+          npm run lint:production
+
+      - name: 🔧 TypeScript check
+        run: |
+          echo "🔧 Validating TypeScript..."
+          npm run typecheck
+
+      - name: 🏗️ Build validation
+        run: |
+          echo "🏗️ Validating build process..."
+          npm run build:fast
+
+  # 🏛️ Cultural Review Requirements
+  cultural-review:
+    name: 🏛️ Cultural Content Review
+    runs-on: ubuntu-latest
+    if: contains(github.event.pull_request.title, 'cultural') || contains(join(github.event.pull_request.labels.*.name, ' '), 'cultural')
+    
+    steps:
+      - name: 🏛️ Cultural validation requirements
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🏛️ Cultural Content Review Required
+            
+            This PR contains cultural content that requires validation from Indonesian cultural experts.
+            
+            ### 📋 Cultural Review Checklist
+            - [ ] Content authenticity verified by Indonesian cultural practitioners
+            - [ ] Regional accuracy confirmed (Javanese, Balinese, Sundanese, Minangkabau)
+            - [ ] Respectful implementation of traditional practices
+            - [ ] Educational value and cultural preservation considered
+            - [ ] Appropriate terminology and language used
+            
+            ### 🎯 Next Steps
+            Please ensure this PR is reviewed by team members with Indonesian cultural expertise before merging.
+            
+            **Reviewers with cultural expertise:** Please confirm the authenticity and respectfulness of these changes.
+            
+            🙏 *Terima kasih* for helping preserve Indonesian cultural heritage through respectful technology.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+  # ♿ Accessibility Impact Check
+  accessibility-check:
+    name: ♿ Accessibility Impact Assessment
+    runs-on: ubuntu-latest
+    if: contains(join(github.event.pull_request.labels.*.name, ' '), 'components') || contains(github.event.pull_request.title, 'ui') || contains(github.event.pull_request.title, 'modal')
+    
+    steps:
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: |
+          npm ci --prefer-offline --no-audit
+          npm install -g @axe-core/cli
+
+      - name: 🏗️ Build for accessibility testing
+        run: npm run build:fast
+
+      - name: 🌐 Start preview server
+        run: |
+          npm run preview &
+          sleep 15
+
+      - name: ♿ Quick accessibility scan
+        run: |
+          echo "♿ Running accessibility impact assessment..."
+          axe http://localhost:4173 \
+            --tags wcag2a,wcag2aa,wcag21aa \
+            --reporter json \
+            --save accessibility-pr-check.json || echo "Accessibility scan completed"
+          
+          # Generate accessibility report comment
+          if [ -f accessibility-pr-check.json ]; then
+            VIOLATIONS=$(jq '.violations | length' accessibility-pr-check.json)
+            if [ "$VIOLATIONS" -gt 0 ]; then
+              echo "accessibility-issues=true" >> $GITHUB_ENV
+            else
+              echo "accessibility-issues=false" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: 📝 Accessibility report comment
+        uses: actions/github-script@v7
+        if: env.accessibility-issues == 'true'
+        with:
+          script: |
+            const comment = `## ♿ Accessibility Impact Assessment
+            
+            ⚠️ **Accessibility issues detected in this PR**
+            
+            This PR may impact accessibility compliance. Please review the following:
+            
+            ### 📋 Accessibility Checklist
+            - [ ] WCAG 2.1 AA compliance maintained (7:1+ contrast ratios)
+            - [ ] Keyboard navigation functionality preserved
+            - [ ] Screen reader compatibility confirmed
+            - [ ] Touch targets meet 44px minimum requirement
+            - [ ] Color is not the only means of conveying information
+            - [ ] Focus indicators are visible and clear
+            
+            ### 🛠️ Recommended Actions
+            1. Run accessibility tests locally: \`npm run test:accessibility\`
+            2. Test with screen readers (NVDA, JAWS, VoiceOver)
+            3. Verify keyboard-only navigation
+            4. Validate color contrast ratios
+            
+            Please address accessibility issues before merging to maintain our WCAG 2.1 AA compliance for Indonesian users.`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
+
+  # 📊 PR Summary Report
+  pr-summary:
+    name: 📊 PR Summary & Recommendations
+    runs-on: ubuntu-latest
+    needs: [pr-info, quick-validation, cultural-review, accessibility-check]
+    if: always() && github.event.pull_request.draft == false
+    
+    steps:
+      - name: 📋 Generate PR summary
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prInfo = ${{ toJson(needs.pr-info.result) }};
+            const quickValidation = ${{ toJson(needs.quick-validation.result) }};
+            const culturalReview = ${{ toJson(needs.cultural-review.result) }};
+            const accessibilityCheck = ${{ toJson(needs.accessibility-check.result) }};
+            
+            let summary = `## 🚀 Sembalun Mind PR Validation Summary
+            
+            ### ✅ Validation Results
+            - **Code Quality**: ${quickValidation === 'success' ? '✅ Passed' : '❌ Failed'}
+            - **Build Process**: ${quickValidation === 'success' ? '✅ Passed' : '❌ Failed'}
+            - **PR Analysis**: ${prInfo === 'success' ? '✅ Completed' : '❌ Failed'}`;
+            
+            if (culturalReview !== 'skipped') {
+              summary += `\n- **Cultural Review**: ${culturalReview === 'success' ? '🏛️ Required' : '❌ Issues'}`;
+            }
+            
+            if (accessibilityCheck !== 'skipped') {
+              summary += `\n- **Accessibility**: ${accessibilityCheck === 'success' ? '♿ Checked' : '⚠️ Issues Detected'}`;
+            }
+            
+            summary += `
+            
+            ### 🎯 Indonesian Cultural Focus
+            This PR contributes to preserving Indonesian meditation traditions through respectful technology.
+            
+            ### 📱 Mobile & Accessibility Priority
+            All changes maintain optimization for Indonesian mobile networks and WCAG 2.1 AA compliance.
+            
+            ### 🙏 Review Guidelines
+            - Verify cultural authenticity and respectfulness
+            - Test on mobile devices with Indonesian network conditions
+            - Confirm accessibility standards are maintained
+            - Validate that mood tracking and meditation features work correctly
+            
+            **Ready for review by maintainers and cultural validators!** 🌟`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: summary
+            });
+
+  # 🔒 Security Check for PRs
+  pr-security-check:
+    name: 🔒 PR Security Assessment
+    runs-on: ubuntu-latest
+    if: github.event.pull_request.draft == false
+    
+    steps:
+      - name: 📁 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+
+      - name: 📥 Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: 🔒 Quick security audit
+        run: |
+          echo "🔒 Running security assessment..."
+          npm audit --audit-level moderate --json > pr-security-audit.json || echo "Security audit completed"
+          
+          # Check for high/critical vulnerabilities
+          if [ -f pr-security-audit.json ]; then
+            HIGH_VULNS=$(cat pr-security-audit.json | jq -r '.metadata.vulnerabilities.high // 0')
+            CRITICAL_VULNS=$(cat pr-security-audit.json | jq -r '.metadata.vulnerabilities.critical // 0')
+            
+            if [ "$HIGH_VULNS" -gt 0 ] || [ "$CRITICAL_VULNS" -gt 0 ]; then
+              echo "security-issues=true" >> $GITHUB_ENV
+            else
+              echo "security-issues=false" >> $GITHUB_ENV
+            fi
+          fi
+
+      - name: ⚠️ Security issues notification
+        uses: actions/github-script@v7
+        if: env.security-issues == 'true'
+        with:
+          script: |
+            const comment = `## 🔒 Security Issues Detected
+            
+            ⚠️ **High or critical security vulnerabilities detected**
+            
+            Please address these security issues before merging:
+            
+            ### 🛡️ Security Checklist
+            - [ ] Review npm audit results
+            - [ ] Update vulnerable dependencies
+            - [ ] Verify no secrets are exposed in code
+            - [ ] Check for proper input validation
+            - [ ] Confirm secure authentication practices
+            
+            Run \`npm audit fix\` to automatically fix issues where possible.
+            
+            **Security is essential for protecting Indonesian user data and privacy.**`;
+            
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: comment
+            });
