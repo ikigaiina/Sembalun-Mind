@@ -2,14 +2,18 @@
 
 > **Production-Ready** • **AI-Powered Personalization** • **Culturally Authentic** • **Enterprise-Grade**
 
-[![Production Status](https://img.shields.io/badge/status-production_ready-green.svg)](https://sembalun-app.vercel.app)
+[![Production Status](https://img.shields.io/badge/status-production_ready-green.svg)](https://sembalun-cmkrqe50y-ikigais-projects-cceb1be5.vercel.app)
 [![React](https://img.shields.io/badge/React-19.1.0-blue.svg)](https://reactjs.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-blue.svg)](https://www.typescriptlang.org/)
 [![Supabase](https://img.shields.io/badge/Supabase-2.53.0-green.svg)](https://supabase.com/)
 [![Vite](https://img.shields.io/badge/Vite-7.0.4-purple.svg)](https://vitejs.dev/)
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4.1.11-blue.svg)](https://tailwindcss.com/)
 [![Framer Motion](https://img.shields.io/badge/Framer_Motion-12.23.12-orange.svg)](https://www.framer.com/motion/)
-[![Multi-Agent](https://img.shields.io/badge/Multi_Agent-Enabled-brightgreen.svg)]()[![Indonesian Cultural](https://img.shields.io/badge/Indonesian_Cultural-Authentic-yellow.svg)]()
+[![Multi-Agent](https://img.shields.io/badge/Multi_Agent-Enabled-brightgreen.svg)]()
+[![Indonesian Cultural](https://img.shields.io/badge/Indonesian_Cultural-Authentic-yellow.svg)]()
+[![Mood Tracking](https://img.shields.io/badge/Mood_Options-40%2B-purple.svg)]()
+[![WCAG 2.1 AA](https://img.shields.io/badge/Accessibility-WCAG_2.1_AA-blue.svg)]()
+[![Mobile Optimized](https://img.shields.io/badge/Mobile-Optimized-orange.svg)]()
 
 ## 🧘‍♀️ Overview
 
@@ -21,6 +25,13 @@ Featuring a **60+ service architecture**, **multi-agent task orchestration**, an
 To revolutionize mindfulness practice by delivering deeply personalized meditation experiences rooted in Indonesian cultural authenticity, powered by advanced AI personalization and multi-agent coordination systems.
 
 ### ✨ Advanced Features
+
+#### 🎭 Revolutionary Mood Tracking System
+- **40+ Mood Options**: Comprehensive emotional expression with 7 intelligent categories
+- **WCAG 2.1 AA Compliant**: Professional accessibility with 7:1+ contrast ratios
+- **Time-Based Check-ins**: Smart mood logging during pagi/sore/malam periods
+- **Progressive Disclosure UX**: Context-aware mood refinement and suggestions
+- **Journal Integration**: Seamless reflection sync with comprehensive journaling
 
 #### 🤖 AI-Powered Personalization Engine
 - **Behavioral Analytics**: Deep learning from 60+ user interaction patterns
@@ -45,11 +56,12 @@ To revolutionize mindfulness practice by delivering deeply personalized meditati
 - **Indonesian Network Optimization**: Adaptive quality for local network conditions
 
 #### 🎨 Design System 2025
+- **Enhanced Mood Modal**: Light background with optimized mobile viewport handling
 - **Indonesian Cultural Cards**: Authentic ornamental patterns and regional color schemes
 - **Personalized Dashboard**: AI-driven layout adaptation based on user preferences
 - **Adaptive Theming**: Dynamic styling based on cultural preferences and accessibility needs
 - **WCAG 2.1 AA Compliance**: Full accessibility with screen reader and keyboard support
-- **Mobile-First Indonesian UX**: Optimized for Indonesian mobile usage patterns
+- **Mobile-First Indonesian UX**: Optimized for Indonesian mobile usage patterns with smart sizing
 
 ## 🏗️ Advanced Technical Architecture
 
@@ -95,6 +107,9 @@ Sembalun Production Architecture/
 ├── src/
 │   ├── components/              # 80+ Advanced Components
 │   │   ├── ui/                 # Core UI with Indonesian design system
+│   │   │   ├── MoodSelectionModal.tsx  # Enhanced mood modal with 40+ options
+│   │   │   ├── MoodSelector.tsx        # Inline mood selector (legacy)
+│   │   │   └── PersonalizedDashboard.tsx # AI-driven dashboard with mood integration
 │   │   ├── cultural/           # Indonesian cultural components (cards, wisdom, patterns)
 │   │   ├── analytics/          # Behavioral analytics and progress insights
 │   │   ├── onboarding/         # Complete cultural personalization onboarding
@@ -122,6 +137,7 @@ Sembalun Production Architecture/
 │   │   └── performance/       # Enterprise performance monitoring
 │   ├── types/                  # Comprehensive TypeScript definitions
 │   │   ├── auth.ts            # Authentication and user profiles
+│   │   ├── mood.ts            # Enhanced mood system with 40+ types and categories
 │   │   ├── cultural.ts        # Indonesian cultural type system
 │   │   ├── personalization.ts # AI personalization interfaces
 │   │   └── multiagent.ts      # Multi-agent system types
@@ -336,6 +352,16 @@ The app follows a consistent design system with:
 
 #### Specialized Components
 
+**MoodSelectionModal (`src/components/ui/MoodSelectionModal.tsx`)**
+- 40+ mood options across 7 intelligent categories
+- WCAG 2.1 AA compliant design with 7:1+ contrast ratio
+- Progressive disclosure UX with context-aware refinement
+- Mobile-optimized with max-h-[90vh] and proper scrolling
+- Time-based restrictions (pagi/sore/malam) with cultural context
+- Integrated journal form with comprehensive sync
+- Light modal background for enhanced visibility
+- Smart touch targets (44px+ minimum) for accessibility
+
 **MeditationTimer (`src/components/ui/MeditationTimer.tsx`)**
 - Customizable meditation timer
 - Multiple timer visualizations
@@ -367,17 +393,35 @@ The app follows a consistent design system with:
 - Personal notes and reflections
 - Session history and analytics
 
-### 2. Progress Tracking
+### 2. Enhanced Mood & Progress Tracking
+
+#### Advanced Mood System
+- **40+ Emotional States**: Comprehensive mood expression across 7 categories
+- **Smart Categorization**: Primary, anxious, angry, calm, energetic, tired, complex
+- **Context-Aware Suggestions**: Related moods based on primary selection
+- **Cultural Time Periods**: Indonesian pagi/sore/malam check-in windows
+- **Journal Integration**: Seamless reflection sync with mood context
+
+#### Mood Categories
+- **Primary (5)**: very-sad, sad, neutral, happy, very-happy
+- **Anxious Family (5)**: anxious, worried, nervous, stressed, overwhelmed
+- **Angry Family (5)**: angry, frustrated, irritated, annoyed, furious
+- **Calm Family (5)**: calm, peaceful, relaxed, serene, content
+- **Energetic (5)**: excited, enthusiastic, energetic, motivated, inspired
+- **Tired (5)**: tired, exhausted, drained, sleepy, weary
+- **Complex (15)**: confused, lonely, grateful, hopeful, disappointed, proud, embarrassed, curious, bored, surprised, loved, confident, insecure, nostalgic, optimistic
 
 #### Metrics Tracked
 - Total meditation minutes
 - Session streaks (current and longest)
+- Mood patterns and trends over time
 - Favorite meditation categories
 - Completion rates
-- Mood trends over time
+- Emotional wellness insights
 
 #### Visualizations
 - Progress charts and graphs
+- Mood trend analysis
 - Streak calendars
 - Category breakdowns
 - Time-based analytics
@@ -490,6 +534,19 @@ export const Component: React.FC<ComponentProps> = ({
 
 ## 🚀 Deployment
 
+### Current Production Deployment
+
+**Live Application**: https://sembalun-cmkrqe50y-ikigais-projects-cceb1be5.vercel.app
+
+**Recent Enhancements** (Latest Deploy):
+- ✅ Enhanced mood modal with 40+ options
+- ✅ WCAG 2.1 AA accessibility compliance
+- ✅ Mobile viewport optimization
+- ✅ Light modal background for better visibility
+- ✅ Progressive disclosure UX with smart refinement
+- ✅ Time-based mood check-in restrictions
+- ✅ Integrated journal form with comprehensive sync
+
 ### Production Deployment
 
 The app is deployed on Vercel with the following configuration:
@@ -563,12 +620,22 @@ Production requires the following environment variables:
 - Client-side error boundaries
 - Supabase error monitoring
 - Performance monitoring
+- Mood modal interaction tracking
 
 ### User Analytics
 - Session tracking
 - Feature usage analytics
+- Mood selection patterns and trends
 - Performance metrics
 - User engagement tracking
+- Accessibility compliance monitoring
+
+### Enhanced Mood Analytics
+- **Emotional Patterns**: Track mood trends across time periods
+- **Cultural Context**: Monitor pagi/sore/malam usage patterns
+- **Journal Correlation**: Analyze mood-reflection relationships
+- **Category Preferences**: Understand user emotional expression preferences
+- **Accessibility Usage**: Monitor screen reader and keyboard navigation usage
 
 ## 🔧 Configuration
 
@@ -681,14 +748,29 @@ This project is licensed under the MIT License. See the [LICENSE](LICENSE) file 
 - **Hosting**: Vercel for reliable deployment platform
 - **Community**: React and TypeScript communities for excellent tooling
 
+## 📚 Recent Documentation Updates
+
+### New Documentation Files
+- **MOOD_MODAL_ENHANCEMENT_README.md**: Comprehensive guide to enhanced mood system
+- **ONBOARDING_UX_FIXES_SUMMARY.md**: Complete onboarding improvements documentation
+- Enhanced type system documentation in `src/types/mood.ts`
+
+### Key Implementation Guides
+1. **Mood System Architecture**: 40+ emotions across 7 intelligent categories
+2. **Accessibility Implementation**: WCAG 2.1 AA compliance strategies
+3. **Mobile Optimization**: Viewport handling and responsive design patterns
+4. **Progressive Disclosure UX**: Context-aware user experience design
+5. **Cultural Integration**: Indonesian time-based check-in system
+
 ## 📞 Support
 
 For support and questions:
 - 📧 Email: support@sembalun.app
-- 🐛 Issues: [GitHub Issues](https://github.com/your-org/sembalun/issues)
-- 📖 Documentation: [Project Wiki](https://github.com/your-org/sembalun/wiki)
-- 💬 Discussions: [GitHub Discussions](https://github.com/your-org/sembalun/discussions)
+- 🐛 Issues: [GitHub Issues](https://github.com/ikigaiina/Sembalun-Mind/issues)
+- 📖 Documentation: [Project Wiki](https://github.com/ikigaiina/Sembalun-Mind/wiki)
+- 💬 Discussions: [GitHub Discussions](https://github.com/ikigaiina/Sembalun-Mind/discussions)
+- 🚀 Live Demo: [Sembalun Mind](https://sembalun-cmkrqe50y-ikigais-projects-cceb1be5.vercel.app)
 
 ---
 
-Built with ❤️ for mindfulness practitioners everywhere.
+Built with ❤️ for mindfulness practitioners everywhere, enhanced with comprehensive mood tracking and cultural authenticity.

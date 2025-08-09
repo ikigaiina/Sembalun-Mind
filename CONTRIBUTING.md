@@ -3,9 +3,9 @@
 
 ## 🎯 About Sembalun Mind
 
-**Sembalun Mind** adalah platform meditasi Indonesia yang menggabungkan teknologi AI modern dengan kearifan tradisional Indonesia. Kami menciptakan pengalaman mindfulness yang autentik dan relevan untuk praktisi meditasi Indonesia.
+**Sembalun Mind** adalah platform meditasi Indonesia yang menggabungkan teknologi AI modern dengan kearifan tradisional Indonesia. Kami menciptakan pengalaman mindfulness yang autentik dan relevan untuk praktisi meditasi Indonesia, dengan sistem pelacakan mood revolusioner yang mencakup 40+ pilihan emosi dengan aksesibilitas WCAG 2.1 AA.
 
-**Sembalun Mind** is an Indonesian meditation platform that combines modern AI technology with traditional Indonesian wisdom. We create authentic and relevant mindfulness experiences for Indonesian meditation practitioners.
+**Sembalun Mind** is an Indonesian meditation platform that combines modern AI technology with traditional Indonesian wisdom. We create authentic and relevant mindfulness experiences for Indonesian meditation practitioners, featuring a revolutionary mood tracking system with 40+ emotional options and WCAG 2.1 AA accessibility compliance.
 
 ---
 
@@ -18,10 +18,12 @@
 - **Translate content** into regional Indonesian languages (Javanese, Sundanese, Balinese)
 
 ### 💻 **Technical Development**
+- **Enhanced Mood System**: 40+ mood options with intelligent categorization
 - **Frontend Development**: React, TypeScript, Indonesian UX optimization
+- **Accessibility Excellence**: WCAG 2.1 AA compliance with 7:1+ contrast ratios
+- **Mobile-First Design**: Responsive modal system with viewport optimization
 - **Backend Enhancement**: Supabase, cultural data structures, API optimization
-- **Mobile Optimization**: Performance improvements for Indonesian networks
-- **Accessibility**: WCAG compliance and Indonesian language support
+- **Performance**: Progressive disclosure UX and mobile network optimization
 
 ### 📚 **Documentation & Education**
 - **Improve documentation** (setup guides, API docs, cultural integration)
@@ -87,10 +89,13 @@
 ## 📋 Contribution Guidelines
 
 ### **Code Style**
-- **TypeScript**: All new code must be TypeScript
+- **TypeScript**: All new code must be TypeScript with strict mode
 - **ESLint**: Follow existing ESLint configuration
 - **Prettier**: Code formatting handled automatically
+- **Accessibility**: Maintain WCAG 2.1 AA compliance (7:1+ contrast)
+- **Mobile-First**: Responsive design with proper touch targets (44px+)
 - **Cultural Naming**: Use respectful Indonesian terminology
+- **Performance**: Optimize for mobile viewport and network conditions
 
 ### **Commit Messages**
 Follow conventional commit format:
@@ -103,7 +108,13 @@ docs(setup): improve Supabase setup guide in Bahasa Indonesia
 ```
 
 **Types**: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
-**Scopes**: `cultural`, `mobile`, `auth`, `ui`, `docs`, `backend`
+**Scopes**: `mood`, `modal`, `accessibility`, `cultural`, `mobile`, `auth`, `ui`, `docs`, `backend`
+
+**Recent Examples**:
+- `feat(mood): add 40+ mood options with intelligent categorization`
+- `fix(modal): resolve viewport height issues on mobile`
+- `feat(accessibility): implement WCAG 2.1 AA compliant color system`
+- `perf(modal): optimize animation performance and sizing`
 
 ### **Pull Request Process**
 
@@ -170,10 +181,12 @@ Before contributing cultural content:
 ## 🎯 Priority Contribution Areas
 
 ### **High Impact - Needed Now**
-1. **Indonesian Cultural Validation**: Review existing cultural implementations
-2. **Mobile Performance**: Optimize for Indonesian networks and devices
-3. **Bahasa Indonesia Translation**: Translate documentation and UI
-4. **Regional Practice Expansion**: Add more Indonesian regional practices
+1. **Mood System Enhancement**: Expand categories beyond current 40+ options
+2. **Accessibility Testing**: Validate WCAG 2.1 AA compliance across devices
+3. **Indonesian Cultural Validation**: Review existing cultural implementations
+4. **Mobile UX Optimization**: Further optimize modal sizing and touch interactions
+5. **Bahasa Indonesia Translation**: Translate documentation and UI
+6. **Regional Practice Expansion**: Add more Indonesian regional practices
 
 ### **Medium Impact - Welcome**
 1. **Advanced Analytics**: Enhanced user behavior insights
@@ -211,10 +224,12 @@ What actually happened
 
 ## Environment
 - OS: Windows 10 / macOS / Linux
-- Browser: Chrome 118
-- Device: Mobile / Desktop
+- Browser: Chrome 118 / Safari / Firefox
+- Device: Mobile (iPhone/Android) / Desktop
+- Viewport: Portrait/Landscape orientation
 - Network: 3G / 4G / WiFi
 - Location: Indonesia (city/region)
+- Accessibility: Screen reader / Keyboard navigation
 
 ## Screenshots
 Add screenshots if applicable
@@ -317,11 +332,14 @@ Technical considerations (optional)
 
 ### **Review Criteria**
 - **Functionality**: Does the code work as intended?
+- **Accessibility**: WCAG 2.1 AA compliance with 7:1+ contrast ratios
+- **Mobile Responsiveness**: Proper viewport handling and touch targets
 - **Cultural Sensitivity**: Is cultural content respectful and authentic?
-- **Performance**: Does it work well on Indonesian networks?
-- **Testing**: Are there appropriate tests?
-- **Documentation**: Is it well-documented?
-- **Accessibility**: Does it follow accessibility guidelines?
+- **Performance**: Does it work well on Indonesian networks and devices?
+- **TypeScript**: Strict type safety and comprehensive interfaces
+- **Testing**: Appropriate tests including accessibility testing
+- **Documentation**: Well-documented with cultural context
+- **Progressive Enhancement**: Graceful degradation and enhancement
 
 ### **Review Timeline**
 - **Small fixes**: 1-3 days
@@ -355,8 +373,32 @@ Together, we're building more than just a meditation app - we're creating a brid
 
 ---
 
-*"Sembalun Mind: Preserving Indonesian wisdom through respectful technology"*
+## 🎭 Recent Major Enhancement: Mood Modal System
+
+We've recently implemented a revolutionary mood tracking system featuring:
+
+- **40+ Mood Options**: Comprehensive emotional expression across 7 categories
+- **WCAG 2.1 AA Compliance**: 7:1+ contrast ratios for accessibility
+- **Progressive Disclosure UX**: Context-aware mood refinement
+- **Mobile Optimization**: Viewport-aware sizing with proper scrolling
+- **Cultural Integration**: Indonesian time-based check-ins (pagi/sore/malam)
+- **Journal Sync**: Seamless integration with comprehensive journaling
+
+Contributors are especially welcome to:
+- Test accessibility across different devices and assistive technologies
+- Validate cultural appropriateness of mood expressions in Indonesian context
+- Suggest additional mood categories relevant to Indonesian emotional expression
+- Improve mobile UX and performance optimization
+
+*"Sembalun Mind: Preserving Indonesian wisdom through respectful technology with world-class accessibility"*
 
 **Project Maintainers**: [Maintainer list will be updated]
-**Cultural Advisors**: [Cultural validation team will be updated]
+**Cultural Advisors**: [Cultural validation team will be updated]  
+**Accessibility Experts**: [WCAG 2.1 AA compliance team will be updated]
 **Community Leaders**: [Community contributors will be recognized]
+
+**Current Focus Areas**:
+- 🎭 Mood system enhancement and cultural validation
+- ♿ Accessibility testing and WCAG 2.1 AA compliance
+- 📱 Mobile UX optimization for Indonesian users
+- 🌏 Indonesian cultural integration and authenticity
