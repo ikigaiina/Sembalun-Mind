@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx vite build --config vite.config.deploy.ts --mode production",
+  "buildCommand": "npx vite build --mode production",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
@@ -8,8 +8,8 @@
       "destination": "/api/$1"
     },
     {
-      "source": "/(.*\\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|mp3|wav|ogg))$",
-      "destination": "/$1"
+      "source": "/static/(.*)",
+      "destination": "/static/$1"
     },
     {
       "source": "/(manifest\\.json|manifest\\.webmanifest|sw\\.js|registerSW\\.js)$",

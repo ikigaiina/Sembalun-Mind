@@ -63,7 +63,7 @@ const MEDITATION_SESSIONS: { [key in PersonalizationGoal]: MeditationSession } =
         duration: 60,
         instruction: 'Rasakan tubuh Anda duduk dengan tenang. Bayangkan akar pohon beringin tua yang tumbuh dari telapak kaki Anda, menghubungkan jiwa dengan kedamaian bumi Nusantara. Bernapaslah perlahan, ikuti ritme alam yang tenang.',
         visualization: 'Anda duduk di bawah pohon beringin rindang di halaman rumah tradisional Jawa, angin sepoi-sepoi membawa ketenangan',
-        breathingPattern: { inhale: 3, pause: 1, exhale: 4, pause: 1 }
+        breathingPattern: { inhale: 3, hold: 1, exhale: 4, pause: 1 }
       }
     ]
   },

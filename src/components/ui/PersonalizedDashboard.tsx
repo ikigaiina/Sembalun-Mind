@@ -16,9 +16,12 @@ import {
 } from './index';
 import IndonesianCTA, { useCulturalCTA } from './IndonesianCTA';
 import IndonesianWisdomQuote from './IndonesianWisdomQuote';
+import { IndonesianWisdomDisplay } from '../cultural/IndonesianWisdomDisplay';
+import { PersonalizedWelcomeDashboard } from '../onboarding/PersonalizedWelcomeDashboard';
 import type { MoodType } from '../../types/mood';
 import { moodOptions, getMoodColor } from '../../types/mood';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
+import { useOnboarding } from '../../hooks/useOnboarding';
 
 interface PersonalizedDashboardProps {
   className?: string;
@@ -41,6 +44,11 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
     isPersonalized,
     updateMoodPattern
   } = usePersonalization();
+
+  const {
+    isOnboardingCompleted,
+    userPreferences
+  } = useOnboarding();
 
   const [selectedMood, setSelectedMood] = useState<MoodType>('happy');
   const [activeSection, setActiveSection] = useState<string>('overview');
@@ -444,6 +452,28 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           </motion.div>
         );
 
+      case 'wisdom':
+        return (
+          <motion.div
+            key="wisdom-section"
+            variants={sectionVariants}
+            className="mb-6 max-w-4xl mx-auto w-full"
+          >
+            <div className="flex items-center justify-center space-x-2 mb-4">
+              <BookOpen className="w-5 h-5 text-amber-600" />
+              <h2 className="text-xl font-heading font-semibold text-gray-800">
+                Kebijaksanaan Nusantara
+              </h2>
+            </div>
+            
+            <IndonesianWisdomDisplay 
+              category="random"
+              autoRotate={false}
+              className="max-w-2xl mx-auto"
+            />
+          </motion.div>
+        );
+
       default:
         return null;
     }
@@ -458,6 +488,15 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
       }
     }
   };
+
+  // Show personalized welcome dashboard if onboarding is completed
+  if (isOnboardingCompleted && userPreferences && !isPersonalized) {
+    return (
+      <div className={`min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 ${className}`}>
+        <PersonalizedWelcomeDashboard className="max-w-6xl mx-auto px-4 py-6" />
+      </div>
+    );
+  }
 
   if (!isPersonalized) {
     return (
