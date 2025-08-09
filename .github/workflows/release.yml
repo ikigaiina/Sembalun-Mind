@@ -1,0 +1,274 @@
+name: 🎉 Release Workflow
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+  workflow_dispatch:
+    inputs:
+      release_type:
+        description: 'Release type'
+        required: true
+        default: 'minor'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+jobs:
+  # 📋 Create Release
+  create-release:
+    name: 📋 Create GitHub Release
+    runs-on: ubuntu-latest
+
+    outputs:
+      release_url: ${{ steps.create_release.outputs.upload_url }}
+      release_id: ${{ steps.create_release.outputs.id }}
+
+    steps:
+    - name: 📁 Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: 📝 Generate changelog
+      id: changelog
+      run: |
+        echo "# 🎉 Release Notes" > RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "## 🚀 What's New in Sembalun Mind" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        
+        # Get commits since last tag
+        LAST_TAG=$(git describe --tags --abbrev=0 HEAD~1 2>/dev/null || echo "")
+        if [ -z "$LAST_TAG" ]; then
+          echo "🎯 **Initial Release**: Complete Indonesian meditation platform" >> RELEASE_NOTES.md
+        else
+          echo "🔄 **Changes since $LAST_TAG:**" >> RELEASE_NOTES.md
+          git log $LAST_TAG..HEAD --pretty=format:"- %s" | head -20 >> RELEASE_NOTES.md
+        fi
+        
+        echo "" >> RELEASE_NOTES.md
+        echo "## 🏛️ Indonesian Cultural Features" >> RELEASE_NOTES.md
+        echo "- ✅ Four regional meditation traditions (Java, Bali, Sembalun, Sumatra)" >> RELEASE_NOTES.md
+        echo "- ✅ Authentic Indonesian wisdom and spiritual practices" >> RELEASE_NOTES.md
+        echo "- ✅ Cultural design patterns and traditional aesthetics" >> RELEASE_NOTES.md
+        echo "- ✅ Multi-language support (Indonesian, English, Javanese)" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "## 📱 Indonesian Mobile Optimization" >> RELEASE_NOTES.md
+        echo "- ✅ Optimized for 3G/4G Indonesian networks" >> RELEASE_NOTES.md
+        echo "- ✅ Data-conscious design for Indonesian mobile users" >> RELEASE_NOTES.md
+        echo "- ✅ Progressive Web App with offline capabilities" >> RELEASE_NOTES.md
+        echo "- ✅ Performance tuned for Jakarta, Surabaya, Bali networks" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "## 🛠️ Technical Excellence" >> RELEASE_NOTES.md
+        echo "- ✅ React 19.1.0 + TypeScript 5.8.3" >> RELEASE_NOTES.md
+        echo "- ✅ Supabase production backend" >> RELEASE_NOTES.md
+        echo "- ✅ Enterprise-grade performance monitoring" >> RELEASE_NOTES.md
+        echo "- ✅ WCAG 2.1 AA accessibility compliance" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "---" >> RELEASE_NOTES.md
+        echo "**🇮🇩 Built with ❤️ for Indonesian meditation practitioners**" >> RELEASE_NOTES.md
+        echo "" >> RELEASE_NOTES.md
+        echo "🙏 *Terima kasih* to all contributors who help preserve Indonesian cultural wisdom through respectful technology." >> RELEASE_NOTES.md
+
+    - name: 🎯 Get version from tag
+      id: version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/}
+        else
+          VERSION="v$(date +'%Y.%m.%d')"
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+    - name: 🎉 Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.VERSION }}
+        release_name: "Sembalun Mind ${{ steps.version.outputs.VERSION }} - Indonesian Meditation Platform"
+        body_path: RELEASE_NOTES.md
+        draft: false
+        prerelease: false
+
+  # 🏗️ Build Release Assets
+  build-assets:
+    name: 🏗️ Build Release Assets
+    runs-on: ubuntu-latest
+    needs: create-release
+
+    strategy:
+      matrix:
+        include:
+          - build_type: "production"
+            description: "Production build optimized for Vercel deployment"
+          - build_type: "standalone"
+            description: "Standalone build for self-hosting"
+
+    steps:
+    - name: 📁 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📦 Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+
+    - name: 📥 Install dependencies
+      run: npm ci
+
+    - name: 🏗️ Build ${{ matrix.build_type }}
+      run: |
+        if [ "${{ matrix.build_type }}" = "production" ]; then
+          npm run build:deploy
+        else
+          npm run build
+        fi
+
+    - name: 📦 Create release archive
+      run: |
+        VERSION=${{ needs.create-release.outputs.VERSION }}
+        ARCHIVE_NAME="sembalun-mind-${VERSION}-${{ matrix.build_type }}"
+        
+        # Create release directory
+        mkdir -p release/${ARCHIVE_NAME}
+        
+        # Copy build files
+        cp -r dist/* release/${ARCHIVE_NAME}/
+        
+        # Add deployment files
+        cp package.json release/${ARCHIVE_NAME}/
+        cp vercel.json release/${ARCHIVE_NAME}/
+        cp README.md release/${ARCHIVE_NAME}/
+        cp CHANGELOG.md release/${ARCHIVE_NAME}/
+        
+        # Create Indonesian setup guide
+        echo "# 🚀 Sembalun Mind - Indonesian Meditation Platform" > release/${ARCHIVE_NAME}/SETUP.md
+        echo "" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "## 🇮🇩 Panduan Setup (Indonesian Guide)" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "### Persyaratan Sistem:" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "- Node.js 18+" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "- Akun Supabase" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "- Akun Vercel (untuk deployment)" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "### Langkah-langkah:" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "1. Ekstrak file ini ke direktori proyek" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "2. Install dependencies: \`npm install\`" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "3. Setup environment variables (lihat SUPABASE_COMPLETE_SETUP.md)" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "4. Deploy ke Vercel atau hosting pilihan Anda" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "" >> release/${ARCHIVE_NAME}/SETUP.md
+        echo "Untuk panduan lengkap, baca SUPABASE_COMPLETE_SETUP.md" >> release/${ARCHIVE_NAME}/SETUP.md
+        
+        # Create archive
+        cd release
+        tar -czf ${ARCHIVE_NAME}.tar.gz ${ARCHIVE_NAME}/
+        zip -r ${ARCHIVE_NAME}.zip ${ARCHIVE_NAME}/
+
+    - name: 📤 Upload tar.gz asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.release_url }}
+        asset_path: ./release/sembalun-mind-${{ needs.create-release.outputs.VERSION }}-${{ matrix.build_type }}.tar.gz
+        asset_name: sembalun-mind-${{ matrix.build_type }}.tar.gz
+        asset_content_type: application/gzip
+
+    - name: 📤 Upload zip asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ needs.create-release.outputs.release_url }}
+        asset_path: ./release/sembalun-mind-${{ needs.create-release.outputs.VERSION }}-${{ matrix.build_type }}.zip
+        asset_name: sembalun-mind-${{ matrix.build_type }}.zip
+        asset_content_type: application/zip
+
+  # 📊 Release Analytics
+  release-analytics:
+    name: 📊 Release Analytics
+    runs-on: ubuntu-latest
+    needs: [create-release, build-assets]
+
+    steps:
+    - name: 📁 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 📊 Generate release metrics
+      run: |
+        echo "🎉 Release Analytics for Sembalun Mind" > RELEASE_METRICS.md
+        echo "Release: ${{ needs.create-release.outputs.VERSION }}" >> RELEASE_METRICS.md
+        echo "Date: $(date)" >> RELEASE_METRICS.md
+        echo "" >> RELEASE_METRICS.md
+        
+        # Count files by type
+        echo "📁 Project Statistics:" >> RELEASE_METRICS.md
+        echo "- TypeScript/JavaScript files: $(find . -name "*.ts" -o -name "*.tsx" -o -name "*.js" -o -name "*.jsx" | wc -l)" >> RELEASE_METRICS.md
+        echo "- Documentation files: $(find . -name "*.md" | wc -l)" >> RELEASE_METRICS.md
+        echo "- Component files: $(find src/components -name "*.tsx" | wc -l)" >> RELEASE_METRICS.md
+        echo "- Service files: $(find src/services -name "*.ts" | wc -l)" >> RELEASE_METRICS.md
+        echo "" >> RELEASE_METRICS.md
+        
+        # Git statistics
+        echo "📈 Development Statistics:" >> RELEASE_METRICS.md
+        echo "- Total commits: $(git rev-list --count HEAD)" >> RELEASE_METRICS.md
+        echo "- Contributors: $(git shortlog -sn | wc -l)" >> RELEASE_METRICS.md
+        echo "- Lines of code: $(find src -name "*.ts" -o -name "*.tsx" | xargs wc -l | tail -1 | awk '{print $1}')" >> RELEASE_METRICS.md
+
+    - name: 💬 Create release comment
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 🎉 Release ${{ needs.create-release.outputs.VERSION }} Created Successfully!
+            
+            🏛️ **Indonesian Cultural Features:** Complete meditation platform with authentic Indonesian traditions
+            
+            📱 **Mobile Optimized:** Optimized for Indonesian 3G/4G networks and mobile devices
+            
+            🚀 **Production Ready:** Enterprise-grade platform with comprehensive documentation
+            
+            📦 **Available Downloads:**
+            - Production build (optimized for Vercel)
+            - Standalone build (self-hosting)
+            
+            🇮🇩 **Untuk komunitas Indonesia:** Platform meditasi yang menghormati dan melestarikan kearifan tradisional Indonesia melalui teknologi modern.
+            
+            **Star the repository ⭐ to support Indonesian cultural preservation through technology!**`
+          })
+
+  # 📢 Post-release notifications
+  notifications:
+    name: 📢 Release Notifications
+    runs-on: ubuntu-latest
+    needs: [create-release, build-assets, release-analytics]
+
+    steps:
+    - name: 🎉 Success notification
+      run: |
+        echo "🎉 Sembalun Mind ${{ needs.create-release.outputs.VERSION }} released successfully!"
+        echo "🏛️ Indonesian cultural meditation platform is now available"
+        echo "📱 Optimized for Indonesian mobile networks and meditation practitioners"
+        echo "🌟 Ready for community adoption and cultural validation"
+        
+    - name: 📊 Release summary
+      run: |
+        echo "📋 Release Summary:"
+        echo "✅ GitHub release created with comprehensive notes"
+        echo "✅ Production and standalone builds generated" 
+        echo "✅ Indonesian setup guides included"
+        echo "✅ Release assets uploaded and ready for download"
+        echo "✅ Analytics and metrics generated"
+        echo "🚀 Indonesian meditation community can now access the latest features!"
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
