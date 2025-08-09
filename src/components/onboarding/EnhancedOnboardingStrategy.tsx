@@ -4,57 +4,27 @@ import { Card, CairnIcon } from '../ui';
 import IndonesianCTA from '../ui/IndonesianCTA';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
 import SembalunIntroductionStep from './SembalunIntroductionStep';
-import { CulturalPersonalizationScreen, type CulturalData } from './CulturalPersonalizationScreen';
+import { CulturalPersonalizationScreen } from './CulturalPersonalizationScreen';
 import FiveMinuteMeditationExperience from './FiveMinuteMeditationExperience';
 import InstantMoodTracking from './InstantMoodTracking';
 import SoftConversionAsk from './SoftConversionAsk';
 import SocialProofAuthentication from './SocialProofAuthentication';
+import type { 
+  OnboardingStrategy, 
+  OnboardingStep, 
+  UserCommitmentLevel,
+  CulturalData,
+  PersonalizationGoal,
+  OnboardingStepData,
+  ExperienceFirstFlow,
+  IndonesianUserBehavior,
+  OnboardingDecisionEngine,
+  OnboardingStepConfig,
+  OnboardingFlowProps
+} from './onboarding-types';
 import type { MoodType } from '../../types/mood';
-import type { PersonalizationGoal } from '../../types/onboarding';
 
-export type OnboardingStrategy = 'experience-first' | 'auth-first' | 'progressive-trust';
-export type UserCommitmentLevel = 'curious' | 'interested' | 'committed' | 'loyal';
-export type OnboardingStep = 'introduction' | 'cultural' | 'experience' | 'mood' | 'conversion' | 'social-auth' | 'complete';
-
-interface IndonesianUserBehavior {
-  trustBuildingRequired: boolean;
-  socialProofImportant: boolean;
-  familyInfluenceHigh: boolean;
-  valueBeforeCommitment: boolean;
-  priceSensitive: boolean;
-  dataConsciousBandwidth: boolean;
-}
-
-interface OnboardingDecisionEngine {
-  strategy: OnboardingStrategy;
-  deferAuthenticationUntil: 'value-demonstrated' | 'feature-engagement' | 'day-2-return';
-  culturalTrustBuilders: string[];
-  conversionOptimizationPoints: string[];
-}
-
-interface ExperienceFirstFlow {
-  currentStep: OnboardingStep;
-  stepProgress: number;
-  totalSteps: number;
-  userEngagement: {
-    culturalRelevance: number;
-    experienceCompletion: number;
-    moodImprovement: number;
-    valuePerceived: number;
-  };
-  conversionReadiness: number;
-}
-
-interface StepData {
-  cultural?: CulturalData;
-  experienceRating?: number;
-  moodBefore?: MoodType;
-  moodAfter?: MoodType;
-  goal?: PersonalizationGoal;
-  progressSaved?: boolean;
-  socialProofSeen?: boolean;
-  authenticatedUser?: boolean;
-}
+// Types imported from shared types file to prevent circular dependencies
 
 /**
  * ENHANCED EXPERIENCE-FIRST ONBOARDING STRATEGY
@@ -67,9 +37,10 @@ interface StepData {
  * - 89% complete flow when value is demonstrated first
  */
 
-export const getIndonesianOnboardingStrategy = (
+// Use var declaration and immediately initialize function to prevent hoisting issues
+var getIndonesianOnboardingStrategy = function getIndonesianOnboardingStrategy(
   culturalHints?: Partial<CulturalData>
-): OnboardingDecisionEngine => {
+): OnboardingDecisionEngine {
   
   const indonesianBehavior: IndonesianUserBehavior = {
     trustBuildingRequired: true,
@@ -101,21 +72,23 @@ export const getIndonesianOnboardingStrategy = (
       'Ketika pengguna mulai set reminder'
     ]
   };
-};
+}
+
 
 interface EnhancedOnboardingStrategyProps {
-  onStepComplete: (step: OnboardingStep, data: StepData) => void;
-  onFlowComplete: (finalData: StepData & { strategy: OnboardingStrategy }) => void;
+  onStepComplete: (step: OnboardingStep, data: OnboardingStepData) => void;
+  onFlowComplete: (finalData: OnboardingStepData & { strategy: OnboardingStrategy }) => void;
   culturalHints?: Partial<CulturalData>;
   initialStep?: OnboardingStep;
 }
 
-export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProps> = ({
+// Use function declaration to prevent hoisting issues  
+function EnhancedOnboardingStrategy({
   onStepComplete,
   onFlowComplete,
   culturalHints,
   initialStep = 'introduction'
-}) => {
+}: EnhancedOnboardingStrategyProps) {
   const { updateFromOnboarding } = usePersonalization();
   
   // Core state management
@@ -132,14 +105,14 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
     conversionReadiness: 0
   });
 
-  const [stepData, setStepData] = useState<StepData>({});
+  const [stepData, setStepData] = useState<OnboardingStepData>({});
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [showingInsights, setShowingInsights] = useState(false);
 
   const strategy = getIndonesianOnboardingStrategy(culturalHints);
 
-  // Step configuration with enhanced metadata
-  const stepConfig = {
+  // Step configuration with enhanced metadata - use var initialization to avoid hoisting issues
+  var stepConfig: Record<OnboardingStep | 'social-auth', any> = Object.freeze({
     introduction: { 
       order: 0, 
       title: 'Pengenalan Sembalun', 
@@ -193,8 +166,17 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
       duration: 120, // 2 minutes
       authRequired: true,
       valueProposition: 'Bergabung dengan 10,000+ pengguna Indonesia lainnya'
+    },
+    'complete': {
+      order: 6,
+      title: 'Selesai',
+      subtitle: 'Onboarding completed',
+      icon: '✅',
+      duration: 0,
+      authRequired: false,
+      valueProposition: 'Selamat! Perjalanan Anda dimulai'
     }
-  };
+  });
 
   // Calculate engagement and conversion readiness
   useEffect(() => {
@@ -248,7 +230,7 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
     calculateEngagement();
   }, [stepData, flow.stepProgress, flow.totalSteps]);
 
-  // Navigation helpers
+  // Navigation helpers - add explicit dependencies to avoid hoisting issues
   const transitionToStep = useCallback((nextStep: OnboardingStep, delay = 500) => {
     setIsTransitioning(true);
     
@@ -259,12 +241,12 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
       setFlow(prev => ({
         ...prev,
         currentStep: nextStep,
-        stepProgress: nextConfig.order
+        stepProgress: nextConfig?.order ?? 0
       }));
       
       setIsTransitioning(false);
     }, delay);
-  }, [flow.currentStep, stepConfig]);
+  }, [flow.currentStep]);
 
   // Step completion handlers
   const handleIntroductionComplete = useCallback(() => {
@@ -341,8 +323,9 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
     }
   }, [stepData, onStepComplete, onFlowComplete, updateFromOnboarding]);
 
-  // Progress visualization
-  const ProgressIndicator = () => (
+  // Progress visualization - function declaration to avoid hoisting
+  function ProgressIndicator() {
+    return (
     <motion.div className="fixed top-0 left-0 right-0 z-50 bg-white/90 backdrop-blur-md shadow-lg">
       <div className="max-w-sm mx-auto px-6 py-4">
         <div className="flex items-center justify-between mb-3">
@@ -405,10 +388,12 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
         )}
       </div>
     </motion.div>
-  );
+    );
+  }
 
-  // Insights Panel
-  const InsightsPanel = () => (
+  // Insights Panel - function declaration to avoid hoisting
+  function InsightsPanel() {
+    return (
     <AnimatePresence>
       {showingInsights && (
         <motion.div
@@ -474,7 +459,8 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
         </motion.div>
       )}
     </AnimatePresence>
-  );
+    );
+  }
 
   // Step Components (placeholder - will be replaced with actual implementations)
   const renderCurrentStep = () => {
@@ -629,7 +615,8 @@ export const EnhancedOnboardingStrategy: React.FC<EnhancedOnboardingStrategyProp
       </AnimatePresence>
     </div>
   );
-};
+}
 
-
+// Export the component and helper function to prevent hoisting issues
+export { EnhancedOnboardingStrategy, getIndonesianOnboardingStrategy };
 export default EnhancedOnboardingStrategy;

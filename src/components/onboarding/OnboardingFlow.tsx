@@ -20,7 +20,8 @@ type OnboardingStep =
   | 'schedule'
   | 'complete';
 
-const STEP_TITLES = {
+// Use var with Object.freeze to prevent hoisting issues
+var STEP_TITLES: Record<OnboardingStep, string> = Object.freeze({
   welcome: 'Welcome to Sembalun',
   profile: 'Tell us about yourself',
   experience: 'Your meditation journey',
@@ -28,9 +29,9 @@ const STEP_TITLES = {
   assessment: 'Emotional intelligence check-in',
   schedule: 'Create your practice routine',
   complete: 'You\'re all set!'
-};
+});
 
-const STEP_DESCRIPTIONS = {
+var STEP_DESCRIPTIONS: Record<OnboardingStep, string> = Object.freeze({
   welcome: 'Let\'s personalize your mindfulness journey',
   profile: 'Basic information to customize your experience',
   experience: 'Help us understand your meditation background',
@@ -38,35 +39,39 @@ const STEP_DESCRIPTIONS = {
   assessment: 'Understand your current emotional state',
   schedule: 'Plan your meditation routine',
   complete: 'Your personalized meditation journey begins now'
-};
+});
 
-export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) => {
+// Use function declaration to prevent hoisting issues
+function OnboardingFlowComponent({ onComplete }: OnboardingFlowProps) {
   const { userProfile, updateUserProfile } = useAuth();
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome');
   const [progress, setProgress] = useState(0);
 
-  const steps: OnboardingStep[] = useMemo(() => ['welcome', 'profile', 'experience', 'goals', 'assessment', 'schedule', 'complete'], []);
+  const steps: OnboardingStep[] = useMemo(() => ['welcome', 'profile', 'experience', 'goals', 'assessment', 'schedule', 'complete'] as const, []);
 
   useEffect(() => {
     const stepIndex = steps.indexOf(currentStep);
-    setProgress((stepIndex / (steps.length - 1)) * 100);
+    if (stepIndex >= 0) {
+      setProgress((stepIndex / (steps.length - 1)) * 100);
+    }
   }, [currentStep, steps]);
 
-  const nextStep = () => {
+  // Use function declarations to prevent hoisting
+  function nextStep() {
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex < steps.length - 1) {
       setCurrentStep(steps[currentIndex + 1]);
     }
   };
 
-  const prevStep = () => {
+  function prevStep() {
     const currentIndex = steps.indexOf(currentStep);
     if (currentIndex > 0) {
       setCurrentStep(steps[currentIndex - 1]);
     }
   };
 
-  const handleStepComplete = () => {
+  function handleStepComplete() {
     if (currentStep === 'complete') {
       // Mark onboarding as completed
       updateUserProfile({
@@ -132,7 +137,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
     }
   };
 
-  const renderStepContent = () => {
+  function renderStepContent() {
     switch (currentStep) {
       case 'welcome':
         return (
@@ -342,4 +347,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({ onComplete }) =>
       )}
     </div>
   );
-};
+}
+
+// Export with proper naming to prevent hoisting
+export const OnboardingFlow: React.FC<OnboardingFlowProps> = OnboardingFlowComponent;

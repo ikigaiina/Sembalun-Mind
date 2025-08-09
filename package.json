@@ -26,6 +26,8 @@
     "test": "vitest",
     "build:vercel": "npm run typecheck:loose && npm run build:deploy",
     "build:deploy": "vite build --config vite.config.deploy.ts --mode production",
+    "build:no-hoist": "vite build --config vite.config.no-hoist.ts --mode production",
+    "build:debug": "vite build --config vite.config.no-hoist.ts --mode production",
     "typecheck:loose": "tsc --noEmit --skipLibCheck || echo 'TypeScript warnings ignored for deployment'",
     "start": "vite preview --port $PORT --host 0.0.0.0",
     "postbuild": "echo 'Build completed successfully for Vercel deployment'",

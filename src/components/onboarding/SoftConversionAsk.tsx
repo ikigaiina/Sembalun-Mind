@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
 import IndonesianCTA from '../ui/IndonesianCTA';
-import type { ExperienceFirstFlow } from './EnhancedOnboardingStrategy';
+import type { ExperienceFirstFlow } from './onboarding-types';
 
 interface ValueProposition {
   icon: string;
@@ -26,7 +26,8 @@ interface SoftConversionAskProps {
   onDelay?: () => void;
 }
 
-const VALUE_PROPOSITIONS: ValueProposition[] = [
+// Use var with Object.freeze to prevent hoisting issues
+var VALUE_PROPOSITIONS: ValueProposition[] = Object.freeze([
   {
     icon: '💾',
     title: 'Progress Tersimpan Aman',
@@ -58,9 +59,9 @@ const VALUE_PROPOSITIONS: ValueProposition[] = [
     description: 'Gunakan di HP, tablet, atau komputer dengan sinkronisasi otomatis',
     benefit: 'Meditasi kapan saja, di mana saja, dari perangkat apapun'
   }
-];
+]);
 
-const CONVERSION_INCENTIVES: { [key: number]: ConversionIncentive } = {
+var CONVERSION_INCENTIVES: { [key: number]: ConversionIncentive } = Object.freeze({
   // High engagement (80-100%)
   90: {
     type: 'exclusive-content',
@@ -88,13 +89,14 @@ const CONVERSION_INCENTIVES: { [key: number]: ConversionIncentive } = {
     description: 'Jangan kehilangan kemajuan yang sudah Anda rasakan. Simpan dan lanjutkan perjalanan mindfulness Anda.',
     value: 'Backup otomatis + recovery guarantee',
   }
-};
+});
 
-export const SoftConversionAsk: React.FC<SoftConversionAskProps> = ({
+// Use function declaration to prevent hoisting issues
+function SoftConversionAskComponent({
   userEngagement,
   onDecision,
   onDelay
-}) => {
+}: SoftConversionAskProps) {
   const [currentStep, setCurrentStep] = useState<'value-demo' | 'soft-ask' | 'incentive'>('value-demo');
   const [selectedReason, setSelectedReason] = useState<string>('');
   const [showingDetails, setShowingDetails] = useState(false);
@@ -103,15 +105,15 @@ export const SoftConversionAsk: React.FC<SoftConversionAskProps> = ({
   const valuePerceived = userEngagement.valuePerceived;
   const conversionReadiness = Math.round(valuePerceived);
 
-  // Determine appropriate incentive based on engagement level
-  const getApplicableIncentive = (): ConversionIncentive => {
+  // Use function declaration to prevent hoisting
+  function getApplicableIncentive(): ConversionIncentive {
     if (conversionReadiness >= 80) return CONVERSION_INCENTIVES[90];
     if (conversionReadiness >= 60) return CONVERSION_INCENTIVES[70];
     if (conversionReadiness >= 40) return CONVERSION_INCENTIVES[50];
     return CONVERSION_INCENTIVES[30];
   };
 
-  const currentIncentive = getApplicableIncentive();
+  var currentIncentive = getApplicableIncentive();
 
   // Timer for soft pressure (Indonesian psychology: gentle time pressure works)
   useEffect(() => {
@@ -135,15 +137,15 @@ export const SoftConversionAsk: React.FC<SoftConversionAskProps> = ({
     }
   }, [currentStep]);
 
-  const handleSaveProgress = (reason?: string) => {
+  function handleSaveProgress(reason?: string) {
     onDecision(true, reason || selectedReason);
   };
 
-  const handleNotNow = () => {
+  function handleNotNow() {
     onDecision(false, 'user_deferred');
   };
 
-  const handleDelay = () => {
+  function handleDelay() {
     if (onDelay) {
       onDelay();
     } else {
@@ -511,6 +513,9 @@ export const SoftConversionAsk: React.FC<SoftConversionAskProps> = ({
       </Card>
     </div>
   );
-};
+}
+
+// Export with proper naming to prevent hoisting
+export const SoftConversionAsk: React.FC<SoftConversionAskProps> = SoftConversionAskComponent;
 
 export default SoftConversionAsk;

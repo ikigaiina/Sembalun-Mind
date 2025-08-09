@@ -17,8 +17,13 @@ interface CulturalData {
   culturalWisdomSources?: string[];
 }
 
+// Local version of CulturalData with all fields potentially filled
+interface LocalCulturalData extends CulturalData {
+  languagePreference: LanguagePreference;
+}
+
 interface CulturalPersonalizationScreenProps {
-  onComplete: (culturalData: CulturalData) => void;
+  onComplete: (culturalData: LocalCulturalData) => void;
   onSkip: () => void;
 }
 
@@ -39,7 +44,8 @@ interface SpiritualOption {
   wisdomSources: string[];
 }
 
-const regionOptions: RegionOption[] = [
+// Initialize region options with var to prevent hoisting issues
+var regionOptions: RegionOption[] = Object.freeze([
   {
     id: 'jakarta',
     name: 'Jakarta & Sekitarnya',
@@ -88,9 +94,10 @@ const regionOptions: RegionOption[] = [
     greeting: 'Selamat datang di Sembalun',
     wisdom: 'Bhinneka Tunggal Ika - Berbeda tapi tetap satu'
   }
-];
+]);
 
-const spiritualOptions: SpiritualOption[] = [
+// Initialize spiritual options with var to prevent hoisting issues
+var spiritualOptions: SpiritualOption[] = Object.freeze([
   {
     id: 'islam',
     name: 'Islam',
@@ -133,9 +140,10 @@ const spiritualOptions: SpiritualOption[] = [
     icon: '🌟',
     wisdomSources: ['Filosofi Universal', 'Kearifan Alam', 'Humanisme']
   }
-];
+]);
 
-const familyContextOptions = [
+// Initialize family context options with var to prevent hoisting issues
+var familyContextOptions = Object.freeze([
   {
     id: 'private-room' as FamilyContext,
     name: 'Ruang Pribadi',
@@ -160,68 +168,71 @@ const familyContextOptions = [
     description: 'Lingkungan ramai, butuh teknik yang adaptif',
     icon: '🏢'
   }
-];
+]);
 
-export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScreenProps> = ({
+// Use function declaration to prevent hoisting issues
+function CulturalPersonalizationScreenComponent({
   onComplete,
   onSkip
-}) => {
+}: CulturalPersonalizationScreenProps) {
   const [currentStep, setCurrentStep] = useState<'region' | 'spiritual' | 'family' | 'preferences'>('region');
   const [culturalData, setCulturalData] = useState<CulturalData>({});
   const [selectedRegion, setSelectedRegion] = useState<CulturalRegion | null>(null);
   const [selectedSpiritual, setSelectedSpiritual] = useState<SpiritualTradition | null>(null);
   const [selectedFamily, setSelectedFamily] = useState<FamilyContext | null>(null);
 
-  const handleRegionSelect = (region: CulturalRegion) => {
+  // Use function declarations to prevent hoisting issues
+  function handleRegionSelect(region: CulturalRegion) {
     setSelectedRegion(region);
     setCulturalData(prev => ({ ...prev, region }));
     
     setTimeout(() => {
       setCurrentStep('spiritual');
     }, 800);
-  };
+  }
 
-  const handleSpiritualSelect = (spiritual: SpiritualTradition) => {
+  function handleSpiritualSelect(spiritual: SpiritualTradition) {
     setSelectedSpiritual(spiritual);
     const spiritualOption = spiritualOptions.find(opt => opt.id === spiritual);
     
     setCulturalData(prev => ({
       ...prev,
       spiritualTradition: spiritual,
-      culturalWisdomSources: spiritualOption?.wisdomSources || [],
+      culturalWisdomSources: spiritualOption?.wisdomSources ?? [],
       prayerTimeIntegration: spiritual === 'islam'
     }));
     
     setTimeout(() => {
       setCurrentStep('family');
     }, 800);
-  };
+  }
 
-  const handleFamilySelect = (family: FamilyContext) => {
+  function handleFamilySelect(family: FamilyContext) {
     setSelectedFamily(family);
     setCulturalData(prev => ({ ...prev, familyContext: family }));
     
     setTimeout(() => {
       setCurrentStep('preferences');
     }, 800);
-  };
+  }
 
-  const handleComplete = () => {
-    const finalCulturalData: CulturalData = {
+  function handleComplete() {
+    const finalCulturalData: LocalCulturalData = {
       ...culturalData,
       languagePreference: 'bahasa-casual' // Default, can be customized later
     };
     
     onComplete(finalCulturalData);
-  };
+  }
 
-  const getCurrentRegionWisdom = () => {
+  function getCurrentRegionWisdom() {
     if (!selectedRegion) return '';
     const region = regionOptions.find(r => r.id === selectedRegion);
     return region?.wisdom || '';
-  };
+  }
 
-  const renderRegionStep = () => (
+  function renderRegionStep() {
+    return (
     <motion.div
       key="region"
       initial={{ opacity: 0, x: 50 }}
@@ -370,9 +381,11 @@ export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScre
         </div>
       </div>
     </motion.div>
-  );
+    );
+  }
 
-  const renderSpiritualStep = () => (
+  function renderSpiritualStep() {
+    return (
     <motion.div
       key="spiritual"
       initial={{ opacity: 0, x: 50 }}
@@ -542,9 +555,11 @@ export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScre
         </div>
       </div>
     </motion.div>
-  );
+    );
+  }
 
-  const renderFamilyStep = () => (
+  function renderFamilyStep() {
+    return (
     <motion.div
       key="family"
       initial={{ opacity: 0, x: 50 }}
@@ -675,9 +690,11 @@ export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScre
         </div>
       </div>
     </motion.div>
-  );
+    );
+  }
 
-  const renderPreferencesStep = () => (
+  function renderPreferencesStep() {
+    return (
     <motion.div
       key="preferences"
       initial={{ opacity: 0, x: 50 }}
@@ -974,7 +991,8 @@ export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScre
         </motion.div>
       </div>
     </motion.div>
-  );
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-accent-50 to-meditation-zen-50 relative overflow-hidden">
@@ -1206,6 +1224,9 @@ export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScre
       </div>
     </div>
   );
-};
+}
+
+// Export with proper naming to prevent hoisting
+export const CulturalPersonalizationScreen: React.FC<CulturalPersonalizationScreenProps> = CulturalPersonalizationScreenComponent;
 
 export type { CulturalData, CulturalRegion, SpiritualTradition, FamilyContext, LanguagePreference };

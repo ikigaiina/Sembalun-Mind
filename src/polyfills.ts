@@ -1,54 +1,50 @@
-// React 19 scheduler polyfill for production builds
-if (typeof globalThis.MessageChannel === 'undefined') {
-  globalThis.MessageChannel = class MessageChannel {
-    port1: MessagePort;
-    port2: MessagePort;
+// Minimal polyfills for production compatibility
+// Only add what's absolutely necessary and avoid conflicts
+
+// 1. GlobalThis polyfill
+if (typeof globalThis === 'undefined') {
+  (window as any).globalThis = window;
+}
+
+// 2. Performance polyfill - only if missing
+if (typeof performance === 'undefined') {
+  (globalThis as any).performance = {
+    now: () => Date.now(),
+    mark: () => {},
+    measure: () => {},
+    clearMarks: () => {},
+    clearMeasures: () => {}
+  };
+} else if (!performance.now) {
+  performance.now = () => Date.now();
+}
+
+// 3. MessageChannel polyfill - only if missing  
+if (typeof MessageChannel === 'undefined') {
+  (globalThis as any).MessageChannel = class MessageChannel {
+    port1: any;
+    port2: any;
     
     constructor() {
-      this.port1 = new MessagePort();
-      this.port2 = new MessagePort();
+      this.port1 = {
+        onmessage: null,
+        postMessage: (data: any) => {
+          if (this.port2.onmessage) {
+            setTimeout(() => this.port2.onmessage({ data }), 0);
+          }
+        }
+      };
       
-      // Connect the ports
-      (this.port1 as any)._otherPort = this.port2;
-      (this.port2 as any)._otherPort = this.port1;
+      this.port2 = {
+        onmessage: null,
+        postMessage: (data: any) => {
+          if (this.port1.onmessage) {
+            setTimeout(() => this.port1.onmessage({ data }), 0);
+          }
+        }
+      };
     }
-  };
-  
-  globalThis.MessagePort = class MessagePort extends EventTarget {
-    onmessage: ((event: MessageEvent) => void) | null = null;
-    
-    postMessage(data: any) {
-      const otherPort = (this as any)._otherPort;
-      if (otherPort && otherPort.onmessage) {
-        setTimeout(() => {
-          otherPort.onmessage(new MessageEvent('message', { data }));
-        }, 0);
-      }
-    }
-    
-    start() {}
-    close() {}
   };
 }
 
-// Ensure performance.now exists
-if (typeof globalThis.performance === 'undefined') {
-  globalThis.performance = {
-    now: () => Date.now()
-  } as Performance;
-}
-
-// React scheduler compatibility
-if (typeof globalThis.scheduler === 'undefined') {
-  globalThis.scheduler = {
-    postTask: (callback: () => void, options?: { priority?: string }) => {
-      return new Promise(resolve => {
-        setTimeout(() => {
-          callback();
-          resolve(undefined);
-        }, 0);
-      });
-    },
-    unstable_now: () => performance.now()
-  };
-}
+// Note: Scheduler polyfill is handled by scheduler-fix.js to avoid conflicts

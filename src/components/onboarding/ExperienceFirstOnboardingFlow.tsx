@@ -1,21 +1,17 @@
 import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { EnhancedOnboardingStrategy, type OnboardingStep, type OnboardingStrategy } from './EnhancedOnboardingStrategy';
+import { EnhancedOnboardingStrategy } from './EnhancedOnboardingStrategy';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
-import type { CulturalData } from './CulturalPersonalizationScreen';
+import type { 
+  OnboardingStep, 
+  OnboardingStrategy, 
+  CulturalData, 
+  PersonalizationGoal,
+  OnboardingStepData
+} from './onboarding-types';
 import type { MoodType } from '../../types/mood';
-import type { PersonalizationGoal } from '../../types/onboarding';
 
-interface StepData {
-  cultural?: CulturalData;
-  experienceRating?: number;
-  moodBefore?: MoodType;
-  moodAfter?: MoodType;
-  goal?: PersonalizationGoal;
-  progressSaved?: boolean;
-  socialProofSeen?: boolean;
-  authenticatedUser?: boolean;
-}
+// StepData interface imported from shared types to prevent circular dependencies
 
 interface ExperienceFirstOnboardingFlowProps {
   onComplete: (data: OnboardingCompletionData) => void;
@@ -26,7 +22,7 @@ interface ExperienceFirstOnboardingFlowProps {
 export interface OnboardingCompletionData {
   strategy: OnboardingStrategy;
   completedSteps: OnboardingStep[];
-  stepData: StepData;
+  stepData: OnboardingStepData;
   conversionMetrics: {
     culturalRelevance: number;
     experienceCompletion: number;
@@ -38,20 +34,21 @@ export interface OnboardingCompletionData {
   totalTimeSpent: number;
 }
 
-export const ExperienceFirstOnboardingFlow: React.FC<ExperienceFirstOnboardingFlowProps> = ({
+// Use function declaration to prevent hoisting issues
+function ExperienceFirstOnboardingFlowComponent({
   onComplete,
   onClose,
   culturalHints
-}) => {
+}: ExperienceFirstOnboardingFlowProps) {
   const { updateFromOnboarding } = usePersonalization();
   
   const [completedSteps, setCompletedSteps] = useState<OnboardingStep[]>([]);
-  const [stepData, setStepData] = useState<StepData>({});
+  const [stepData, setStepData] = useState<OnboardingStepData>({});
   const [startTime] = useState<number>(Date.now());
   const [isCompleting, setIsCompleting] = useState(false);
 
-  // Handle step completion
-  const handleStepComplete = useCallback((step: OnboardingStep, data: StepData) => {
+  // Handle step completion - prevent hoisting by using explicit function
+  var handleStepComplete = useCallback(function handleStepCompleteCallback(step: OnboardingStep, data: OnboardingStepData) {
     console.log(`Step ${step} completed with data:`, data);
     
     setCompletedSteps(prev => [...prev, step]);
@@ -69,8 +66,8 @@ export const ExperienceFirstOnboardingFlow: React.FC<ExperienceFirstOnboardingFl
     }
   }, [completedSteps.length]);
 
-  // Handle flow completion
-  const handleFlowComplete = useCallback((finalData: StepData & { strategy: OnboardingStrategy }) => {
+  // Handle flow completion - prevent hoisting with explicit function
+  var handleFlowComplete = useCallback(function handleFlowCompleteCallback(finalData: OnboardingStepData & { strategy: OnboardingStrategy }) {
     if (isCompleting) return; // Prevent double completion
     
     setIsCompleting(true);
@@ -248,6 +245,9 @@ export const ExperienceFirstOnboardingFlow: React.FC<ExperienceFirstOnboardingFl
       </AnimatePresence>
     </div>
   );
-};
+}
+
+// Export with proper function reference to prevent hoisting
+export const ExperienceFirstOnboardingFlow: React.FC<ExperienceFirstOnboardingFlowProps> = ExperienceFirstOnboardingFlowComponent;
 
 export default ExperienceFirstOnboardingFlow;
