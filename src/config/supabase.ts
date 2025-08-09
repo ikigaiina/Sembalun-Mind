@@ -1,10 +1,11 @@
 import { createClient } from '@supabase/supabase-js'
 
 // Environment detection utilities
-const isDevelopment = import.meta.env.DEV
-const isProduction = import.meta.env.PROD
+const isNode = typeof process !== 'undefined' && process.env
+const isDevelopment = isNode ? process.env.NODE_ENV !== 'production' : import.meta.env?.DEV ?? false
+const isProduction = isNode ? process.env.NODE_ENV === 'production' : import.meta.env?.PROD ?? false
 const isSSR = typeof window === 'undefined'
-const isBuildTime = import.meta.env.SSR || typeof global !== 'undefined'
+const isBuildTime = (isNode ? false : import.meta.env?.SSR) || typeof global !== 'undefined'
 const isClientSide = !isSSR && !isBuildTime && typeof window !== 'undefined'
 
 // Validate required environment variables only when needed
@@ -16,7 +17,10 @@ const validateEnvVars = () => {
     'VITE_SUPABASE_ANON_KEY'
   ]
   
-  const missing = required.filter(key => !import.meta.env[key])
+  const missing = required.filter(key => {
+    const envValue = isNode ? process.env[key] : import.meta.env?.[key]
+    return !envValue
+  })
   
   if (missing.length > 0) {
     console.error('🔥 Missing required Supabase environment variables:', missing)
@@ -31,8 +35,8 @@ const validateEnvVars = () => {
 // Only validate config in appropriate environments
 const isConfigValid = isClientSide ? validateEnvVars() : true
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
+const supabaseUrl = isNode ? process.env.VITE_SUPABASE_URL : import.meta.env?.VITE_SUPABASE_URL
+const supabaseAnonKey = isNode ? process.env.VITE_SUPABASE_ANON_KEY : import.meta.env?.VITE_SUPABASE_ANON_KEY
 
 // Supabase client configuration with optimized settings
 const supabaseConfig = {
