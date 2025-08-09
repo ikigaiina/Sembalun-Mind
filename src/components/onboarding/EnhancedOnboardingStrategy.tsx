@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
 import IndonesianCTA from '../ui/IndonesianCTA';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 import SembalunIntroductionStep from './SembalunIntroductionStep';
 import { CulturalPersonalizationScreen } from './CulturalPersonalizationScreen';
 import FiveMinuteMeditationExperience from './FiveMinuteMeditationExperience';
@@ -234,6 +235,9 @@ function EnhancedOnboardingStrategy({
   const transitionToStep = useCallback((nextStep: OnboardingStep, delay = 500) => {
     setIsTransitioning(true);
     
+    // Scroll to top immediately when transitioning
+    scrollToTop(true);
+    
     setTimeout(() => {
       const currentConfig = stepConfig[flow.currentStep];
       const nextConfig = stepConfig[nextStep];
@@ -245,6 +249,9 @@ function EnhancedOnboardingStrategy({
       }));
       
       setIsTransitioning(false);
+      
+      // Ensure scroll to top after transition completes
+      setTimeout(() => scrollToTop(true), 100);
     }, delay);
   }, [flow.currentStep]);
 
