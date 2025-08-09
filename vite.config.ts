@@ -89,8 +89,8 @@ export default defineConfig(({ mode }) => {
         ]
       },
       manifest: {
-        name: 'Sembalun - Indonesian Meditation App',
-        short_name: 'Sembalun',
+        name: 'Sembalun Mind - Indonesian Meditation App',
+        short_name: 'Sembalun Mind',
         description: 'Pengalaman meditasi Indonesia yang tenang dengan pelacakan kemajuan cairn',
         theme_color: '#6A8F6F',
         background_color: '#E1E8F0',

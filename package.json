@@ -1,5 +1,5 @@
 {
-  "name": "sembalun",
+  "name": "sembalun-mind",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -32,7 +32,7 @@
     "test:run": "vitest run",
     "test:ui": "vitest --ui",
     "test:coverage": "vitest run --coverage",
-    "test:supabase": "tsx src/scripts/testSupabaseConnection.ts",
+    "test:supabase": "tsx src/scripts/quickSupabaseTest.ts",
     "prepare:production": "npm run clean && npm run typecheck && npm run build",
     "deploy:netlify": "npm run build:fast && netlify deploy --prod --dir=dist",
     "deploy:vercel": "npm run prepare:production && vercel --prod",
