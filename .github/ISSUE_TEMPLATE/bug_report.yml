@@ -1,0 +1,245 @@
+name: 🐛 Bug Report - Sembalun Mind
+description: Report a bug or issue with the Indonesian meditation platform
+title: "[Bug]: "
+labels: ["🐛 bug", "🔍 needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # 🐛 Bug Report for Sembalun Mind
+        
+        **Terima kasih** for helping improve our Indonesian meditation platform! 
+        Please provide detailed information to help us resolve this issue quickly.
+
+  - type: input
+    id: bug-summary
+    attributes:
+      label: 🎯 Bug Summary
+      description: Brief description of the bug
+      placeholder: "Mood selection modal doesn't open on mobile"
+    validations:
+      required: true
+
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 📝 Detailed Description
+      description: Comprehensive description of the issue
+      placeholder: |
+        Describe what happened, what you expected to happen, and any error messages you encountered.
+        
+        If this affects Indonesian cultural features, meditation practices, or accessibility, please mention it.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction-steps
+    attributes:
+      label: 🔄 Steps to Reproduce
+      description: Step-by-step instructions to reproduce the bug
+      placeholder: |
+        1. Go to Dashboard page
+        2. Click on mood selection button
+        3. Modal doesn't appear on mobile
+        4. See error in console...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: ✅ Expected Behavior
+      description: What should happen instead
+      placeholder: "Modal should open with mood selection options"
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: ❌ Actual Behavior
+      description: What actually happened
+      placeholder: "Nothing happens when clicking the button"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: device-type
+    attributes:
+      label: 📱 Device Type
+      description: What device are you using?
+      options:
+        - Mobile (Android)
+        - Mobile (iOS)
+        - Desktop (Windows)
+        - Desktop (macOS)
+        - Desktop (Linux)
+        - Tablet (Android)
+        - Tablet (iOS)
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: device-details
+    attributes:
+      label: 🔧 Device Details
+      description: Device model, screen size, or specific details
+      placeholder: "iPhone 13, Samsung Galaxy S22, MacBook Pro M1, etc."
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: 🌐 Browser
+      description: Which browser are you using?
+      options:
+        - Chrome
+        - Firefox
+        - Safari
+        - Edge
+        - Opera
+        - Chrome Mobile
+        - Safari Mobile
+        - Samsung Internet
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: browser-version
+    attributes:
+      label: 🔢 Browser Version
+      description: What version of the browser?
+      placeholder: "Chrome 120.0, Safari 17.2, etc."
+
+  - type: dropdown
+    id: network-condition
+    attributes:
+      label: 🌐 Network Connection (Indonesian Context)
+      description: What kind of network connection were you using?
+      options:
+        - WiFi (Fast)
+        - WiFi (Slow)
+        - 4G Mobile Data
+        - 3G Mobile Data
+        - 2G Mobile Data
+        - Other
+        - Unknown
+
+  - type: dropdown
+    id: bug-category
+    attributes:
+      label: 🏷️ Bug Category
+      description: What category does this bug fall into?
+      options:
+        - 🎭 Mood Tracking System
+        - 🧘 Meditation Features
+        - 🏛️ Indonesian Cultural Content
+        - ♿ Accessibility (WCAG 2.1 AA)
+        - 📱 Mobile Experience
+        - 🔐 Authentication
+        - 💾 Data Persistence
+        - 🎨 UI/Visual
+        - ⚡ Performance
+        - 🔊 Audio/Media
+        - 🌐 Language/Localization
+        - 🔧 Other Technical
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: ⚠️ Severity Level
+      description: How severe is this bug?
+      options:
+        - 🔴 Critical (App crashes, data loss, security issue)
+        - 🟡 High (Major feature broken, significant UX impact)
+        - 🟢 Medium (Minor feature issue, workaround available)
+        - 🔵 Low (Cosmetic issue, minimal impact)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: cultural-impact
+    attributes:
+      label: 🏛️ Indonesian Cultural Impact
+      description: Does this bug affect Indonesian cultural features?
+      options:
+        - label: Affects Indonesian meditation practices
+        - label: Impacts cultural time-based features (pagi/sore/malam)
+        - label: Issues with Indonesian language display
+        - label: Problems with regional cultural content
+        - label: None of the above
+
+  - type: checkboxes
+    id: accessibility-impact
+    attributes:
+      label: ♿ Accessibility Impact
+      description: Does this bug affect accessibility features?
+      options:
+        - label: Screen reader compatibility issues
+        - label: Keyboard navigation problems
+        - label: Color contrast/visibility issues
+        - label: Touch target size problems
+        - label: Motion/animation accessibility issues
+        - label: None of the above
+
+  - type: textarea
+    id: error-messages
+    attributes:
+      label: 🚨 Error Messages
+      description: Copy any error messages from browser console or app
+      placeholder: |
+        Paste error messages, stack traces, or console logs here.
+        Include timestamps if available.
+      render: text
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: 📸 Screenshots/Videos
+      description: Add screenshots or video recordings if helpful
+      placeholder: |
+        You can paste images directly here or provide links.
+        Video recordings of the bug in action are especially helpful for mobile issues.
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: ℹ️ Additional Context
+      description: Any other relevant information
+      placeholder: |
+        - Does this happen only in specific Indonesian regions?
+        - Does this affect meditation sessions in progress?
+        - Any temporary workarounds you found?
+        - Impact on daily meditation practice?
+        - Cultural sensitivity concerns?
+
+  - type: checkboxes
+    id: testing-checklist
+    attributes:
+      label: ✅ Testing Checklist
+      description: Have you tried these basic troubleshooting steps?
+      options:
+        - label: Refreshed the page/app
+        - label: Cleared browser cache and cookies
+        - label: Tested on different network connection
+        - label: Tried on different device/browser
+        - label: Checked if issue persists in incognito/private mode
+        - label: Verified Supabase connection status
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🙏 Thank You!
+        
+        **Terima kasih** for taking the time to report this bug! Your contribution helps improve the meditation experience for Indonesian practitioners worldwide.
+        
+        Our team will review this report and respond as quickly as possible. For critical issues affecting meditation practice or cultural authenticity, we prioritize immediate attention.
+        
+        **🏛️ Cultural Note**: If this bug affects Indonesian cultural practices or spiritual traditions, please emphasize this in your description so we can involve cultural advisors in the resolution process.

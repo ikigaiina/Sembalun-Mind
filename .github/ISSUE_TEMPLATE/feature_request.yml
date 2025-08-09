@@ -1,0 +1,293 @@
+name: ✨ Feature Request - Sembalun Mind
+description: Suggest a new feature for the Indonesian meditation platform
+title: "[Feature]: "
+labels: ["✨ enhancement", "🔍 needs-triage"]
+assignees: []
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        # ✨ Feature Request for Sembalun Mind
+        
+        **Selamat datang!** Thank you for contributing ideas to improve our Indonesian meditation platform! 
+        Your suggestions help us preserve and enhance Indonesian spiritual traditions through respectful technology.
+
+  - type: input
+    id: feature-title
+    attributes:
+      label: 🎯 Feature Title
+      description: Brief, clear title for your feature request
+      placeholder: "Add Sundanese meditation breathing techniques"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem-statement
+    attributes:
+      label: 🤔 Problem Statement
+      description: What problem does this feature solve for Indonesian meditation practitioners?
+      placeholder: |
+        Describe the current limitation or need that this feature addresses.
+        
+        Examples:
+        - "Indonesian users need more regional meditation options"
+        - "Accessibility features for visually impaired practitioners"
+        - "Better mood tracking for cultural time periods"
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposed-solution
+    attributes:
+      label: 💡 Proposed Solution
+      description: Detailed description of your proposed feature
+      placeholder: |
+        Describe your solution in detail:
+        - How would it work?
+        - What would users see/experience?
+        - How does it integrate with existing features?
+        - Cultural considerations and authenticity requirements
+    validations:
+      required: true
+
+  - type: dropdown
+    id: feature-category
+    attributes:
+      label: 🏷️ Feature Category
+      description: What category does this feature belong to?
+      options:
+        - 🏛️ Indonesian Cultural Content
+        - 🎭 Mood Tracking & Analytics
+        - 🧘 Meditation & Mindfulness
+        - 🌍 Localization & Language
+        - ♿ Accessibility & Inclusion
+        - 📱 Mobile Experience
+        - 🎨 UI/UX Improvements
+        - 🔊 Audio & Media
+        - 👥 Social & Community
+        - 📊 Analytics & Insights
+        - 🔐 Privacy & Security
+        - ⚡ Performance & Optimization
+        - 🔧 Technical Infrastructure
+        - 🌐 Offline Capabilities
+        - 📚 Educational Content
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority-level
+    attributes:
+      label: ⚠️ Priority Level
+      description: How important is this feature?
+      options:
+        - 🔴 Critical (Essential for Indonesian cultural authenticity)
+        - 🟡 High (Significantly improves user experience)
+        - 🟢 Medium (Nice to have, moderate impact)
+        - 🔵 Low (Minor enhancement)
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: cultural-aspects
+    attributes:
+      label: 🏛️ Indonesian Cultural Aspects
+      description: How does this feature relate to Indonesian culture?
+      options:
+        - label: Preserves traditional Indonesian meditation practices
+        - label: Incorporates regional cultural variations (Java, Bali, Sunda, Minang)
+        - label: Respects Islamic spiritual practices in Indonesian context
+        - label: Includes Indonesian wisdom and spiritual teachings
+        - label: Supports Indonesian language and terminology
+        - label: Addresses Indonesian community meditation practices
+        - label: Not specifically cultural, but culturally sensitive
+
+  - type: checkboxes
+    id: accessibility-considerations
+    attributes:
+      label: ♿ Accessibility Considerations
+      description: Does this feature enhance accessibility?
+      options:
+        - label: Improves screen reader compatibility
+        - label: Enhances keyboard navigation
+        - label: Addresses color contrast/visibility needs
+        - label: Improves touch target accessibility
+        - label: Supports motion/animation preferences
+        - label: Assists users with cognitive disabilities
+        - label: None of the above
+
+  - type: textarea
+    id: user-stories
+    attributes:
+      label: 👥 User Stories
+      description: Write user stories for different types of Indonesian practitioners
+      placeholder: |
+        Examples:
+        - As a Javanese meditation practitioner, I want to access traditional semedi techniques so I can maintain my cultural spiritual practice
+        - As a visually impaired Indonesian user, I want audio guidance in Bahasa Indonesia so I can participate in meditation sessions independently
+        - As a busy Jakarta professional, I want quick mood check-ins during prayer times so I can maintain mindfulness throughout the day
+    validations:
+      required: true
+
+  - type: textarea
+    id: success-criteria
+    attributes:
+      label: ✅ Success Criteria
+      description: How do we measure if this feature is successful?
+      placeholder: |
+        Define specific, measurable success criteria:
+        - Increased engagement with cultural meditation practices
+        - Improved accessibility scores (WCAG 2.1 AA compliance)
+        - Positive feedback from Indonesian cultural validators
+        - Usage metrics from target user groups
+        - Performance benchmarks (loading time, responsiveness)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: target-audience
+    attributes:
+      label: 🎯 Primary Target Audience
+      description: Who would benefit most from this feature?
+      options:
+        - 🏛️ Indonesian cultural practitioners
+        - 🧘 General meditation users
+        - ♿ Users with accessibility needs
+        - 📱 Mobile-first Indonesian users
+        - 👥 Community meditation groups
+        - 🏫 Educational institutions
+        - 🏢 Corporate wellness programs
+        - 🌍 Indonesian diaspora communities
+        - 🔰 Beginner meditation practitioners
+        - 🏆 Advanced meditation practitioners
+    validations:
+      required: true
+
+  - type: textarea
+    id: technical-considerations
+    attributes:
+      label: ⚙️ Technical Considerations
+      description: Any technical aspects to consider?
+      placeholder: |
+        Optional technical details:
+        - Required API integrations
+        - Database schema changes
+        - Performance implications
+        - Security considerations
+        - Offline functionality requirements
+        - Indonesian network optimization needs
+        - Device compatibility requirements
+
+  - type: textarea
+    id: alternative-solutions
+    attributes:
+      label: 🔄 Alternative Solutions
+      description: Have you considered other approaches?
+      placeholder: |
+        Describe alternative approaches you've considered:
+        - Why didn't they work as well?
+        - What are the trade-offs?
+        - Are there existing solutions in other meditation apps?
+
+  - type: textarea
+    id: mockups-wireframes
+    attributes:
+      label: 🎨 Mockups/Wireframes
+      description: Visual representations of your idea
+      placeholder: |
+        Share any visual concepts, mockups, sketches, or wireframes.
+        You can paste images directly or provide links.
+        
+        Consider including:
+        - Mobile-first designs for Indonesian users
+        - Accessibility features visualization
+        - Cultural design elements
+        - User flow diagrams
+
+  - type: dropdown
+    id: implementation-complexity
+    attributes:
+      label: 🔧 Estimated Implementation Complexity
+      description: How complex do you think this feature would be to implement?
+      options:
+        - 🟢 Simple (Minor UI changes, configuration updates)
+        - 🟡 Moderate (New components, API changes, cultural validation)
+        - 🟠 Complex (Significant architecture changes, new systems)
+        - 🔴 Very Complex (Major platform overhaul, extensive cultural research)
+        - 🤷 Unknown/Unsure
+
+  - type: textarea
+    id: cultural-validation
+    attributes:
+      label: 🏛️ Cultural Validation Requirements
+      description: What cultural validation would this feature need?
+      placeholder: |
+        Consider these aspects:
+        - Which Indonesian cultural experts should review this?
+        - Are there religious considerations (Islamic, Hindu, Buddhist)?
+        - Regional variation requirements (Java, Bali, Sunda, Minang)?
+        - Traditional practice authenticity verification needed?
+        - Community feedback requirements?
+
+  - type: checkboxes
+    id: research-done
+    attributes:
+      label: 📚 Research & References
+      description: Have you researched existing solutions or references?
+      options:
+        - label: Researched similar features in other meditation apps
+        - label: Consulted Indonesian meditation practitioners
+        - label: Reviewed Indonesian cultural meditation literature
+        - label: Analyzed accessibility guidelines and standards
+        - label: Studied Indonesian mobile usage patterns
+        - label: Investigated technical implementation approaches
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: ℹ️ Additional Context
+      description: Any other relevant information
+      placeholder: |
+        Additional context that might help:
+        - Personal experience with Indonesian meditation practices
+        - Specific Indonesian community needs you've observed
+        - Regional preferences or variations
+        - Integration with Indonesian Islamic prayer times
+        - Compatibility with existing Indonesian spiritual practices
+        - Impact on daily meditation routines
+
+  - type: checkboxes
+    id: contribution-willingness
+    attributes:
+      label: 🤝 Contribution Willingness
+      description: Would you be willing to help with this feature?
+      options:
+        - label: I can help with cultural validation and authenticity review
+        - label: I can contribute to design and user experience
+        - label: I can assist with Indonesian language translation
+        - label: I can help with accessibility testing
+        - label: I can provide technical development support
+        - label: I can help with community feedback and testing
+        - label: I can assist with documentation
+        - label: I prefer to contribute ideas only
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        
+        ## 🙏 Terima Kasih!
+        
+        Thank you for contributing to the vision of Sembalun Mind! Your feature request helps us build a meditation platform that truly serves Indonesian spiritual traditions with modern, accessible technology.
+        
+        ### What happens next?
+        
+        1. **🔍 Review**: Our team will review your request for feasibility and cultural appropriateness
+        2. **🏛️ Cultural Validation**: If culturally relevant, we'll involve Indonesian cultural advisors
+        3. **♿ Accessibility Review**: We'll assess WCAG 2.1 AA compliance requirements
+        4. **📱 Mobile Impact**: We'll evaluate mobile optimization for Indonesian users
+        5. **🏗️ Planning**: Accepted features will be added to our development roadmap
+        
+        **🌟 Community Impact**: Features that enhance Indonesian cultural authenticity and accessibility receive priority attention. We're committed to preserving traditional wisdom while embracing inclusive, modern technology.
+        
+        **Semoga berkah** - May this contribution bring benefit to Indonesian meditation practitioners worldwide! 🙏
