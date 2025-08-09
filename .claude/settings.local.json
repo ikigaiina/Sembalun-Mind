@@ -62,7 +62,9 @@
       "Bash(timeout 30 npm run preview)",
       "Bash(timeout 120 npm run build:fast)",
       "Bash(vercel:*)",
-      "Bash(git merge:*)"
+      "Bash(timeout 120 npm run build)",
+      "Bash(git merge:*)",
+      "Bash(git push:*)"
     ],
     "deny": []
   }

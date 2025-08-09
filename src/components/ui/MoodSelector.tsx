@@ -129,7 +129,7 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
       
       {/* Primary Mood Selection */}
       <div className="flex justify-center items-center">
-        <div className={`flex justify-between items-center ${sizeClasses[size].gap} p-2 rounded-2xl bg-white shadow-lg border border-gray-100 transition-all duration-300`}>
+        <div className={`flex justify-center items-center ${sizeClasses[size].gap} p-2 rounded-2xl bg-white shadow-lg border border-gray-100 transition-all duration-300 max-w-full w-full overflow-x-auto`}>
           {primaryMoods.map((mood, index) => {
             const isSelected = displayedMood === mood.id;
             const isHovered = hoveredMood === mood.id;
@@ -280,7 +280,7 @@ export const MoodSelector: React.FC<MoodSelectorProps> = ({
             className="overflow-hidden"
           >
             <div className="flex justify-center items-center mt-4">
-              <div className={`flex flex-wrap justify-center items-center ${sizeClasses[size].gap} p-2 rounded-2xl bg-gray-50 border border-gray-100`}>
+              <div className={`flex flex-wrap justify-center items-center ${sizeClasses[size].gap} p-2 rounded-2xl bg-gray-50 border border-gray-100 max-w-full w-full overflow-hidden`}>
                 {extendedMoods.map((mood, index) => {
                   const isSelected = displayedMood === mood.id;
                   const isHovered = hoveredMood === mood.id;

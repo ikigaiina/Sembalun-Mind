@@ -54,19 +54,110 @@ const performanceMonitor = EnterprisePerformanceMonitor.getInstance();
 
 // Main app content component
 const AppContent: React.FC = () => {
-  const { isOnboardingComplete, completeOnboarding } = useOnboarding();
+  const { isOnboardingCompleted, completeOnboarding } = useOnboarding();
   const { updateFromOnboarding } = usePersonalization();
   const [showSplash, setShowSplash] = useState(true);
+  const [forceRenderKey, setForceRenderKey] = useState(0);
   
   // Auto-scroll to top on route changes
   useScrollToTop();
+  
+  // Add event listener for forced onboarding completion
+  useEffect(() => {
+    const handleOnboardingCompleted = () => {
+      console.log('🎯 Custom event: onboarding-completed received');
+      setForceRenderKey(prev => prev + 1);
+      
+      // Double-check localStorage and force state reload if needed
+      setTimeout(() => {
+        const completed = localStorage.getItem('sembalun-onboarding-completed') === 'true';
+        console.log('🔄 Force checking localStorage status:', completed);
+        
+        if (completed && !isOnboardingCompleted) {
+          console.log('🚨 State mismatch detected, forcing page reload...');
+          window.location.reload();
+        }
+      }, 500);
+    };
+
+    window.addEventListener('onboarding-completed', handleOnboardingCompleted);
+    return () => window.removeEventListener('onboarding-completed', handleOnboardingCompleted);
+  }, [isOnboardingCompleted]);
+
+  // Debug onboarding state changes
+  useEffect(() => {
+    console.log('📋 Onboarding status:', {
+      isCompleted: isOnboardingCompleted,
+      showSplash,
+      forceRenderKey
+    });
+  }, [isOnboardingCompleted, showSplash, forceRenderKey]);
 
   // Handle onboarding completion with personalization data
   const handleOnboardingComplete = (data: OnboardingData) => {
-    // Update personalization context with onboarding data
-    updateFromOnboarding(data);
-    // Mark onboarding as complete
-    completeOnboarding();
+    try {
+      console.log('🎯 Onboarding completion started with data:', data);
+      
+      // Scroll to top for better UX
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      
+      // Update personalization context with onboarding data
+      updateFromOnboarding(data);
+      
+      // Convert onboarding data to user preferences format
+      const userPreferences = {
+        culturalInterests: data.culturalData ? [
+          data.culturalData.region || '',
+          data.culturalData.spiritualTradition || ''
+        ].filter(Boolean) : [],
+        experienceLevel: 'beginner',
+        meditationGoals: data.selectedGoal ? [data.selectedGoal] : [],
+        schedulePreferences: ['morning'],
+        preferredRegions: data.culturalData?.region ? [data.culturalData.region] : ['sembalun'],
+        sessionDuration: 15,
+        reminderEnabled: true,
+        communitySharing: false
+      };
+      
+      console.log('✅ User preferences created:', userPreferences);
+      
+      // Immediate completion with state change debugging
+      setTimeout(() => {
+        console.log('⏰ About to mark onboarding complete...');
+        
+        // Mark onboarding as complete with preferences
+        completeOnboarding(userPreferences);
+        
+        console.log('🚀 Onboarding marked as complete, should navigate to app now');
+        
+        // Force state verification with longer delay
+        setTimeout(() => {
+          console.log('📱 State verification - isOnboardingCompleted:', isOnboardingCompleted);
+          console.log('📱 LocalStorage check - completed:', localStorage.getItem('sembalun-onboarding-completed'));
+          console.log('📱 LocalStorage check - preferences:', localStorage.getItem('sembalun-user-preferences'));
+          
+          // Force a re-render by updating component state
+          setForceRenderKey(prev => prev + 1);
+          window.dispatchEvent(new Event('onboarding-completed'));
+        }, 200);
+      }, 100);
+      
+    } catch (error) {
+      console.error('❌ Error completing onboarding:', error);
+      // Fallback: still try to complete onboarding with minimal preferences
+      setTimeout(() => {
+        completeOnboarding({
+          culturalInterests: [],
+          experienceLevel: 'beginner',
+          meditationGoals: [],
+          schedulePreferences: ['morning'],
+          preferredRegions: ['sembalun'],
+          sessionDuration: 15,
+          reminderEnabled: true,
+          communitySharing: false
+        });
+      }, 500);
+    }
   };
 
   // Enterprise monitoring setup - re-enabled after fixing errors
@@ -88,7 +179,7 @@ const AppContent: React.FC = () => {
 
 
   // Show onboarding flow if not completed
-  if (!isOnboardingComplete) {
+  if (!isOnboardingCompleted) {
     return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
 

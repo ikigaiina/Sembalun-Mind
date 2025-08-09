@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 import type { CulturalData } from './CulturalPersonalizationScreen';
 import type { PersonalizationGoal } from '../../types/onboarding';
 
@@ -364,6 +365,9 @@ export const FiveMinuteMeditationExperience: React.FC<FiveMinuteMeditationExperi
       enjoymentLevel: rating * 20 // Convert 1-5 rating to 0-100 scale
     } as MeditationInsights;
 
+    // Scroll to top before completing
+    scrollToTop(true);
+    
     onComplete(rating, selectedGoal, finalInsights);
   }, [selectedGoal, insights, onComplete]);
 

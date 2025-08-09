@@ -1,5 +1,10 @@
+import { DashboardLayout } from '../components/ui/DashboardLayout';
 import { ComprehensiveJournalPage } from '../components/journal/ComprehensiveJournalPage';
 
 export const Journal: React.FC = () => {
-  return <ComprehensiveJournalPage />;
+  return (
+    <DashboardLayout>
+      <ComprehensiveJournalPage />
+    </DashboardLayout>
+  );
 };

@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, Filter, Star, Clock, User, Heart, Target, Moon, Brain, Sparkles, Zap } from 'lucide-react';
@@ -8,7 +8,6 @@ import {
   DashboardLayout,
   CairnIcon,
   BreathingCard,
-  MoodSelector,
   MoodHistory
 } from '../components/ui';
 import { CourseCard, type Course } from '../components/ui/CourseCard';
@@ -22,6 +21,8 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { getUserDisplayName } from '../utils/user-display';
 import { usePersonalization } from '../contexts/PersonalizationContext';
+import { useMoodTracker } from '../hooks/useMoodTracker';
+import { MoodSelectionModal } from '../components/ui/MoodSelectionModal';
 
 interface FilterOptions {
   duration: 'all' | 'short' | 'medium' | 'long';
@@ -294,8 +295,11 @@ export const Explore: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState<'courses' | 'sessions'>('courses');
   const [showFilterModal, setShowFilterModal] = useState(false);
-  const [selectedMood, setSelectedMood] = useState<MoodType>('happy');
+  // Use mood tracker for persistent state
+  const { currentMood, logMood, getTodaysMood, loading: moodLoading } = useMoodTracker();
+  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
   const [showMoodHistory, setShowMoodHistory] = useState(false);
+  const [showMoodModal, setShowMoodModal] = useState(false);
   const [filters, setFilters] = useState<FilterOptions>({
     duration: 'all',
     difficulty: 'all',
@@ -519,9 +523,24 @@ export const Explore: React.FC = () => {
     });
   };
 
-  const handleMoodSelect = (mood: MoodType) => {
+  // Sync selectedMood with persisted currentMood from tracker
+  useEffect(() => {
+    if (currentMood && selectedMood !== currentMood) {
+      setSelectedMood(currentMood);
+    }
+  }, [currentMood, selectedMood]);
+
+  const handleMoodSelect = (mood: MoodType, journalNote?: string) => {
     setSelectedMood(mood);
     console.log('Mood selected:', mood);
+    
+    // Persist mood using the tracker
+    logMood(mood, journalNote);
+    
+    // Log journal note if provided
+    if (journalNote) {
+      console.log('📝 Journal note saved with mood:', { mood, note: journalNote });
+    }
   };
 
   const containerVariants = {
@@ -590,12 +609,15 @@ export const Explore: React.FC = () => {
               <h2 className="text-base font-heading font-semibold text-gray-800 mb-3 text-center">
                 Bagaimana perasaan Anda hari ini?
               </h2>
-              <MoodSelector
-                selectedMood={selectedMood}
-                onMoodSelect={handleMoodSelect}
-                showLabels={false}
-                className="mb-3"
-              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowMoodModal(true)}
+                className="w-full mb-3 text-blue-600 border-blue-200 hover:bg-blue-50"
+              >
+                <Heart className="w-4 h-4 mr-2" />
+                {selectedMood ? 'Ubah Perasaan' : 'Catat Perasaan'}
+              </Button>
               <div className="text-center">
                 <Button
                   variant="ghost"
@@ -957,6 +979,14 @@ export const Explore: React.FC = () => {
           <div className="h-6"></div>
         </div>
       </div>
+      
+      {/* Mood Selection Modal */}
+      <MoodSelectionModal
+        isOpen={showMoodModal}
+        onClose={() => setShowMoodModal(false)}
+        onMoodSelect={handleMoodSelect}
+        currentMood={selectedMood}
+      />
     </DashboardLayout>
   );
 };

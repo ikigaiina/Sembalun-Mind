@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { PanInfo } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
 import { Button } from '../ui/Button';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 
 interface SembalunIntroductionStepProps {
   onContinue: () => void;
@@ -454,7 +455,10 @@ export const SembalunIntroductionStep: React.FC<SembalunIntroductionStepProps> =
               >
                 {/* Enhanced attractive button with high contrast */}
                 <motion.button
-                  onClick={onContinue}
+                  onClick={() => {
+                    scrollToTop(true);
+                    onContinue();
+                  }}
                   className="relative w-full py-5 px-6 rounded-2xl bg-gradient-to-r from-emerald-600 via-teal-600 to-cyan-600 text-white font-bold text-lg shadow-2xl overflow-hidden group border-2 border-emerald-700"
                   style={{
                     background: 'linear-gradient(135deg, #059669 0%, #0d9488 50%, #0891b2 100%)',
