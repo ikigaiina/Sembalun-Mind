@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
 import IndonesianCTA from '../ui/IndonesianCTA';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 import type { MoodType } from '../../types/mood';
 
 interface MoodOption {
@@ -246,6 +247,9 @@ export const InstantMoodTracking: React.FC<InstantMoodTrackingProps> = ({
 
   const handleComplete = () => {
     if (moodBefore && moodAfter && insights) {
+      // Scroll to top before completing
+      scrollToTop(true);
+      
       onComplete(moodBefore, moodAfter, insights);
     }
   };

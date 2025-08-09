@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Card, CairnIcon } from '../ui';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 import type { MoodType } from '../../types/mood';
 
 export type CulturalRegion = 'jakarta' | 'bali' | 'jawa-tengah' | 'jawa-timur' | 'sumatra' | 'kalimantan' | 'sulawesi' | 'other';
@@ -187,6 +188,7 @@ function CulturalPersonalizationScreenComponent({
     setCulturalData(prev => ({ ...prev, region }));
     
     setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setCurrentStep('spiritual');
     }, 800);
   }
@@ -203,6 +205,7 @@ function CulturalPersonalizationScreenComponent({
     }));
     
     setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setCurrentStep('family');
     }, 800);
   }
@@ -212,6 +215,7 @@ function CulturalPersonalizationScreenComponent({
     setCulturalData(prev => ({ ...prev, familyContext: family }));
     
     setTimeout(() => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       setCurrentStep('preferences');
     }, 800);
   }
@@ -221,6 +225,9 @@ function CulturalPersonalizationScreenComponent({
       ...culturalData,
       languagePreference: 'bahasa-casual' // Default, can be customized later
     };
+    
+    // Scroll to top before completing
+    scrollToTop(true);
     
     onComplete(finalCulturalData);
   }

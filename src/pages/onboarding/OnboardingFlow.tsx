@@ -7,6 +7,7 @@ import { WelcomeScreen } from './WelcomeScreen';
 import { CulturalPersonalizationScreen, type CulturalData } from '../../components/onboarding/CulturalPersonalizationScreen';
 import ExperienceFirstOnboardingFlow, { type OnboardingCompletionData } from '../../components/onboarding/ExperienceFirstOnboardingFlow';
 import { CairnIcon } from '../../components/ui';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 import type { MoodType } from '../../types/mood';
 
 export type OnboardingStep = 'splash' | 'slides' | 'cultural' | 'personalization' | 'welcome' | 'complete';
@@ -70,6 +71,10 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   // Transition helper with animation state
   const transitionToStep = (nextStep: OnboardingStep, delay = 300) => {
     setIsTransitioning(true);
+    
+    // Scroll to top immediately
+    scrollToTop(true);
+    
     setTimeout(() => {
       setCurrentStep(nextStep);
       setOnboardingData(prev => ({
@@ -77,6 +82,9 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
         completedSteps: stepConfig[nextStep]?.order || prev.completedSteps
       }));
       setIsTransitioning(false);
+      
+      // Ensure scroll to top after transition
+      setTimeout(() => scrollToTop(true), 100);
     }, delay);
   };
 
@@ -148,7 +156,13 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
       completedSteps: 5
     };
     
-    onComplete(finalData);
+    // Scroll to top before final completion
+    scrollToTop(true);
+    
+    // Add a brief delay to show completion animation
+    setTimeout(() => {
+      onComplete(finalData);
+    }, 1000);
   };
 
   // Handle experience-first flow completion

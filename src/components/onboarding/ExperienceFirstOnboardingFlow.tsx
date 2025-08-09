@@ -2,6 +2,7 @@ import React, { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { EnhancedOnboardingStrategy } from './EnhancedOnboardingStrategy';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
+import { scrollToTop } from '../../hooks/useScrollToTop';
 import type { 
   OnboardingStep, 
   OnboardingStrategy, 
@@ -71,6 +72,9 @@ function ExperienceFirstOnboardingFlowComponent({
     if (isCompleting) return; // Prevent double completion
     
     setIsCompleting(true);
+    
+    // Scroll to top when completing
+    scrollToTop(true);
     
     const totalTimeSpent = (Date.now() - startTime) / 1000; // in seconds
     
@@ -158,8 +162,11 @@ function ExperienceFirstOnboardingFlowComponent({
       console.warn('Failed to store onboarding analytics:', error);
     }
 
-    // Call completion handler
-    onComplete(completionData);
+    // Call completion handler with optimized timeout
+    setTimeout(() => {
+      console.log('🎯 Calling onComplete with data:', completionData);
+      onComplete(completionData);
+    }, 800); // Reduced timeout for faster transition
   }, [completedSteps, startTime, isCompleting, updateFromOnboarding, onComplete]);
 
   return (
@@ -235,10 +242,39 @@ function ExperienceFirstOnboardingFlowComponent({
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ delay: 0.7 }}
-                className="text-gray-600"
+                className="text-gray-600 mb-4"
               >
                 Menyiapkan pengalaman meditasi yang dipersonalisasi untuk Anda...
               </motion.p>
+              
+              {/* Progress indicator */}
+              <motion.div 
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
+                className="w-48 h-1 bg-gray-200 rounded-full mx-auto mb-4 overflow-hidden"
+              >
+                <div className="h-full bg-gradient-to-r from-primary-500 to-accent-500 rounded-full"></div>
+              </motion.div>
+              
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1.2 }}
+                className="text-center"
+              >
+                <div className="inline-flex items-center px-4 py-2 bg-green-50 rounded-full">
+                  <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse mr-2"></div>
+                  <motion.span 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 1, 0] }}
+                    transition={{ repeat: Infinity, duration: 1.5 }}
+                    className="text-green-700 text-sm font-medium"
+                  >
+                    Menyelesaikan setup...
+                  </motion.span>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         )}

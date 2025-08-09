@@ -61,7 +61,8 @@
       "Bash(timeout 300 npm run build)",
       "Bash(timeout 30 npm run preview)",
       "Bash(timeout 120 npm run build:fast)",
-      "Bash(vercel:*)"
+      "Bash(vercel:*)",
+      "Bash(timeout 120 npm run build)"
     ],
     "deny": []
   }

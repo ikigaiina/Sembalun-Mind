@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Heart, Clock, Users, Star, Headphones, Zap, Wind, TrendingUp, 
@@ -10,7 +10,6 @@ import {
   Button,
   CairnIcon,
   BreathingCard,
-  MoodSelector,
   MoodHistory,
   MoodNoteModal
 } from './index';
@@ -18,10 +17,12 @@ import IndonesianCTA, { useCulturalCTA } from './IndonesianCTA';
 import IndonesianWisdomQuote from './IndonesianWisdomQuote';
 import { IndonesianWisdomDisplay } from '../cultural/IndonesianWisdomDisplay';
 import { PersonalizedWelcomeDashboard } from '../onboarding/PersonalizedWelcomeDashboard';
+import { MoodSelectionModal } from './MoodSelectionModal';
 import type { MoodType } from '../../types/mood';
 import { moodOptions, getMoodColor } from '../../types/mood';
 import { usePersonalization } from '../../contexts/PersonalizationContext';
 import { useOnboarding } from '../../hooks/useOnboarding';
+import { useMoodTracker } from '../../hooks/useMoodTracker';
 
 interface PersonalizedDashboardProps {
   className?: string;
@@ -50,14 +51,24 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
     userPreferences
   } = useOnboarding();
 
-  const [selectedMood, setSelectedMood] = useState<MoodType>('happy');
+  // Use mood tracker for persistent state
+  const { currentMood, logMood, getTodaysMood, loading: moodLoading } = useMoodTracker();
+  const [selectedMood, setSelectedMood] = useState<MoodType | null>(null);
   const [activeSection, setActiveSection] = useState<string>('overview');
   const [showMoodHistory, setShowMoodHistory] = useState(false);
   const [showMoodNote, setShowMoodNote] = useState(false);
   const [showHistoryToast, setShowHistoryToast] = useState(false);
+  const [showMoodModal, setShowMoodModal] = useState(false);
   
   // Cultural CTA optimization
   const { getOptimalVariant, getOptimalLocalization } = useCulturalCTA(personalization?.culturalData);
+
+  // Sync selectedMood with persisted currentMood from tracker
+  useEffect(() => {
+    if (currentMood && selectedMood !== currentMood) {
+      setSelectedMood(currentMood);
+    }
+  }, [currentMood, selectedMood]);
 
   // Get all personalized data
   const greeting = getPersonalizedGreeting();
@@ -70,9 +81,17 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
   const contextualContent = getContextualContent();
   const recommendations = getPersonalizedRecommendations();
 
-  const handleMoodSelect = (mood: MoodType) => {
+  const handleMoodSelect = (mood: MoodType, journalNote?: string) => {
     setSelectedMood(mood);
     updateMoodPattern(mood, 'dashboard_selection');
+    
+    // Persist mood using the tracker
+    logMood(mood, journalNote);
+    
+    // Log journal note if provided
+    if (journalNote) {
+      console.log('📝 Journal note saved with mood:', { mood, note: journalNote });
+    }
   };
   
   const handleMoodNoteOpen = () => {
@@ -118,7 +137,7 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
             variants={sectionVariants}
             className={`mb-6 ${section.size === 'large' ? 'md:col-span-2 lg:col-span-3' : 'col-span-full'} max-w-2xl mx-auto w-full`}
           >
-            <Card className="p-6 sm:p-8 bg-gradient-to-br from-white via-blue-50/30 to-green-50/30 border-blue-100/50 shadow-lg overflow-visible">
+            <Card className="p-6 sm:p-8 bg-gradient-to-br from-white via-blue-50/30 to-green-50/30 border-blue-100/50 shadow-lg overflow-hidden">
               <div className="text-center mb-6">
                 <motion.div
                   initial={{ scale: 0.8, opacity: 0 }}
@@ -169,16 +188,19 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
                 )}
               </AnimatePresence>
               
-              <div className="flex justify-center mb-12 relative" style={{ minHeight: '120px' }}>
-                <MoodSelector
-                  selectedMood={selectedMood}
-                  onMoodSelect={handleMoodSelect}
-                  autoSave={true}
-                  showLabels={false}
-                  size="large"
-                  label=""
-                  className="w-full max-w-2xl"
-                />
+              {/* Mood Selection Button */}
+              <div className="flex justify-center mb-8">
+                <motion.div whileTap={{ scale: 0.98 }}>
+                  <Button
+                    onClick={() => setShowMoodModal(true)}
+                    variant="outline"
+                    size="lg"
+                    className="px-8 py-4 text-lg font-medium text-blue-600 border-2 border-blue-200 hover:bg-blue-50 hover:border-blue-300 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md"
+                  >
+                    <Heart className="w-5 h-5 mr-2" />
+                    {selectedMood ? 'Ubah Perasaan' : 'Catat Perasaan'}
+                  </Button>
+                </motion.div>
               </div>
               
               <div className="flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
@@ -598,6 +620,51 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           className="mb-8"
         >
           {renderSection('mood')}
+          
+          {/* Mood History Section - Integrated with mood section */}
+          <AnimatePresence mode="wait">
+            {showMoodHistory && (
+              <motion.div
+                initial={{ opacity: 0, y: 20, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.95 }}
+                transition={{ 
+                  duration: 0.4,
+                  type: "spring",
+                  stiffness: 200,
+                  damping: 20
+                }}
+                className="mt-6 max-w-4xl mx-auto"
+              >
+                {/* Section Header */}
+                <motion.div 
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="text-center mb-4"
+                >
+                  <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-4 py-2 rounded-full shadow-lg text-sm">
+                    <TrendingUp className="w-4 h-4" />
+                    <span className="font-semibold">Riwayat Perasaan Anda</span>
+                  </div>
+                </motion.div>
+                
+                {/* History Component */}
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.2 }}
+                >
+                  <MoodHistory
+                    showStats={true}
+                    showChart={true}
+                    showCalendar={true}
+                    className="bg-white/90 backdrop-blur-sm rounded-xl p-4 shadow-xl border border-blue-100/50"
+                  />
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </motion.div>
 
         {/* Other Dashboard Sections */}
@@ -621,51 +688,6 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
             .map(sectionKey => renderSection(sectionKey))}
         </motion.div>
 
-        {/* Mood History Section with Enhanced Visibility */}
-        <AnimatePresence mode="wait">
-          {showMoodHistory && (
-            <motion.div
-              initial={{ opacity: 0, y: 30, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30, scale: 0.95 }}
-              transition={{ 
-                duration: 0.4,
-                type: "spring",
-                stiffness: 200,
-                damping: 20
-              }}
-              className="mt-8"
-            >
-              {/* Section Header */}
-              <motion.div 
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.1 }}
-                className="text-center mb-6"
-              >
-                <div className="inline-flex items-center space-x-2 bg-gradient-to-r from-blue-500 to-purple-600 text-white px-6 py-2 rounded-full shadow-lg">
-                  <TrendingUp className="w-5 h-5" />
-                  <span className="font-semibold">Riwayat Perasaan Anda</span>
-                </div>
-              </motion.div>
-              
-              {/* History Component */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className="border-t-4 border-gradient-to-r from-blue-400 to-purple-500 pt-6"
-              >
-                <MoodHistory
-                  showStats={true}
-                  showChart={true}
-                  showCalendar={true}
-                  className="bg-white/90 backdrop-blur-sm rounded-xl p-6 shadow-xl border border-blue-100/50"
-                />
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
 
         {/* Indonesian Wisdom Quote */}
         <motion.div
@@ -736,6 +758,14 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Mood Selection Modal */}
+      <MoodSelectionModal
+        isOpen={showMoodModal}
+        onClose={() => setShowMoodModal(false)}
+        onMoodSelect={handleMoodSelect}
+        currentMood={selectedMood}
+      />
 
       {/* Mood Note Modal */}
       <MoodNoteModal
