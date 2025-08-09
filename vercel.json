@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npx vite build --mode production",
+  "buildCommand": "npm run build:no-hoist",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
@@ -12,45 +12,26 @@
       "destination": "/static/$1"
     },
     {
-      "source": "/(manifest\\.json|manifest\\.webmanifest|sw\\.js|registerSW\\.js)$",
-      "destination": "/$1"
-    },
-    {
-      "source": "/(.*)",
+      "source": "/((?!manifest\\.json|manifest\\.webmanifest).*)",
       "destination": "/index.html"
     }
   ],
   "headers": [
     {
-      "source": "/(manifest\\.json|manifest\\.webmanifest)$",
+      "source": "/manifest.json",
       "headers": [
         {
           "key": "Content-Type",
           "value": "application/manifest+json"
-        },
+        }
+      ]
+    },
+    {
+      "source": "/manifest.webmanifest",
+      "headers": [
         {
-          "key": "Cache-Control",
-          "value": "public, max-age=3600"
-        },
-        {
-          "key": "Access-Control-Allow-Origin",
-          "value": "*"
-        },
-        {
-          "key": "Access-Control-Allow-Methods",
-          "value": "GET, HEAD, OPTIONS"
-        },
-        {
-          "key": "Access-Control-Allow-Headers",
-          "value": "Content-Type, Authorization"
-        },
-        {
-          "key": "X-Content-Type-Options",
-          "value": "nosniff"
-        },
-        {
-          "key": "Access-Control-Max-Age",
-          "value": "86400"
+          "key": "Content-Type",
+          "value": "application/manifest+json"
         }
       ]
     },

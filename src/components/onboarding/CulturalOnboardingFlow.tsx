@@ -19,17 +19,17 @@ type OnboardingStep =
   | 'personalization-summary'
   | 'completion';
 
-// Regional Information
+// Regional Information - Initialize with explicit defaults to avoid hoisting issues
 const indonesianRegions = [
   {
-    id: 'sembalun',
+    id: 'sembalun' as const,
     name: 'Sembalun Valley',
     description: 'Meditasi dengan energi gunung dan lembah yang tenang',
     icon: Mountain,
-    color: 'emerald',
+    color: 'emerald' as const,
     specialties: ['Mountain Meditation', 'Sunrise Energy', 'Valley Winds'],
     culturalElements: ['Sasak Traditions', 'Rinjani Sacred Mountain', 'Highland Peace'],
-    difficulty: 'beginner',
+    difficulty: 'beginner' as const,
     wisdom: 'Gunung mengajarkan kita kesabaran, lembah mengajarkan kerendahan hati'
   },
   {
@@ -89,16 +89,16 @@ const indonesianRegions = [
   }
 ];
 
-// Experience Levels
+// Experience Levels - Add explicit type annotations to avoid hoisting issues
 const experienceLevels = [
   {
-    id: 'beginner',
+    id: 'beginner' as const,
     title: 'Pemula',
     description: 'Baru memulai perjalanan meditasi',
     icon: Leaf,
     features: ['Guided sessions 5-15 menit', 'Instruksi langkah demi langkah', 'Dasar-dasar mindfulness'],
-    color: 'green',
-    recommendedDuration: [5, 10, 15]
+    color: 'green' as const,
+    recommendedDuration: [5, 10, 15] as const
   },
   {
     id: 'intermediate',
@@ -258,7 +258,7 @@ export const CulturalOnboardingFlow: React.FC<Props> = ({
     ];
 
     const currentIndex = stepOrder.indexOf(currentStep);
-    if (currentIndex < stepOrder.length - 1) {
+    if (currentIndex >= 0 && currentIndex < stepOrder.length - 1) {
       setCurrentStep(stepOrder[currentIndex + 1]);
     }
   }, [currentStep]);

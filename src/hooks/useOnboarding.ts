@@ -18,16 +18,19 @@ interface OnboardingState {
   showOnboarding: boolean;
 }
 
-const DEFAULT_PREFERENCES: UserPreferences = {
-  culturalInterests: [],
-  experienceLevel: 'beginner',
-  meditationGoals: [],
-  schedulePreferences: ['morning'],
-  preferredRegions: ['sembalun'],
-  sessionDuration: 15,
-  reminderEnabled: true,
-  communitySharing: false
-};
+// Use function to create default preferences to avoid hoisting issues
+function createDefaultPreferences(): UserPreferences {
+  return {
+    culturalInterests: [],
+    experienceLevel: 'beginner',
+    meditationGoals: [],
+    schedulePreferences: ['morning'],
+    preferredRegions: ['sembalun'],
+    sessionDuration: 15,
+    reminderEnabled: true,
+    communitySharing: false
+  };
+}
 
 export const useOnboarding = () => {
   const [onboardingState, setOnboardingState] = useState<OnboardingState>({
@@ -61,7 +64,7 @@ export const useOnboarding = () => {
         setOnboardingState({
           isCompleted,
           isSkipped,
-          preferences: preferences || (isCompleted ? DEFAULT_PREFERENCES : null),
+          preferences: preferences || (isCompleted ? createDefaultPreferences() : null),
           showOnboarding
         });
       } catch (error) {
