@@ -3,7 +3,32 @@
  * Run this to verify your Supabase setup is working
  */
 
-import { supabase } from '../config/supabase';
+import { readFileSync } from 'fs'
+import { resolve } from 'path'
+
+// Load environment variables from .env.local
+const loadEnvFile = () => {
+  try {
+    const envPath = resolve(process.cwd(), '.env.local')
+    const envContent = readFileSync(envPath, 'utf8')
+    
+    envContent.split('\n').forEach(line => {
+      const trimmedLine = line.trim()
+      if (trimmedLine && !trimmedLine.startsWith('#') && trimmedLine.includes('=')) {
+        const [key, ...valueParts] = trimmedLine.split('=')
+        const value = valueParts.join('=')
+        process.env[key.trim()] = value.trim()
+      }
+    })
+  } catch (error) {
+    console.log('No .env.local file found or error reading it:', error)
+  }
+}
+
+// Load environment variables at the start
+loadEnvFile()
+
+import { createClient } from '@supabase/supabase-js'
 
 interface TestResult {
   test: string;
@@ -18,8 +43,8 @@ async function quickSupabaseTest() {
 
   try {
     // Test 1: Environment Variables
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL;
+    const supabaseKey = process.env.VITE_SUPABASE_ANON_KEY;
     
     if (!supabaseUrl || !supabaseKey || 
         supabaseUrl.includes('your-project-ref') || 
@@ -54,8 +79,13 @@ async function quickSupabaseTest() {
     // Test 2: Basic Connection
     console.log('🔍 Testing database connection...');
     
+    // Create a direct Supabase client for testing
+    const testClient = createClient(supabaseUrl!, supabaseKey!, {
+      auth: { persistSession: false }
+    });
+    
     try {
-      const { error: connectionError } = await supabase
+      const { error: connectionError } = await testClient
         .from('courses')
         .select('id')
         .limit(1);
@@ -104,7 +134,7 @@ async function quickSupabaseTest() {
     
     for (const table of essentialTables) {
       try {
-        const { error } = await supabase
+        const { error } = await testClient
           .from(table)
           .select('id')
           .limit(1);
@@ -143,7 +173,7 @@ async function quickSupabaseTest() {
     // Test 4: Sample Data
     console.log('\n📊 Checking for sample data...');
     try {
-      const { data: courses, error } = await supabase
+      const { data: courses, error } = await testClient
         .from('courses')
         .select('*');
         
@@ -174,7 +204,7 @@ async function quickSupabaseTest() {
     // Test 5: Authentication System
     console.log('\n🔐 Testing authentication...');
     try {
-      const { data, error } = await supabase.auth.getSession();
+      const { data, error } = await testClient.auth.getSession();
       
       if (error && !error.message.includes('refresh')) {
         console.log('⚠️  Auth system warning:', error.message);
@@ -239,7 +269,7 @@ function displayResults(results: TestResult[]) {
   }
   
   console.log('\n🌐 Your Supabase Dashboard:');
-  const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
+  const supabaseUrl = process.env.VITE_SUPABASE_URL;
   if (supabaseUrl) {
     const projectId = supabaseUrl.split('//')[1]?.split('.')[0];
     console.log(`   https://supabase.com/dashboard/project/${projectId}`);
