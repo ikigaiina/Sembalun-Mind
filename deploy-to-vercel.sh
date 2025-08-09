@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 🚀 Automated Vercel Deployment Script for Sembalun
-# This script prepares and deploys the meditation app to Vercel
+# 🚀 Sembalun Mind - Vercel Production Deployment Script
+# This script deploys the app to Vercel with Supabase configuration
 
 set -e  # Exit on any error
 

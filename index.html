@@ -1,6 +1,33 @@
 <!doctype html>
 <html lang="id">
   <head>
+    <!-- EMERGENCY: Inline Scheduler Fix - Load immediately -->
+    <script>
+      (function(){
+        if(typeof window!=='undefined'){
+          var perf = window.performance || {now: function(){return Date.now();}};
+          var sched = {
+            unstable_now: function(){return perf.now();},
+            unstable_scheduleCallback: function(p,c,o){var t=o&&o.timeout||0;var i=setTimeout(c,t);return{cancel:function(){clearTimeout(i);}}},
+            unstable_cancelCallback: function(t){t&&t.cancel&&t.cancel();},
+            unstable_shouldYield: function(){return false;},
+            unstable_requestPaint: function(){},
+            unstable_runWithPriority: function(p,c){return c();},
+            unstable_wrapCallback: function(c){return c;},
+            unstable_getCurrentPriorityLevel: function(){return 3;},
+            unstable_ImmediatePriority: 1,
+            unstable_UserBlockingPriority: 2,
+            unstable_NormalPriority: 3,
+            unstable_IdlePriority: 5,
+            unstable_LowPriority: 4
+          };
+          window.scheduler=sched;
+          window.Scheduler=sched;
+          if(typeof globalThis!=='undefined'){globalThis.scheduler=sched;globalThis.Scheduler=sched;}
+        }
+      })();
+    </script>
+    
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
@@ -57,6 +84,9 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png" />
+    
+    <!-- CRITICAL: React Scheduler Fix - Must load BEFORE title -->
+    <script src="/scheduler-fix.js"></script>
     
     <title>Sembalun Mind - Meditasi Indonesia dengan Kearifan Lokal</title>
   </head>

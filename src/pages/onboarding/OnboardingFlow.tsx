@@ -13,12 +13,12 @@ export type OnboardingStep = 'splash' | 'slides' | 'cultural' | 'personalization
 export type OnboardingFlowType = 'traditional' | 'experience-first';
 
 interface OnboardingFlowProps {
-  onComplete: (data: OnboardingData) => void;
+  onComplete: (data: OnboardingFlowData) => void;
   flowType?: OnboardingFlowType;
   culturalHints?: Partial<CulturalData>;
 }
 
-export interface OnboardingData {
+export interface OnboardingFlowData {
   selectedGoal?: PersonalizationGoal;
   selectedMood?: MoodType;
   culturalData?: CulturalData;
@@ -34,7 +34,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
   culturalHints 
 }) => {
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('splash');
-  const [onboardingData, setOnboardingData] = useState<Partial<OnboardingData>>({
+  const [onboardingData, setOnboardingData] = useState<Partial<OnboardingFlowData>>({
     skippedSteps: [],
     totalSteps: 5,
     completedSteps: 0
@@ -138,7 +138,7 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 
   // Handle welcome completion
   const handleWelcomeComplete = () => {
-    const finalData: OnboardingData = {
+    const finalData: OnboardingFlowData = {
       selectedGoal: onboardingData.selectedGoal,
       selectedMood: onboardingData.selectedMood,
       culturalData: onboardingData.culturalData,
@@ -153,8 +153,8 @@ export const OnboardingFlow: React.FC<OnboardingFlowProps> = ({
 
   // Handle experience-first flow completion
   const handleExperienceFirstComplete = (completionData: OnboardingCompletionData) => {
-    // Convert to traditional OnboardingData format
-    const finalData: OnboardingData = {
+    // Convert to traditional OnboardingFlowData format
+    const finalData: OnboardingFlowData = {
       selectedGoal: completionData.stepData.goal,
       selectedMood: completionData.stepData.moodAfter,
       culturalData: completionData.stepData.cultural,

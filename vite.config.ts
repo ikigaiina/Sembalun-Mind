@@ -27,6 +27,39 @@ export default defineConfig(({ mode }) => {
       },
       mode: isProd ? 'production' : 'development',
       strategies: 'generateSW',
+      manifest: {
+        name: 'Sembalun Mind',
+        short_name: 'Sembalun Mind',
+        description: 'Indonesian Meditation App with Cultural Wisdom',
+        theme_color: '#6A8F6F',
+        background_color: '#E1E8F0',
+        display: 'standalone',
+        orientation: 'portrait',
+        scope: '/',
+        start_url: '/',
+        lang: 'id-ID',
+        categories: ['health', 'lifestyle', 'wellness'],
+        icons: [
+          {
+            src: '/icon-192.svg',
+            sizes: '192x192',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/icon-512.svg', 
+            sizes: '512x512',
+            type: 'image/svg+xml',
+            purpose: 'any maskable'
+          },
+          {
+            src: '/favicon.svg',
+            sizes: 'any',
+            type: 'image/svg+xml', 
+            purpose: 'any'
+          }
+        ]
+      },
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff,woff2,mp3,wav,ogg}'],
         maximumFileSizeToCacheInBytes: 5000000, // Increased for audio files
@@ -85,54 +118,6 @@ export default defineConfig(({ mode }) => {
               },
               networkTimeoutSeconds: 3
             }
-          }
-        ]
-      },
-      manifest: {
-        name: 'Sembalun Mind - Indonesian Meditation App',
-        short_name: 'Sembalun Mind',
-        description: 'Pengalaman meditasi Indonesia yang tenang dengan pelacakan kemajuan cairn',
-        theme_color: '#6A8F6F',
-        background_color: '#E1E8F0',
-        display: 'standalone',
-        orientation: 'portrait',
-        scope: '/',
-        start_url: '/',
-        lang: 'id-ID',
-        dir: 'ltr',
-        categories: ['health', 'lifestyle', 'wellness', 'meditation'],
-        prefer_related_applications: false,
-        edge_side_panel: {
-          preferred_width: 480
-        },
-        icons: [
-          {
-            src: '/icon-192.svg',
-            sizes: '192x192',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          },
-          {
-            src: '/icon-512.svg',
-            sizes: '512x512',
-            type: 'image/svg+xml',
-            purpose: 'any maskable'
-          }
-        ],
-        shortcuts: [
-          {
-            name: 'Meditasi Cepat',
-            short_name: 'Meditasi',
-            description: 'Mulai sesi meditasi 5 menit',
-            url: '/meditation?quick=true',
-            icons: [{ src: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' }]
-          },
-          {
-            name: 'Latihan Pernapasan',
-            short_name: 'Pernapasan',
-            description: 'Latihan pernapasan 3 menit',
-            url: '/breathing?quick=true',
-            icons: [{ src: '/icon-192.svg', sizes: '192x192', type: 'image/svg+xml' }]
           }
         ]
       }
@@ -334,7 +319,10 @@ export default defineConfig(({ mode }) => {
     __DEV__: isDev,
     __PROD__: isProd,
     'process.env.NODE_ENV': JSON.stringify(mode),
-    global: 'globalThis'
+    global: 'globalThis',
+    // Fix React Scheduler unstable_now issue in production
+    'globalThis.__REACT_DEVTOOLS_GLOBAL_HOOK__': 'undefined',
+    '__REACT_DEVTOOLS_GLOBAL_HOOK__': 'undefined'
   },
   // Development-specific optimizations
   ...(isDev && {
