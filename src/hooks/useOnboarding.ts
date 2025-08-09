@@ -46,8 +46,13 @@ export const useOnboarding = () => {
         const preferencesData = localStorage.getItem('sembalun-user-preferences');
         
         let preferences: UserPreferences | null = null;
-        if (preferencesData) {
-          preferences = JSON.parse(preferencesData);
+        if (preferencesData && preferencesData !== 'undefined' && preferencesData !== 'null') {
+          try {
+            preferences = JSON.parse(preferencesData);
+          } catch (parseError) {
+            console.warn('Invalid JSON in preferences data, resetting:', preferencesData);
+            localStorage.removeItem('sembalun-user-preferences');
+          }
         }
 
         // Show onboarding if neither completed nor skipped

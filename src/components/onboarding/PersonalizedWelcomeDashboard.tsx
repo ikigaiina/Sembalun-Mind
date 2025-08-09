@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import {
   Mountain, Crown, Waves, TreePine, Compass, Sun, Heart, Target, 
   Sparkles, Play, BookOpen, Calendar, User, Award, Clock, TrendingUp,
-  Star, ChevronRight, Sunrise, Wind, Leaf, Flame
+  Star, ChevronRight, Sunrise, Wind, Leaf, Flame, Moon
 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';

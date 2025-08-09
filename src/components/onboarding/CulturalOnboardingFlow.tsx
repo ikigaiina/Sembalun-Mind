@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import {
   ChevronRight, ChevronLeft, Mountain, Crown, Waves, TreePine, Compass, Sun,
   Heart, Brain, Sunrise, Wind, Star, Sparkles, Play, CheckCircle, ArrowRight,
-  User, Calendar, Clock, Target, Award, BookOpen, Leaf, Flame
+  User, Calendar, Clock, Target, Award, BookOpen, Leaf, Flame, Moon
 } from 'lucide-react';
 import { Card } from '../ui/Card';
 import { Button } from '../ui/Button';
