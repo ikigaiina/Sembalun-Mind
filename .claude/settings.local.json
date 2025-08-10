@@ -108,7 +108,14 @@
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" secret set VERCEL_TOKEN --body \"your-vercel-token\")",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" secret set VERCEL_ORG_ID --body \"your-vercel-org-id\")",
       "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" secret set VERCEL_PROJECT_ID --body \"your-vercel-project-id\")",
-      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" secret set CULTURAL_EXPERT_API_KEY --body \"your-cultural-expert-api-key\")"
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" secret set CULTURAL_EXPERT_API_KEY --body \"your-cultural-expert-api-key\")",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" run list --limit 5)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api repos/ikigaiina/sembalun --method PATCH --field has_pages=true --field homepage=\"https://ikigaiina.github.io/sembalun\")",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" run view --log)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" api repos/ikigaiina/sembalun/pages --method POST --field source='{\\\"\"branch\\\"\":\\\"\"main\\\"\",\\\"\"path\\\"\":\\\"\"/docs\\\"\"}')",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" run list --limit 1)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" repo view --json nameWithOwner,url,isPrivate,hasIssues,hasProjects,hasWiki,hasPages)",
+      "Bash(\"C:\\Program Files\\GitHub CLI\\gh.exe\" label list)"
     ],
     "deny": []
   }
