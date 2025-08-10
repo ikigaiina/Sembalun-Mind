@@ -4,8 +4,23 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { ArrowLeft, Play, Pause, Volume2, VolumeX, Settings, Heart, Clock, Star, Wind, Globe, Mountain } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
-import BreathingVisualization3D from '../components/meditation/BreathingVisualization3D';
-import VoiceUIIndicator from '../components/ui/VoiceUIIndicator';
+import { useAuth } from '../hooks/useAuth';
+import { useProgressScaling } from '../hooks/useProgressScaling';
+import { useSmartBack } from '../hooks/useNavigationHistory';
+// Lazy load components to prevent import errors
+const BreathingVisualization3D = React.lazy(() => 
+  import('../components/meditation/BreathingVisualization3D').catch(() => ({
+    default: () => <div className="p-4 text-center text-gray-500">Breathing visualization loading...</div>
+  }))
+);
+
+const VoiceUIIndicator = React.lazy(() => 
+  import('../components/ui/VoiceUIIndicator').catch(() => ({
+    default: () => <div className="p-2 text-center text-gray-500">Voice UI loading...</div>
+  }))
+);
+
+// Import other components directly for now
 import { AdvancedMeditationTimer } from '../components/ui/AdvancedMeditationTimer';
 import { IndonesianGuidedMeditation } from '../components/meditation/IndonesianGuidedMeditation';
 import { EnhancedIndonesianMeditation } from '../components/meditation/EnhancedIndonesianMeditation';
@@ -97,8 +112,30 @@ export const Meditation: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   
-  // Get session from navigation state or use default
-  const initialSession = location.state?.session as MeditationSession || defaultSession;
+  // Smart back navigation
+  const { goBack, canGoBack, backDestination } = useSmartBack('/explore');
+  
+  // Safe auth and progress loading with error handling
+  const { user, userProfile, isGuest } = useAuth();
+  
+  // Enhanced progress with scaling capabilities - with error handling
+  const {
+    scaledProgress,
+    getNextMilestoneInfo,
+    recommendations,
+    adaptiveGoals,
+    isLoading
+  } = useProgressScaling();
+  
+  // Get session from navigation state or use default - with null safety
+  const initialSession = React.useMemo(() => {
+    try {
+      return location.state?.session as MeditationSession || defaultSession;
+    } catch (error) {
+      console.warn('Error accessing location state, using default session:', error);
+      return defaultSession;
+    }
+  }, [location.state]);
   
   const [session, setSession] = useState<MeditationSession>(initialSession);
   const [meditationState, setMeditationState] = useState<MeditationState>('setup');
@@ -130,11 +167,16 @@ export const Meditation: React.FC = () => {
       sessionType: session.title,
       category: session.category,
       timestamp: new Date().toISOString(),
+      userId: user?.id,
+      scalingLevel: scaledProgress?.scalingLevel || 0
     };
     
     setSessionData(completedSession);
     setMeditationState('completed');
     setShowBreathingViz(false);
+    
+    // Update user progress after session completion
+    console.log('Meditation session completed:', completedSession);
   };
 
   const handleNewSession = () => {
@@ -143,11 +185,61 @@ export const Meditation: React.FC = () => {
     setShowBreathingViz(false);
   };
 
+  // Error state for component safety
+  const [hasError, setHasError] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState('');
+
+  // Error boundary effect
+  React.useEffect(() => {
+    const handleError = (event: ErrorEvent) => {
+      console.error('Meditation page error:', event.error);
+      setHasError(true);
+      setErrorMessage(event.error?.message || 'Unknown error');
+    };
+
+    window.addEventListener('error', handleError);
+    return () => window.removeEventListener('error', handleError);
+  }, []);
+
+  // If there's an error, show error page instead of crashing
+  if (hasError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-meditation-zen-50 via-white to-meditation-zen-100 flex items-center justify-center p-6">
+        <Card className="max-w-md mx-auto text-center">
+          <div className="p-6">
+            <h2 className="text-xl font-semibold text-gray-800 mb-4">Something went wrong</h2>
+            <p className="text-gray-600 mb-4">
+              We're having trouble loading the meditation page. Please try refreshing or go back to the dashboard.
+            </p>
+            <div className="text-xs text-gray-500 mb-4">Error: {errorMessage}</div>
+            <div className="space-y-2">
+              <Button 
+                variant="primary" 
+                onClick={() => window.location.reload()}
+                className="w-full"
+              >
+                Refresh Page
+              </Button>
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/dashboard')}
+                className="w-full"
+              >
+                Go to Dashboard
+              </Button>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   const handleBackPress = () => {
     if (meditationState === 'active') {
       setMeditationState('paused');
     } else {
-      navigate('/');
+      // Use smart back navigation instead of hardcoded dashboard
+      goBack();
     }
   };
 
@@ -389,13 +481,15 @@ export const Meditation: React.FC = () => {
               exit={{ opacity: 0, scale: 0.9 }}
               className="relative z-10 flex justify-center mb-6"
             >
-              <VoiceUIIndicator
-                isListening={isVoiceListening}
-                isGuiding={false}
-                volume={0.4}
-                onToggleListening={() => setIsVoiceListening(!isVoiceListening)}
-                onToggleGuiding={handleVoiceToggle}
-              />
+              <React.Suspense fallback={<div className="p-2 text-center text-gray-500">Loading voice UI...</div>}>
+                <VoiceUIIndicator
+                  isListening={isVoiceListening}
+                  isGuiding={false}
+                  volume={0.4}
+                  onToggleListening={() => setIsVoiceListening(!isVoiceListening)}
+                  onToggleGuiding={handleVoiceToggle}
+                />
+              </React.Suspense>
             </motion.div>
           )}
         </AnimatePresence>
@@ -660,7 +754,9 @@ export const Meditation: React.FC = () => {
             exit={{ opacity: 0, scale: 0.9 }}
             className="mb-8"
           >
-            <BreathingVisualization3D autoStart={true} />
+            <React.Suspense fallback={<div className="p-4 text-center text-gray-500">Loading breathing visualization...</div>}>
+              <BreathingVisualization3D autoStart={true} />
+            </React.Suspense>
           </motion.div>
         )}
 

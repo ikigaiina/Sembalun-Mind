@@ -48,14 +48,34 @@ const ContentLibrary: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Mock data - in real app, fetch from content service
-    const mockCategories: ContentCategory[] = [
+    loadContent();
+  }, []);
+
+  const loadContent = async () => {
+    setIsLoading(true);
+    
+    try {
+      // Try to get from cache first
+      let cachedContent = ContentCacheManager.getCachedMeditationSessions();
+      
+      if (cachedContent) {
+        console.log('📦 Loading content from cache');
+        setContent(cachedContent);
+        setFilteredContent(cachedContent);
+      } else {
+        console.log('🔄 Loading fresh content');
+        // Mock data - in real app, fetch from content service
+        const mockCategories: ContentCategory[] = [
       { id: 'mindfulness', name: 'Mindfulness', description: 'Present moment awareness', icon: '🧘‍♀️', color: '#10B981', itemCount: 45 },
       { id: 'sleep', name: 'Sleep', description: 'Better rest and dreams', icon: '😴', color: '#3B82F6', itemCount: 32 },
       { id: 'stress', name: 'Stress Relief', description: 'Calm your mind', icon: '🌿', color: '#10B981', itemCount: 28 },
       { id: 'focus', name: 'Focus', description: 'Improve concentration', icon: '🎯', color: '#F59E0B', itemCount: 38 },
       { id: 'emotional', name: 'Emotional Wellness', description: 'Process emotions', icon: '💖', color: '#EC4899', itemCount: 24 },
-      { id: 'movement', name: 'Movement', description: 'Mindful movement', icon: '🤸‍♀️', color: '#8B5CF6', itemCount: 18 }
+      { id: 'movement', name: 'Movement', description: 'Mindful movement', icon: '🤸‍♀️', color: '#8B5CF6', itemCount: 18 },
+      { id: 'cultural', name: 'Cultural Wisdom', description: 'Indonesian traditions', icon: '🏛️', color: '#D97706', itemCount: 16 },
+      { id: 'siy', name: 'Search Inside Yourself', description: 'Emotional intelligence', icon: '🎯', color: '#2563EB', itemCount: 22 },
+      { id: 'seasonal', name: 'Seasonal Content', description: 'Special occasions', icon: '🎉', color: '#DC2626', itemCount: 8 },
+      { id: 'interactive', name: 'Interactive', description: 'Engaging experiences', icon: '🎮', color: '#7C3AED', itemCount: 12 }
     ];
 
     const mockContent: ContentItem[] = [
@@ -156,14 +176,93 @@ const ContentLibrary: React.FC = () => {
         language: 'id',
         createdAt: new Date('2024-01-03'),
         updatedAt: new Date('2024-01-03')
+      },
+      // Additional diverse content
+      {
+        id: '6',
+        title: 'Meditasi Ramadan: Refleksi Spiritual',
+        description: 'Meditasi khusus untuk bulan suci Ramadan dengan nilai-nilai spiritual Islam.',
+        type: 'guided',
+        category: 'seasonal',
+        duration: 15,
+        difficulty: 'intermediate',
+        rating: 4.9,
+        plays: 8500,
+        isBookmarked: false,
+        isPremium: true,
+        audioUrl: '/audio/ramadan-meditation.mp3',
+        imageUrl: '/images/ramadan-meditation.jpg',
+        instructor: 'Ustaz Ahmad Mindful',
+        tags: ['ramadan', 'islam', 'spiritual', 'refleksi'],
+        language: 'id',
+        createdAt: new Date('2024-03-15'),
+        updatedAt: new Date('2024-03-15')
+      },
+      {
+        id: '7',
+        title: 'SIY: Emotional Intelligence untuk Pemimpin',
+        description: 'Program Search Inside Yourself untuk mengembangkan kecerdasan emosi dan kepemimpinan.',
+        type: 'course',
+        category: 'siy',
+        duration: 30,
+        difficulty: 'advanced',
+        rating: 4.8,
+        plays: 3200,
+        isBookmarked: true,
+        isPremium: true,
+        audioUrl: '/audio/siy-leadership.mp3',
+        imageUrl: '/images/siy-leadership.jpg',
+        instructor: 'Dr. Sarah Leadership',
+        tags: ['siy', 'leadership', 'emotional-intelligence', 'pemimpin'],
+        language: 'id',
+        createdAt: new Date('2024-04-01'),
+        updatedAt: new Date('2024-04-01')
+      },
+      {
+        id: '8',
+        title: 'Tantangan Napas 21 Hari',
+        description: 'Program interaktif 21 hari untuk menguasai berbagai teknik pernapasan.',
+        type: 'course',
+        category: 'interactive',
+        duration: 14,
+        difficulty: 'intermediate',
+        rating: 4.7,
+        plays: 5600,
+        isBookmarked: false,
+        isPremium: true,
+        audioUrl: '/audio/breathing-challenge.mp3',
+        imageUrl: '/images/breathing-challenge.jpg',
+        instructor: 'Master Breath Indonesia',
+        tags: ['tantangan', 'napas', 'interaktif', '21-hari'],
+        language: 'id',
+        createdAt: new Date('2024-05-15'),
+        updatedAt: new Date('2024-05-15')
       }
     ];
 
-    setCategories(mockCategories);
-    setContent(mockContent);
-    setFilteredContent(mockContent);
-    setIsLoading(false);
-  }, []);
+        setCategories(mockCategories);
+        setContent(mockContent);
+        setFilteredContent(mockContent);
+        
+        // Cache the content for future use
+        // ContentCacheManager.cacheMeditationSessions(mockContent, 10 * 60 * 1000);
+        
+        // Preload images
+        // const imageUrls = mockContent.map(item => item.imageUrl);
+        // ImageCache.preloadImages(imageUrls);
+      }
+      
+      // Load user favorites from localStorage
+      const savedFavorites = localStorage.getItem('sembalun-favorites');
+      if (savedFavorites) {
+        setFavorites(JSON.parse(savedFavorites));
+      }
+    } catch (error) {
+      console.error('Failed to load content:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const filterAndSortContent = useCallback(() => {
     let filtered = [...content];
@@ -511,7 +610,7 @@ const ContentLibrary: React.FC = () => {
                 setSelectedLanguage('all');
               }}
             >
-              Clear all filters
+              Bersihkan semua filter
             </Button>
           </div>
         )}

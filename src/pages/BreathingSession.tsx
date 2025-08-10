@@ -6,6 +6,7 @@ import BreathingVisualization3D from '../components/meditation/BreathingVisualiz
 import VoiceUIIndicator from '../components/ui/VoiceUIIndicator';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { useSmartBack } from '../hooks/useNavigationHistory';
 
 // 2025 Enhanced Breathing Session with 3D Visualization
 interface BreathingSessionData {
@@ -18,6 +19,7 @@ interface BreathingSessionData {
 
 export const BreathingSession: React.FC = () => {
   const navigate = useNavigate();
+  const { goBack } = useSmartBack('/explore');
   const [sessionStarted, setSessionStarted] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
@@ -55,7 +57,8 @@ export const BreathingSession: React.FC = () => {
       // Show confirmation dialog in real implementation
       setSessionStarted(false);
     } else {
-      navigate('/');
+      // Use smart back navigation instead of hardcoded dashboard
+      goBack();
     }
   };
 
@@ -296,7 +299,7 @@ export const BreathingSession: React.FC = () => {
                   </Button>
                   <Button
                     variant="calm"
-                    onClick={() => navigate('/')}
+                    onClick={goBack}
                   >
                     Return Home
                   </Button>

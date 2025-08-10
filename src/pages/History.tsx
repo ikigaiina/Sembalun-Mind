@@ -2,9 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { Header } from '../components/ui/Header';
 import { Card } from '../components/ui/Card';
 import { Cairn } from '../components/ui/Cairn';
+import { useSmartBack } from '../hooks/useNavigationHistory';
 
 export const History: React.FC = () => {
   const navigate = useNavigate();
+  const { goBack } = useSmartBack('/');
   
   const sessions = [
     { date: 'Hari ini', type: 'Pernapasan Mindful', duration: '10 menit', completed: true },
@@ -15,7 +17,7 @@ export const History: React.FC = () => {
 
   return (
     <div>
-      <Header title="Riwayat Meditasi" showBack={true} onBack={() => navigate('/')} />
+      <Header title="Riwayat Meditasi" showBack={true} onBack={goBack} />
       
       <div className="px-4 py-6 space-y-6">
         <Card className="text-center">

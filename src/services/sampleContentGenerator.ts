@@ -10,7 +10,7 @@ import { ScriptBuilder } from './textToSpeechService';
 export class SampleContentGenerator {
   
   /**
-   * Generate Indonesian meditation instructors
+   * Generate comprehensive Indonesian meditation instructors with SIY expertise
    */
   generateInstructors(): InstructorProfile[] {
     return [
@@ -61,16 +61,77 @@ export class SampleContentGenerator {
         rating: 4.9,
         totalSessions: 18,
         joinedAt: new Date('2021-08-10')
+      },
+      {
+        id: 'instructor_4',
+        name: 'Dr. Ravi Mindfulness',
+        bio: 'Certified Search Inside Yourself teacher dan neuroscientist. Mengintegrasikan sains dengan praktik kontemplasi.',
+        profileImageUrl: '/images/instructors/ravi-mindfulness.jpg',
+        credentials: ['Search Inside Yourself Certified Teacher', 'Ph.D. Neuroscience', 'MBSR Instructor'],
+        specialties: ['siy-attention', 'siy-awareness', 'siy-regulation', 'siy-empathy'],
+        languages: ['id', 'en'],
+        experience: '12 tahun research neuroscience meditasi dan 8 tahun mengajar SIY',
+        socialLinks: {
+          website: 'www.ravimindfulness.com',
+          instagram: '@ravimindfulness'
+        },
+        isVerified: true,
+        rating: 4.9,
+        totalSessions: 35,
+        joinedAt: new Date('2020-05-15')
+      },
+      {
+        id: 'instructor_5',
+        name: 'Mbak Dewi Cultural Wisdom',
+        bio: 'Ahli meditasi berbasis budaya Indonesia. Mengintegrasikan kearifan lokal dengan praktik mindfulness modern.',
+        profileImageUrl: '/images/instructors/dewi-cultural.jpg',
+        credentials: ['Cultural Meditation Specialist', 'Indonesian Philosophy M.A.', 'Interfaith Dialogue Facilitator'],
+        specialties: ['spiritual', 'siy-empathy', 'siy-social'],
+        languages: ['id'],
+        experience: '15 tahun mempelajari dan mengajar kearifan tradisional Indonesia',
+        socialLinks: {
+          instagram: '@dewibudaya'
+        },
+        isVerified: true,
+        rating: 4.8,
+        totalSessions: 28,
+        joinedAt: new Date('2019-11-01')
+      },
+      {
+        id: 'instructor_6',
+        name: 'Pak Ahmad Workplace Mindfulness',
+        bio: 'Executive coach dan leadership trainer. Spesialis menerapkan mindfulness di lingkungan kerja Indonesia.',
+        profileImageUrl: '/images/instructors/ahmad-workplace.jpg',
+        credentials: ['Executive Coach ICF', 'Leadership Development Specialist', 'Workplace Mindfulness Trainer'],
+        specialties: ['siy-workplace', 'siy-social', 'fokus-kerja'],
+        languages: ['id', 'en'],
+        experience: '10 tahun sebagai executive coach di perusahaan multinasional',
+        socialLinks: {
+          website: 'www.mindfulleadership.id',
+          instagram: '@ahmadworkplacemind'
+        },
+        isVerified: true,
+        rating: 4.7,
+        totalSessions: 22,
+        joinedAt: new Date('2021-01-10')
       }
     ];
   }
 
   /**
-   * Generate sample meditation sessions
+   * Generate comprehensive meditation sessions with SIY content and enhanced diversity
    */
   generateMeditationSessions(): MeditationSession[] {
     const instructors = this.generateInstructors();
     const sessions: MeditationSession[] = [];
+
+    // Add comprehensive SIY content
+    sessions.push(...this.generateSIYSessions(instructors));
+    sessions.push(...this.generateCulturalAdaptedSessions(instructors));
+    sessions.push(...this.generateAdvancedSessions(instructors));
+    sessions.push(...this.generateSeasonalContent(instructors));
+    sessions.push(...this.generateSpecialtyContent(instructors));
+    sessions.push(...this.generateInteractiveContent(instructors));
 
     // Jeda Pagi (Morning Break) Sessions
     sessions.push({
@@ -336,11 +397,832 @@ export class SampleContentGenerator {
       updatedAt: new Date('2024-03-01')
     });
 
-    return sessions;
+    // Sort sessions by newest first
+    return sessions.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }
 
   /**
-   * Generate sample courses
+   * Generate Search Inside Yourself (SIY) specific sessions
+   */
+  private generateSIYSessions(instructors: InstructorProfile[]): MeditationSession[] {
+    const siySessions: MeditationSession[] = [];
+
+    // SIY Attention Training Sessions
+    siySessions.push({
+      id: 'siy_attention_1',
+      title: 'SIY: Latihan Perhatian Dasar - Napas Sadar',
+      description: 'Membangun fondasi perhatian melalui kesadaran napas. Langkah pertama dalam mengembangkan emotional intelligence.',
+      category: 'siy-attention',
+      duration: 12,
+      difficulty: 'pemula',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_siy_attention_1',
+        title: 'SIY: Latihan Perhatian Dasar',
+        url: '/audio/siy/siy-attention-basic.mp3',
+        duration: 720,
+        fileSize: 10.8 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'perhatian', 'napas', 'emotional-intelligence', 'dasar'],
+      thumbnailUrl: '/images/thumbnails/siy-attention.jpg',
+      backgroundColor: '#E0F2FE',
+      isNew: true,
+      isPremium: false,
+      completionCount: 850,
+      averageRating: 4.8,
+      createdAt: new Date('2024-03-10'),
+      updatedAt: new Date('2024-03-10')
+    });
+
+    siySessions.push({
+      id: 'siy_attention_2',
+      title: 'SIY: Meta-Perhatian - Kesadaran akan Kesadaran',
+      description: 'Mengembangkan kemampuan untuk memperhatikan kualitas perhatian kita sendiri. Kunci untuk self-awareness.',
+      category: 'siy-attention',
+      duration: 15,
+      difficulty: 'menengah',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_siy_attention_2',
+        title: 'SIY: Meta-Perhatian',
+        url: '/audio/siy/siy-meta-attention.mp3',
+        duration: 900,
+        fileSize: 13.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'meta-perhatian', 'kesadaran', 'self-awareness'],
+      thumbnailUrl: '/images/thumbnails/siy-meta-attention.jpg',
+      backgroundColor: '#F0F9FF',
+      completionCount: 620,
+      averageRating: 4.7,
+      createdAt: new Date('2024-03-12'),
+      updatedAt: new Date('2024-03-12')
+    });
+
+    // SIY Self-Awareness Sessions
+    siySessions.push({
+      id: 'siy_awareness_1',
+      title: 'SIY: Kesadaran Tubuh Emosional',
+      description: 'Belajar merasakan emosi melalui sensasi tubuh. Foundation untuk emotional intelligence.',
+      category: 'siy-awareness',
+      duration: 18,
+      difficulty: 'menengah',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_siy_awareness_1',
+        title: 'SIY: Kesadaran Tubuh Emosional',
+        url: '/audio/siy/siy-emotional-body.mp3',
+        duration: 1080,
+        fileSize: 16.2 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'emosi', 'tubuh', 'kesadaran', 'self-awareness'],
+      thumbnailUrl: '/images/thumbnails/siy-emotional-body.jpg',
+      backgroundColor: '#FEF3E2',
+      isPremium: true,
+      completionCount: 480,
+      averageRating: 4.9,
+      createdAt: new Date('2024-03-15'),
+      updatedAt: new Date('2024-03-15')
+    });
+
+    siySessions.push({
+      id: 'siy_awareness_2',
+      title: 'SIY: Pemetaan Nilai dan Tujuan Hidup',
+      description: 'Refleksi mendalam untuk memahami nilai-nilai core dan tujuan hidup yang autentik.',
+      category: 'siy-awareness',
+      duration: 25,
+      difficulty: 'lanjutan',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_siy_awareness_2',
+        title: 'SIY: Pemetaan Nilai dan Tujuan',
+        url: '/audio/siy/siy-values-mapping.mp3',
+        duration: 1500,
+        fileSize: 22.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'nilai', 'tujuan', 'refleksi', 'autentik'],
+      thumbnailUrl: '/images/thumbnails/siy-values.jpg',
+      backgroundColor: '#F3E8FF',
+      isPremium: true,
+      completionCount: 320,
+      averageRating: 4.9,
+      createdAt: new Date('2024-03-18'),
+      updatedAt: new Date('2024-03-18')
+    });
+
+    // SIY Self-Regulation Sessions
+    siySessions.push({
+      id: 'siy_regulation_1',
+      title: 'SIY: Teknik STOP untuk Regulasi Emosi',
+      description: 'Belajar teknik STOP (Stop, Take a breath, Observe, Proceed) untuk mengelola reaksi emosional.',
+      category: 'siy-regulation',
+      duration: 10,
+      difficulty: 'pemula',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_siy_regulation_1',
+        title: 'SIY: Teknik STOP',
+        url: '/audio/siy/siy-stop-technique.mp3',
+        duration: 600,
+        fileSize: 9 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'stop', 'regulasi', 'emosi', 'praktis'],
+      thumbnailUrl: '/images/thumbnails/siy-stop.jpg',
+      backgroundColor: '#FEE2E2',
+      completionCount: 950,
+      averageRating: 4.6,
+      createdAt: new Date('2024-03-20'),
+      updatedAt: new Date('2024-03-20')
+    });
+
+    siySessions.push({
+      id: 'siy_regulation_2',
+      title: 'SIY: Membangun Resiliensi Mental',
+      description: 'Praktik untuk mengembangkan ketahanan mental dan kemampuan recovery dari stres.',
+      category: 'siy-regulation',
+      duration: 20,
+      difficulty: 'menengah',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_siy_regulation_2',
+        title: 'SIY: Resiliensi Mental',
+        url: '/audio/siy/siy-resilience.mp3',
+        duration: 1200,
+        fileSize: 18 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'resiliensi', 'ketahanan', 'mental', 'recovery'],
+      thumbnailUrl: '/images/thumbnails/siy-resilience.jpg',
+      backgroundColor: '#DCFCE7',
+      isPremium: true,
+      completionCount: 580,
+      averageRating: 4.8,
+      createdAt: new Date('2024-03-22'),
+      updatedAt: new Date('2024-03-22')
+    });
+
+    // SIY Empathy Development Sessions
+    siySessions.push({
+      id: 'siy_empathy_1',
+      title: 'SIY: Loving-Kindness untuk Diri Sendiri',
+      description: 'Mengembangkan kasih sayang pada diri sendiri sebagai fondasi empati yang sehat.',
+      category: 'siy-empathy',
+      duration: 15,
+      difficulty: 'pemula',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_siy_empathy_1',
+        title: 'SIY: Loving-Kindness Diri',
+        url: '/audio/siy/siy-self-compassion.mp3',
+        duration: 900,
+        fileSize: 13.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'loving-kindness', 'kasih-sayang', 'empati', 'diri'],
+      thumbnailUrl: '/images/thumbnails/siy-self-compassion.jpg',
+      backgroundColor: '#FDF2F8',
+      completionCount: 720,
+      averageRating: 4.7,
+      createdAt: new Date('2024-03-25'),
+      updatedAt: new Date('2024-03-25')
+    });
+
+    siySessions.push({
+      id: 'siy_empathy_2',
+      title: 'SIY: Empati Lintas Budaya Indonesia',
+      description: 'Praktik empati yang mempertimbangkan keragaman budaya Indonesia. Memahami perspektif berbeda.',
+      category: 'siy-empathy',
+      duration: 22,
+      difficulty: 'lanjutan',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_siy_empathy_2',
+        title: 'SIY: Empati Lintas Budaya',
+        url: '/audio/siy/siy-cultural-empathy.mp3',
+        duration: 1320,
+        fileSize: 19.8 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'empati', 'budaya', 'indonesia', 'perspektif'],
+      thumbnailUrl: '/images/thumbnails/siy-cultural-empathy.jpg',
+      backgroundColor: '#F0FDF4',
+      isPremium: true,
+      completionCount: 380,
+      averageRating: 4.9,
+      createdAt: new Date('2024-03-28'),
+      updatedAt: new Date('2024-03-28')
+    });
+
+    // SIY Social Skills Sessions
+    siySessions.push({
+      id: 'siy_social_1',
+      title: 'SIY: Komunikasi Mindful dalam Budaya Indonesia',
+      description: 'Menerapkan mindfulness dalam komunikasi dengan mempertimbangkan norma sosial Indonesia.',
+      category: 'siy-social',
+      duration: 16,
+      difficulty: 'menengah',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_siy_social_1',
+        title: 'SIY: Komunikasi Mindful',
+        url: '/audio/siy/siy-mindful-communication.mp3',
+        duration: 960,
+        fileSize: 14.4 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'komunikasi', 'mindful', 'sosial', 'budaya'],
+      thumbnailUrl: '/images/thumbnails/siy-communication.jpg',
+      backgroundColor: '#E0F7FA',
+      completionCount: 640,
+      averageRating: 4.6,
+      createdAt: new Date('2024-04-01'),
+      updatedAt: new Date('2024-04-01')
+    });
+
+    // SIY Happiness Sessions
+    siySessions.push({
+      id: 'siy_happiness_1',
+      title: 'SIY: Kultivasi Kebahagiaan Berkelanjutan',
+      description: 'Praktik-praktik untuk mengembangkan kebahagiaan yang autentik dan berkelanjutan.',
+      category: 'siy-happiness',
+      duration: 20,
+      difficulty: 'menengah',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_siy_happiness_1',
+        title: 'SIY: Kebahagiaan Berkelanjutan',
+        url: '/audio/siy/siy-sustainable-happiness.mp3',
+        duration: 1200,
+        fileSize: 18 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'kebahagiaan', 'berkelanjutan', 'kultivasi', 'autentik'],
+      thumbnailUrl: '/images/thumbnails/siy-happiness.jpg',
+      backgroundColor: '#FFF9C4',
+      isPremium: true,
+      completionCount: 420,
+      averageRating: 4.8,
+      createdAt: new Date('2024-04-05'),
+      updatedAt: new Date('2024-04-05')
+    });
+
+    // SIY Workplace Application Sessions
+    siySessions.push({
+      id: 'siy_workplace_1',
+      title: 'SIY: Leadership Mindful di Lingkungan Kerja',
+      description: 'Menerapkan prinsip SIY untuk kepemimpinan yang efektif dan penuh kesadaran.',
+      category: 'siy-workplace',
+      duration: 18,
+      difficulty: 'lanjutan',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_siy_workplace_1',
+        title: 'SIY: Leadership Mindful',
+        url: '/audio/siy/siy-mindful-leadership.mp3',
+        duration: 1080,
+        fileSize: 16.2 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['siy', 'leadership', 'kerja', 'mindful', 'kepemimpinan'],
+      thumbnailUrl: '/images/thumbnails/siy-leadership.jpg',
+      backgroundColor: '#F3E5F5',
+      isPremium: true,
+      completionCount: 290,
+      averageRating: 4.9,
+      createdAt: new Date('2024-04-08'),
+      updatedAt: new Date('2024-04-08')
+    });
+
+    return siySessions;
+  }
+
+  /**
+   * Generate culturally adapted sessions for Indonesian personas
+   */
+  private generateCulturalAdaptedSessions(instructors: InstructorProfile[]): MeditationSession[] {
+    const culturalSessions: MeditationSession[] = [];
+
+    // Islamic-adapted Sessions
+    culturalSessions.push({
+      id: 'cultural_islamic_1',
+      title: 'Meditasi Islami: Dzikir dan Kontemplasi',
+      description: 'Menggabungkan dzikir dengan teknik mindfulness untuk kedamaian spiritual yang mendalam.',
+      category: 'spiritual',
+      duration: 20,
+      difficulty: 'menengah',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_cultural_islamic_1',
+        title: 'Dzikir dan Kontemplasi',
+        url: '/audio/cultural/islamic-dzikir-meditation.mp3',
+        duration: 1200,
+        fileSize: 18 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['islam', 'dzikir', 'spiritual', 'kontemplasi', 'religious'],
+      thumbnailUrl: '/images/thumbnails/islamic-meditation.jpg',
+      backgroundColor: '#E8F5E8',
+      completionCount: 890,
+      averageRating: 4.8,
+      createdAt: new Date('2024-04-10'),
+      updatedAt: new Date('2024-04-10')
+    });
+
+    culturalSessions.push({
+      id: 'cultural_islamic_2',
+      title: 'Shalat sebagai Meditasi Bergerak',
+      description: 'Memahami dan merasakan dimensi meditatif dalam gerakan dan bacaan shalat.',
+      category: 'spiritual',
+      duration: 15,
+      difficulty: 'pemula',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_cultural_islamic_2',
+        title: 'Shalat Meditatif',
+        url: '/audio/cultural/prayer-meditation.mp3',
+        duration: 900,
+        fileSize: 13.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['islam', 'shalat', 'prayer', 'spiritual', 'movement'],
+      thumbnailUrl: '/images/thumbnails/prayer-meditation.jpg',
+      backgroundColor: '#F0F9FF',
+      completionCount: 1200,
+      averageRating: 4.9,
+      createdAt: new Date('2024-04-12'),
+      updatedAt: new Date('2024-04-12')
+    });
+
+    // Javanese Cultural Sessions
+    culturalSessions.push({
+      id: 'cultural_javanese_1',
+      title: 'Semedi Jawa: Keheningan yang Bermakna',
+      description: 'Praktik meditasi tradisional Jawa dengan fokus pada keheningan batin dan kebijaksanaan.',
+      category: 'spiritual',
+      duration: 25,
+      difficulty: 'lanjutan',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_cultural_javanese_1',
+        title: 'Semedi Jawa',
+        url: '/audio/cultural/javanese-semedi.mp3',
+        duration: 1500,
+        fileSize: 22.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['jawa', 'semedi', 'tradisional', 'kebijaksanaan', 'keheningan'],
+      thumbnailUrl: '/images/thumbnails/javanese-meditation.jpg',
+      backgroundColor: '#FEF7CD',
+      isPremium: true,
+      completionCount: 340,
+      averageRating: 4.9,
+      createdAt: new Date('2024-04-15'),
+      updatedAt: new Date('2024-04-15')
+    });
+
+    culturalSessions.push({
+      id: 'cultural_javanese_2',
+      title: 'Filosofi Jawa dalam Kehidupan Sehari-hari',
+      description: 'Menerapkan prinsip-prinsip kebijaksanaan Jawa seperti "nrimo" dan "sabar" dalam praktik mindfulness.',
+      category: 'pulang-diri',
+      duration: 18,
+      difficulty: 'menengah',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_cultural_javanese_2',
+        title: 'Filosofi Jawa Mindfulness',
+        url: '/audio/cultural/javanese-philosophy.mp3',
+        duration: 1080,
+        fileSize: 16.2 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['jawa', 'filosofi', 'nrimo', 'sabar', 'mindfulness'],
+      thumbnailUrl: '/images/thumbnails/javanese-philosophy.jpg',
+      backgroundColor: '#F5F3FF',
+      completionCount: 520,
+      averageRating: 4.7,
+      createdAt: new Date('2024-04-18'),
+      updatedAt: new Date('2024-04-18')
+    });
+
+    // Balinese Cultural Sessions
+    culturalSessions.push({
+      id: 'cultural_balinese_1',
+      title: 'Tri Hita Karana: Harmoni dengan Alam, Sesama, dan Tuhan',
+      description: 'Meditasi berdasarkan filosofi Bali tentang keharmonisan dalam tiga hubungan fundamental.',
+      category: 'spiritual',
+      duration: 22,
+      difficulty: 'menengah',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_cultural_balinese_1',
+        title: 'Tri Hita Karana',
+        url: '/audio/cultural/balinese-harmony.mp3',
+        duration: 1320,
+        fileSize: 19.8 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['bali', 'tri-hita-karana', 'harmoni', 'alam', 'spiritual'],
+      thumbnailUrl: '/images/thumbnails/balinese-harmony.jpg',
+      backgroundColor: '#E0F2F1',
+      isPremium: true,
+      completionCount: 410,
+      averageRating: 4.8,
+      createdAt: new Date('2024-04-20'),
+      updatedAt: new Date('2024-04-20')
+    });
+
+    // Minangkabau Cultural Sessions
+    culturalSessions.push({
+      id: 'cultural_minangkabau_1',
+      title: 'Kearifan Minangkabau: Silaturahmi dan Gotong Royong',
+      description: 'Meditasi berdasarkan nilai-nilai luhur budaya Minangkabau tentang kekeluargaan dan kebersamaan.',
+      category: 'spiritual',
+      duration: 18,
+      difficulty: 'menengah',
+      instructor: instructors[4].name,
+      audioFile: {
+        id: 'audio_cultural_minangkabau_1',
+        title: 'Kearifan Minangkabau',
+        url: '/audio/cultural/minangkabau-wisdom.mp3',
+        duration: 1080,
+        fileSize: 16.2 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['minangkabau', 'silaturahmi', 'gotong-royong', 'keluarga', 'kebijaksanaan'],
+      thumbnailUrl: '/images/thumbnails/minangkabau-meditation.jpg',
+      backgroundColor: '#FEF3E2',
+      completionCount: 320,
+      averageRating: 4.7,
+      createdAt: new Date('2024-05-01'),
+      updatedAt: new Date('2024-05-01')
+    });
+
+    return culturalSessions;
+  }
+
+  /**
+   * Generate advanced and specialized sessions
+   */
+  private generateAdvancedSessions(instructors: InstructorProfile[]): MeditationSession[] {
+    const advancedSessions: MeditationSession[] = [];
+
+    // Advanced Breathing Techniques
+    advancedSessions.push({
+      id: 'advanced_breathing_1',
+      title: 'Teknik Napas 4-7-8 untuk Sistem Saraf',
+      description: 'Teknik pernapasan lanjutan untuk mengaktifkan respons relaksasi sistem saraf parasimpatik.',
+      category: 'napas-hiruk',
+      duration: 12,
+      difficulty: 'lanjutan',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_advanced_breathing_1',
+        title: 'Teknik Napas 4-7-8',
+        url: '/audio/advanced/breathing-4-7-8.mp3',
+        duration: 720,
+        fileSize: 10.8 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['napas', '4-7-8', 'sistem-saraf', 'parasimpatik', 'lanjutan'],
+      thumbnailUrl: '/images/thumbnails/advanced-breathing.jpg',
+      backgroundColor: '#E1F5FE',
+      isPremium: true,
+      completionCount: 280,
+      averageRating: 4.6,
+      createdAt: new Date('2024-04-22'),
+      updatedAt: new Date('2024-04-22')
+    });
+
+    // Trauma-Informed Practices
+    advancedSessions.push({
+      id: 'trauma_informed_1',
+      title: 'Healing Trauma dengan Mindfulness',
+      description: 'Praktik mindfulness yang aman dan trauma-informed untuk penyembuhan emosional.',
+      category: 'emosi',
+      duration: 30,
+      difficulty: 'lanjutan',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_trauma_informed_1',
+        title: 'Healing Trauma Mindfulness',
+        url: '/audio/advanced/trauma-healing.mp3',
+        duration: 1800,
+        fileSize: 27 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['trauma', 'healing', 'penyembuhan', 'emosi', 'aman'],
+      thumbnailUrl: '/images/thumbnails/trauma-healing.jpg',
+      backgroundColor: '#FDF2F8',
+      isPremium: true,
+      completionCount: 150,
+      averageRating: 4.9,
+      createdAt: new Date('2024-04-25'),
+      updatedAt: new Date('2024-04-25')
+    });
+
+    // Extended Practice Sessions
+    advancedSessions.push({
+      id: 'extended_practice_1',
+      title: 'Retreat Mini: 45 Menit Meditasi Mendalam',
+      description: 'Sesi meditasi extended untuk praktisi yang sudah berpengalaman. Kombinasi berbagai teknik.',
+      category: 'spiritual',
+      duration: 45,
+      difficulty: 'lanjutan',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_extended_practice_1',
+        title: 'Retreat Mini 45 Menit',
+        url: '/audio/advanced/mini-retreat-45min.mp3',
+        duration: 2700,
+        fileSize: 40.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['retreat', 'extended', 'mendalam', '45-menit', 'lanjutan'],
+      thumbnailUrl: '/images/thumbnails/mini-retreat.jpg',
+      backgroundColor: '#F3E5F5',
+      isPremium: true,
+      completionCount: 95,
+      averageRating: 4.9,
+      createdAt: new Date('2024-04-28'),
+      updatedAt: new Date('2024-04-28')
+    });
+
+    return advancedSessions;
+  }
+
+  /**
+   * Generate seasonal and event-based content
+   */
+  private generateSeasonalContent(instructors: InstructorProfile[]): MeditationSession[] {
+    const seasonalSessions: MeditationSession[] = [];
+
+    // Ramadan Special Content
+    seasonalSessions.push({
+      id: 'seasonal_ramadan_1',
+      title: 'Meditasi Ramadan: Refleksi dan Kontemplasi',
+      description: 'Meditasi khusus untuk bulan suci Ramadan, menggabungkan nilai-nilai spiritual Islam dengan praktik mindfulness.',
+      category: 'spiritual',
+      duration: 15,
+      difficulty: 'menengah',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_seasonal_ramadan_1',
+        title: 'Meditasi Ramadan',
+        url: '/audio/seasonal/ramadan-reflection.mp3',
+        duration: 900,
+        fileSize: 13.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['ramadan', 'islam', 'spiritual', 'puasa', 'refleksi'],
+      thumbnailUrl: '/images/thumbnails/ramadan-meditation.jpg',
+      backgroundColor: '#E8F5E8',
+      isNew: true,
+      completionCount: 650,
+      averageRating: 4.9,
+      createdAt: new Date('2024-03-15'),
+      updatedAt: new Date('2024-03-15')
+    });
+
+    // New Year Intention Setting
+    seasonalSessions.push({
+      id: 'seasonal_newyear_1',
+      title: 'Niat Tahun Baru: Merancang Perjalanan Hidup',
+      description: 'Meditasi untuk merefleksikan tahun yang telah berlalu dan menetapkan niat positif untuk tahun mendatang.',
+      category: 'pulang-diri',
+      duration: 20,
+      difficulty: 'menengah',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_seasonal_newyear_1',
+        title: 'Niat Tahun Baru',
+        url: '/audio/seasonal/new-year-intention.mp3',
+        duration: 1200,
+        fileSize: 18 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['tahun-baru', 'niat', 'refleksi', 'planning'],
+      thumbnailUrl: '/images/thumbnails/new-year-intention.jpg',
+      backgroundColor: '#FEF3C7',
+      completionCount: 450,
+      averageRating: 4.7,
+      createdAt: new Date('2024-01-01'),
+      updatedAt: new Date('2024-01-01')
+    });
+
+    // Indonesia Independence Day
+    seasonalSessions.push({
+      id: 'seasonal_independence_1',
+      title: 'Meditasi Kemerdekaan: Syukur dan Patriotisme',
+      description: 'Refleksi mendalam tentang makna kemerdekaan dan rasa syukur sebagai bangsa Indonesia.',
+      category: 'spiritual',
+      duration: 17,
+      difficulty: 'pemula',
+      instructor: instructors[4].name,
+      audioFile: {
+        id: 'audio_seasonal_independence_1',
+        title: 'Meditasi Kemerdekaan',
+        url: '/audio/seasonal/independence-gratitude.mp3',
+        duration: 1020,
+        fileSize: 15.3 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['kemerdekaan', 'indonesia', 'patriotisme', 'syukur'],
+      thumbnailUrl: '/images/thumbnails/independence-meditation.jpg',
+      backgroundColor: '#FEE2E2',
+      completionCount: 380,
+      averageRating: 4.8,
+      createdAt: new Date('2024-08-17'),
+      updatedAt: new Date('2024-08-17')
+    });
+
+    return seasonalSessions;
+  }
+
+  /**
+   * Generate specialty content for specific needs
+   */
+  private generateSpecialtyContent(instructors: InstructorProfile[]): MeditationSession[] {
+    const specialtySessions: MeditationSession[] = [];
+
+    // Pregnancy and Motherhood
+    specialtySessions.push({
+      id: 'specialty_pregnancy_1',
+      title: 'Meditasi Kehamilan: Bonding dengan Sang Buah Hati',
+      description: 'Meditasi khusus untuk ibu hamil, menciptakan koneksi emosional dengan janin dan mengurangi kecemasan.',
+      category: 'emosi',
+      duration: 18,
+      difficulty: 'pemula',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_specialty_pregnancy_1',
+        title: 'Meditasi Kehamilan',
+        url: '/audio/specialty/pregnancy-bonding.mp3',
+        duration: 1080,
+        fileSize: 16.2 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['kehamilan', 'bonding', 'ibu', 'janin', 'kecemasan'],
+      thumbnailUrl: '/images/thumbnails/pregnancy-meditation.jpg',
+      backgroundColor: '#FDF2F8',
+      isPremium: true,
+      completionCount: 220,
+      averageRating: 4.9,
+      createdAt: new Date('2024-04-10'),
+      updatedAt: new Date('2024-04-10')
+    });
+
+    // Senior Citizens
+    specialtySessions.push({
+      id: 'specialty_seniors_1',
+      title: 'Meditasi Usia Emas: Kebijaksanaan dan Ketenangan',
+      description: 'Praktik meditasi yang disesuaikan untuk lansia, fokus pada penerimaan, kebijaksanaan, dan kedamaian batin.',
+      category: 'spiritual',
+      duration: 22,
+      difficulty: 'pemula',
+      instructor: instructors[0].name,
+      audioFile: {
+        id: 'audio_specialty_seniors_1',
+        title: 'Meditasi Usia Emas',
+        url: '/audio/specialty/seniors-wisdom.mp3',
+        duration: 1320,
+        fileSize: 19.8 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['lansia', 'kebijaksanaan', 'penerimaan', 'kedamaian'],
+      thumbnailUrl: '/images/thumbnails/seniors-meditation.jpg',
+      backgroundColor: '#F0FDF4',
+      completionCount: 180,
+      averageRating: 4.8,
+      createdAt: new Date('2024-04-20'),
+      updatedAt: new Date('2024-04-20')
+    });
+
+    // Students and Academic Stress
+    specialtySessions.push({
+      id: 'specialty_students_1',
+      title: 'Meditasi Pelajar: Fokus dan Mengatasi Stres Ujian',
+      description: 'Khusus untuk siswa dan mahasiswa, membantu meningkatkan konsentrasi dan mengurangi kecemasan saat ujian.',
+      category: 'fokus-kerja',
+      duration: 12,
+      difficulty: 'pemula',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_specialty_students_1',
+        title: 'Meditasi Pelajar',
+        url: '/audio/specialty/student-focus.mp3',
+        duration: 720,
+        fileSize: 10.8 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['pelajar', 'ujian', 'konsentrasi', 'stres-akademik'],
+      thumbnailUrl: '/images/thumbnails/student-meditation.jpg',
+      backgroundColor: '#E0F7FA',
+      completionCount: 890,
+      averageRating: 4.6,
+      createdAt: new Date('2024-05-01'),
+      updatedAt: new Date('2024-05-01')
+    });
+
+    return specialtySessions;
+  }
+
+  /**
+   * Generate interactive and gamified content
+   */
+  private generateInteractiveContent(instructors: InstructorProfile[]): MeditationSession[] {
+    const interactiveSessions: MeditationSession[] = [];
+
+    // Breathing Challenge
+    interactiveSessions.push({
+      id: 'interactive_breathing_1',
+      title: 'Tantangan Napas 21 Hari: Perjalanan Transformasi',
+      description: 'Program interaktif 21 hari dengan berbagai teknik pernapasan yang progressif dan trackable.',
+      category: 'napas-hiruk',
+      duration: 14,
+      difficulty: 'menengah',
+      instructor: instructors[1].name,
+      audioFile: {
+        id: 'audio_interactive_breathing_1',
+        title: 'Tantangan Napas 21 Hari',
+        url: '/audio/interactive/21-day-breathing.mp3',
+        duration: 840,
+        fileSize: 12.6 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['tantangan', '21-hari', 'napas', 'tracking', 'progressive'],
+      thumbnailUrl: '/images/thumbnails/breathing-challenge.jpg',
+      backgroundColor: '#E1F5FE',
+      isNew: true,
+      isPremium: true,
+      completionCount: 1200,
+      averageRating: 4.7,
+      createdAt: new Date('2024-05-15'),
+      updatedAt: new Date('2024-05-15')
+    });
+
+    // Mindful Storytelling
+    interactiveSessions.push({
+      id: 'interactive_story_1',
+      title: 'Cerita Interaktif: Petualangan Kesadaran',
+      description: 'Meditasi naratif interaktif di mana Anda menjadi bagian dari cerita dan membuat pilihan mindful.',
+      category: 'pulang-diri',
+      duration: 25,
+      difficulty: 'menengah',
+      instructor: instructors[2].name,
+      audioFile: {
+        id: 'audio_interactive_story_1',
+        title: 'Petualangan Kesadaran',
+        url: '/audio/interactive/mindful-story.mp3',
+        duration: 1500,
+        fileSize: 22.5 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['interaktif', 'cerita', 'pilihan', 'naratif'],
+      thumbnailUrl: '/images/thumbnails/interactive-story.jpg',
+      backgroundColor: '#F3E5F5',
+      isPremium: true,
+      completionCount: 340,
+      averageRating: 4.8,
+      createdAt: new Date('2024-05-20'),
+      updatedAt: new Date('2024-05-20')
+    });
+
+    // Virtual Nature Walk
+    interactiveSessions.push({
+      id: 'interactive_nature_1',
+      title: 'Jalan Virtual di Alam Indonesia',
+      description: 'Meditasi berjalan virtual melalui keindahan alam Indonesia dengan soundscape yang realistis.',
+      category: 'spiritual',
+      duration: 30,
+      difficulty: 'pemula',
+      instructor: instructors[4].name,
+      audioFile: {
+        id: 'audio_interactive_nature_1',
+        title: 'Jalan Virtual Alam',
+        url: '/audio/interactive/virtual-nature-walk.mp3',
+        duration: 1800,
+        fileSize: 27 * 1024 * 1024,
+        format: 'mp3'
+      },
+      tags: ['virtual', 'alam', 'jalan', 'indonesia', 'soundscape'],
+      thumbnailUrl: '/images/thumbnails/virtual-nature.jpg',
+      backgroundColor: '#F0FDF4',
+      completionCount: 680,
+      averageRating: 4.9,
+      createdAt: new Date('2024-05-25'),
+      updatedAt: new Date('2024-05-25')
+    });
+
+    return interactiveSessions;
+  }
+
+  /**
+   * Generate comprehensive courses including full SIY program
    */
   generateCourses(): Course[] {
     const instructors = this.generateInstructors();
@@ -397,6 +1279,130 @@ export class SampleContentGenerator {
         averageRating: 4.9,
         createdAt: new Date('2024-02-01'),
         updatedAt: new Date('2024-02-01')
+      },
+      {
+        id: 'course_siy_foundation',
+        title: 'Search Inside Yourself: Foundation Program',
+        description: 'Program lengkap SIY untuk mengembangkan emotional intelligence',
+        longDescription: 'Program 8 minggu yang komprehensif berdasarkan kurikulum Search Inside Yourself dari Google. Mengembangkan attention, self-awareness, self-regulation, empathy, dan social skills melalui praktik mindfulness yang terbukti secara ilmiah.',
+        category: 'siy-attention',
+        difficulty: 'menengah',
+        instructor: instructors[3].name, // Dr. Ravi Mindfulness
+        sessions: [
+          'siy_attention_1', 'siy_attention_2', 
+          'siy_awareness_1', 'siy_awareness_2',
+          'siy_regulation_1', 'siy_regulation_2',
+          'siy_empathy_1', 'siy_empathy_2',
+          'siy_social_1', 'siy_happiness_1'
+        ],
+        estimatedDuration: 480, // 8 hours total
+        thumbnailUrl: '/images/courses/siy-foundation.jpg',
+        backgroundImageUrl: '/images/courses/bg-siy-foundation.jpg',
+        tags: ['siy', 'emotional-intelligence', '8-minggu', 'google', 'mindfulness'],
+        objectives: [
+          'Mengembangkan keterampilan perhatian dan fokus',
+          'Meningkatkan kesadaran diri dan emosional',
+          'Belajar meregulasi emosi dengan efektif',
+          'Mengembangkan empati dan keterampilan sosial',
+          'Menerapkan SIY di lingkungan kerja dan personal'
+        ],
+        isPremium: true,
+        completionRate: 78,
+        enrollmentCount: 2400,
+        averageRating: 4.8,
+        createdAt: new Date('2024-03-01'),
+        updatedAt: new Date('2024-03-01')
+      },
+      {
+        id: 'course_cultural_wisdom',
+        title: 'Kearifan Budaya Indonesia dalam Mindfulness',
+        description: 'Mengintegrasikan nilai-nilai budaya Indonesia dengan praktik mindfulness',
+        longDescription: 'Program 6 minggu yang mengeksplorasi kearifan tradisional Indonesia dan mengintegrasikannya dengan praktik mindfulness modern. Mencakup perspektif Islam, Jawa, Bali, dan budaya Nusantara lainnya.',
+        category: 'spiritual',
+        difficulty: 'menengah',
+        instructor: instructors[4].name, // Mbak Dewi Cultural Wisdom
+        sessions: [
+          'cultural_islamic_1', 'cultural_islamic_2',
+          'cultural_javanese_1', 'cultural_javanese_2',
+          'cultural_balinese_1', 'cultural_minangkabau_1'
+        ],
+        estimatedDuration: 360, // 6 hours total
+        thumbnailUrl: '/images/courses/cultural-wisdom.jpg',
+        backgroundImageUrl: '/images/courses/bg-cultural.jpg',
+        tags: ['budaya', 'indonesia', 'kearifan', 'tradisional', 'nusantara'],
+        objectives: [
+          'Memahami kearifan tradisional Indonesia',
+          'Mengintegrasikan nilai budaya dengan mindfulness',
+          'Menghargai keragaman spiritual Nusantara',
+          'Mengembangkan identitas spiritual yang autentik',
+          'Membangun jembatan antara tradisi dan modernitas'
+        ],
+        isPremium: true,
+        completionRate: 82,
+        enrollmentCount: 1600,
+        averageRating: 4.9,
+        createdAt: new Date('2024-03-15'),
+        updatedAt: new Date('2024-03-15')
+      },
+      {
+        id: 'course_workplace_mindfulness',
+        title: 'Mindful Leadership untuk Pemimpin Indonesia',
+        description: 'Program khusus untuk mengembangkan kepemimpinan mindful di konteks budaya Indonesia',
+        longDescription: 'Program 10 minggu untuk para pemimpin yang ingin mengembangkan keterampilan kepemimpinan dengan basis mindfulness. Disesuaikan dengan konteks budaya dan tantangan kepemimpinan di Indonesia.',
+        category: 'siy-workplace',
+        difficulty: 'lanjutan',
+        instructor: instructors[5].name, // Pak Ahmad Workplace Mindfulness
+        sessions: [
+          'siy_workplace_1', 'siy_regulation_2',
+          'siy_social_1', 'siy_empathy_2'
+        ],
+        estimatedDuration: 600, // 10 hours total
+        thumbnailUrl: '/images/courses/mindful-leadership.jpg',
+        backgroundImageUrl: '/images/courses/bg-leadership.jpg',
+        tags: ['leadership', 'kepemimpinan', 'workplace', 'mindful', 'indonesia'],
+        objectives: [
+          'Mengembangkan self-awareness sebagai pemimpin',
+          'Belajar komunikasi yang efektif dan empatis',
+          'Mengelola konflik dengan pendekatan mindful',
+          'Membangun tim yang harmonis dan produktif',
+          'Mengintegrasikan nilai budaya Indonesia dalam kepemimpinan'
+        ],
+        isPremium: true,
+        completionRate: 75,
+        enrollmentCount: 890,
+        averageRating: 4.7,
+        createdAt: new Date('2024-04-01'),
+        updatedAt: new Date('2024-04-01')
+      },
+      {
+        id: 'course_advanced_practice',
+        title: 'Praktik Lanjutan: Deepening Your Practice',
+        description: 'Program untuk praktisi berpengalaman yang ingin memperdalam praktik meditasi',
+        longDescription: 'Program 12 minggu untuk praktisi yang sudah memiliki fondasi kuat dalam meditasi. Mencakup praktik-praktik lanjutan, retreat mini, dan pengembangan spiritual yang mendalam.',
+        category: 'spiritual',
+        difficulty: 'lanjutan',
+        instructor: instructors[0].name, // Ibu Sari Dewi
+        sessions: [
+          'advanced_breathing_1', 'trauma_informed_1',
+          'extended_practice_1', 'session_spiritual_1'
+        ],
+        estimatedDuration: 720, // 12 hours total
+        thumbnailUrl: '/images/courses/advanced-practice.jpg',
+        backgroundImageUrl: '/images/courses/bg-advanced.jpg',
+        tags: ['lanjutan', 'deepening', 'spiritual', 'advanced', 'retreat'],
+        objectives: [
+          'Memperdalam kualitas kesadaran dalam meditasi',
+          'Mengeksplorasi dimensi spiritual yang lebih dalam',
+          'Mengintegrasikan praktik dalam kehidupan sehari-hari',
+          'Mengembangkan kemampuan guidance untuk orang lain',
+          'Memahami aspek terapeutik dari meditasi'
+        ],
+        isPremium: true,
+        completionRate: 68,
+        enrollmentCount: 450,
+        averageRating: 4.9,
+        createdAt: new Date('2024-04-15'),
+        updatedAt: new Date('2024-04-15')
       }
     ];
   }

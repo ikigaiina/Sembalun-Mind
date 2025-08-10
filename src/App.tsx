@@ -44,6 +44,9 @@ import { SplashScreen } from './components/ui/SplashScreen';
 import { SupabaseProtectedRoute } from './components/auth/SupabaseProtectedRoute';
 import { useScrollToTop } from './hooks/useScrollToTop';
 import ErrorBoundary from './components/ui/ErrorBoundary';
+// Cultural Meditation Components
+import { MinangkabauMeditation } from './components/cultural/MinangkabauMeditation';
+import { CulturalMeditation } from './pages/CulturalMeditation';
 // Enterprise monitoring re-enabled after fixing errors
 import EnterprisePerformanceMonitor from './utils/enterprise-performance-monitor';
 // import EnterpriseSecurityManager from './utils/enterprise-security';
@@ -193,11 +196,17 @@ const AppContent: React.FC = () => {
         <Routes>
           <Route path="/" element={<Dashboard />} />
           <Route path="/old-home" element={<Home />} />
-          <Route 
-            path="/meditation" 
+          <Route path="/meditation" 
             element={
               <DashboardLayout showBottomNav={false}>
                 <Meditation />
+              </DashboardLayout>
+            } 
+          />
+          <Route path="/meditasi-nusantara" 
+            element={
+              <DashboardLayout showBottomNav={false}>
+                <CulturalMeditation />
               </DashboardLayout>
             } 
           />
@@ -219,6 +228,17 @@ const AppContent: React.FC = () => {
             element={
               <DashboardLayout showBottomNav={false}>
                 <BreathingSession />
+              </DashboardLayout>
+            } 
+          />
+          <Route 
+            path="/meditasi-minangkabau" 
+            element={
+              <DashboardLayout showBottomNav={false}>
+                <MinangkabauMeditation 
+                  onComplete={() => console.log('Minangkabau meditation completed')}
+                  onProgress={(progress) => console.log('Progress:', progress)}
+                />
               </DashboardLayout>
             } 
           />

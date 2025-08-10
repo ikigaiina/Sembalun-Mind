@@ -12,9 +12,11 @@ import {
 } from '../components/ui';
 import { ArrowLeft, Play, Pause, Settings, Sparkles, Mountain, Wind } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useSmartBack } from '../hooks/useNavigationHistory';
 
 export const CairnShowcase: React.FC = () => {
   const navigate = useNavigate();
+  const { goBack } = useSmartBack('/');
   const [demoProgress, setDemoProgress] = useState(75);
   const [activeDemo, setActiveDemo] = useState<string>('logo');
 
@@ -251,7 +253,7 @@ export const CairnShowcase: React.FC = () => {
               <Button
                 variant="ghost"
                 size="icon"
-                onClick={() => navigate('/')}
+                onClick={goBack}
               >
                 <ArrowLeft className="w-5 h-5" />
               </Button>

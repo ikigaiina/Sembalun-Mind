@@ -23,6 +23,8 @@ import { getUserDisplayName } from '../utils/user-display';
 import { usePersonalization } from '../contexts/PersonalizationContext';
 import { useMoodTracker } from '../hooks/useMoodTracker';
 import { MoodSelectionModal } from '../components/ui/MoodSelectionModal';
+import { useProgressScaling } from '../hooks/useProgressScaling';
+import { getSyncedProgress } from '../utils/progressSync';
 
 interface FilterOptions {
   duration: 'all' | 'short' | 'medium' | 'long';
@@ -31,7 +33,8 @@ interface FilterOptions {
   category: 'all' | string;
 }
 
-const SAMPLE_COURSES: Course[] = [
+// Base course data without hardcoded progress
+const BASE_COURSES = [
   {
     id: '1',
     title: 'Ketenangan Hutan',
@@ -40,9 +43,7 @@ const SAMPLE_COURSES: Course[] = [
     sessionCount: 7,
     difficulty: 'Pemula',
     category: 'Stres',
-    progress: 60,
-    thumbnail: '🌲',
-    isStarted: true
+    thumbnail: '🌲'
   },
   {
     id: '2',
@@ -52,9 +53,7 @@ const SAMPLE_COURSES: Course[] = [
     sessionCount: 5,
     difficulty: 'Pemula',
     category: 'Tidur',
-    progress: 0,
-    thumbnail: '🌙',
-    isStarted: false
+    thumbnail: '🌙'
   },
   {
     id: '3',
@@ -64,13 +63,32 @@ const SAMPLE_COURSES: Course[] = [
     sessionCount: 10,
     difficulty: 'Menengah',
     category: 'Fokus',
-    progress: 30,
-    thumbnail: '⛰️',
-    isStarted: true
+    thumbnail: '⛰️'
+  },
+  {
+    id: '4',
+    title: 'Cinta Kasih untuk Diri',
+    description: 'Meditasi loving-kindness untuk meningkatkan rasa sayang pada diri sendiri',
+    duration: '18 menit',
+    sessionCount: 8,
+    difficulty: 'Menengah',
+    category: 'Self-Care',
+    thumbnail: '💝'
+  },
+  {
+    id: '5',
+    title: 'Keseimbangan Chakra',
+    description: 'Harmonisasi energi tubuh melalui meditasi chakra',
+    duration: '30 menit',
+    sessionCount: 12,
+    difficulty: 'Lanjutan',
+    category: 'Spiritual',
+    thumbnail: '🕉️'
   }
-];
+] as const;
 
-const SAMPLE_SESSIONS: Session[] = [
+// Base sessions without hardcoded completion status
+const BASE_SESSIONS = [
   {
     id: '1',
     title: 'Napas Pagi 5 Menit',
@@ -79,8 +97,6 @@ const SAMPLE_SESSIONS: Session[] = [
     category: 'Jeda Pagi',
     type: 'breathing',
     difficulty: 'Pemula',
-    isCompleted: false,
-    isFavorite: true,
     thumbnail: '🌅',
     instructor: 'Ibu Sari Dewi'
   },
@@ -92,8 +108,6 @@ const SAMPLE_SESSIONS: Session[] = [
     category: 'Napas di Tengah Hiruk',
     type: 'meditation',
     difficulty: 'Pemula',
-    isCompleted: true,
-    isFavorite: false,
     thumbnail: '🌊',
     instructor: 'Andi Wijaya'
   },
@@ -105,8 +119,6 @@ const SAMPLE_SESSIONS: Session[] = [
     category: 'Pulang ke Diri',
     type: 'meditation',
     difficulty: 'Menengah',
-    isCompleted: false,
-    isFavorite: false,
     thumbnail: '🌸',
     instructor: 'Sari Indah'
   },
@@ -118,8 +130,6 @@ const SAMPLE_SESSIONS: Session[] = [
     category: 'Tidur yang Dalam',
     type: 'visualization',
     difficulty: 'Pemula',
-    isCompleted: false,
-    isFavorite: true,
     thumbnail: '🌙',
     instructor: 'Dewi Lestari'
   },
@@ -131,8 +141,6 @@ const SAMPLE_SESSIONS: Session[] = [
     category: 'Jeda Pagi',
     type: 'body-scan',
     difficulty: 'Menengah',
-    isCompleted: true,
-    isFavorite: false,
     thumbnail: '🌿',
     instructor: 'Raka Pratama'
   },
@@ -144,12 +152,10 @@ const SAMPLE_SESSIONS: Session[] = [
     category: 'Napas di Tengah Hiruk',
     type: 'breathing',
     difficulty: 'Pemula',
-    isCompleted: false,
-    isFavorite: true,
     thumbnail: '💨',
     instructor: 'Nina Kartika'
   }
-];
+] as const;
 
 const CATEGORIES = [
   { name: 'Tidur', icon: '😴', color: 'bg-indigo-100 text-indigo-800' },
@@ -284,6 +290,15 @@ export const Explore: React.FC = () => {
   const { user, userProfile, isGuest } = useAuth();
   const navigate = useNavigate();
   
+  // Progress scaling for dynamic course progress
+  const {
+    scaledProgress,
+    getNextMilestoneInfo,
+    recommendations: progressRecommendations,
+    adaptiveGoals,
+    isLoading: progressLoading
+  } = useProgressScaling();
+  
   // Personalization hooks
   const { 
     personalization, 
@@ -306,6 +321,93 @@ export const Explore: React.FC = () => {
     type: 'all',
     category: 'all'
   });
+
+  // Create dynamic courses based on user progress
+  const SAMPLE_COURSES: Course[] = useMemo(() => {
+    // For guest users or users with no progress, show 0 progress
+    if (isGuest || !userProfile || progressLoading) {
+      return BASE_COURSES.map(course => ({
+        ...course,
+        progress: 0,
+        isStarted: false
+      }));
+    }
+
+    // Calculate realistic progress based on user's actual meditation data
+    const userProgress = scaledProgress || getSyncedProgress(userProfile);
+    const totalSessions = userProgress.totalSessions || 0;
+    const totalMinutes = userProgress.totalMinutes || 0;
+    
+    return BASE_COURSES.map((course, index) => {
+      // Only show progress if user has actually done sessions
+      let progress = 0;
+      let isStarted = false;
+      
+      if (totalSessions > 0) {
+        // Distribute progress based on user's actual activity
+        // More experienced users (higher session counts) have higher course progress
+        const experienceFactor = Math.min(totalSessions / 10, 1); // Max at 10 sessions
+        const timeFactor = Math.min(totalMinutes / 100, 1); // Max at 100 minutes
+        
+        // Different courses progress at different rates based on difficulty
+        const difficultyMultiplier = course.difficulty === 'Pemula' ? 1.2 : 
+                                   course.difficulty === 'Menengah' ? 0.8 : 0.5;
+        
+        // Calculate progress (0-100%)
+        const baseProgress = (experienceFactor + timeFactor) / 2;
+        progress = Math.floor(baseProgress * difficultyMultiplier * 100);
+        
+        // Ensure some variety - not all courses have same progress
+        const courseVariation = (index * 23) % 40; // Pseudo-random variation
+        progress = Math.max(0, Math.min(100, progress + courseVariation - 20));
+        
+        isStarted = progress > 0;
+      }
+
+      return {
+        ...course,
+        progress,
+        isStarted
+      };
+    });
+  }, [isGuest, userProfile, scaledProgress, progressLoading]);
+
+  // Create dynamic sessions based on user progress  
+  const SAMPLE_SESSIONS: Session[] = useMemo(() => {
+    // For guest users or users with no progress, show no completion/favorites
+    if (isGuest || !userProfile || progressLoading) {
+      return BASE_SESSIONS.map(session => ({
+        ...session,
+        isCompleted: false,
+        isFavorite: false
+      }));
+    }
+
+    // Calculate realistic completion/favorites based on user's actual meditation data
+    const userProgress = scaledProgress || getSyncedProgress(userProfile);
+    const totalSessions = userProgress.totalSessions || 0;
+    
+    return BASE_SESSIONS.map((session, index) => {
+      let isCompleted = false;
+      let isFavorite = false;
+      
+      if (totalSessions > 0) {
+        // Only mark sessions as completed if user has done meaningful practice
+        const completionThreshold = index + 1; // Progressive difficulty
+        isCompleted = totalSessions >= completionThreshold;
+        
+        // Only favorite sessions if user has some experience
+        const favoriteChance = (index * 37) % 100; // Pseudo-random
+        isFavorite = totalSessions >= 2 && favoriteChance < 30; // 30% chance for experienced users
+      }
+
+      return {
+        ...session,
+        isCompleted,
+        isFavorite
+      };
+    });
+  }, [isGuest, userProfile, scaledProgress, progressLoading]);
 
   // Helper function to parse duration in minutes
   const parseDurationMinutes = (duration: string): number => {
