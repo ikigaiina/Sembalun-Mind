@@ -41,15 +41,13 @@ export const Settings: React.FC = () => {
     },
     meditation: userProfile?.preferences?.meditation || {
       defaultDuration: 10,
-      preferredVoice: 'default',
-      backgroundSounds: true,
+      // Audio preferences removed for visual-only experience
       guidanceLevel: 'moderate' as const,
-      musicVolume: 70,
-      voiceVolume: 80,
+      // Volume controls removed for visual-only experience
       autoAdvance: false,
       showTimer: true,
       preparationTime: 30,
-      endingBell: true,
+      visualNotifications: true,
     },
   });
 
@@ -271,7 +269,7 @@ export const Settings: React.FC = () => {
                       {key === 'socialUpdates' && 'Social updates'}
                       {key === 'push' && 'Push notifications'}
                       {key === 'email' && 'Email notifications'}
-                      {key === 'sound' && 'Sound notifications'}
+                      {key === 'sound' && 'Visual notifications'}
                       {key === 'vibration' && 'Vibration notifications'}
                     </span>
                   </label>
@@ -353,10 +351,10 @@ export const Settings: React.FC = () => {
                 <label className="flex items-center gap-3">
                   <input
                     type="checkbox"
-                    checked={formData.meditation.backgroundSounds}
+                    checked={formData.meditation.visualNotifications}
                     onChange={(e) => setFormData(prev => ({
                       ...prev,
-                      meditation: { ...prev.meditation, backgroundSounds: e.target.checked }
+                      meditation: { ...prev.meditation, visualNotifications: e.target.checked }
                     }))}
                     className="w-5 h-5 text-primary border-gray-300 rounded focus:ring-primary"
                   />

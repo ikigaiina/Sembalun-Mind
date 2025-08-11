@@ -704,36 +704,6 @@ export const PersonalizedDashboard: React.FC<PersonalizedDashboardProps> = ({
           />
         </motion.div>
 
-        {/* Quick Actions based on prominent features */}
-        {dashboardConfig.quickActions.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="mt-8"
-          >
-            <Card className="p-6">
-              <h3 className="text-lg font-heading font-semibold text-gray-800 mb-4 text-center">
-                Aksi Cepat
-              </h3>
-              <div className="flex flex-wrap justify-center gap-3">
-                {dashboardConfig.quickActions.slice(0, 6).map((action, index) => (
-                  <IndonesianCTA
-                    key={index}
-                    variant="respectful"
-                    style="outline"
-                    size="small"
-                    culturalContext={personalization?.culturalData}
-                    localization={getOptimalLocalization()}
-                    className="text-primary-600 border-primary-300 hover:bg-primary-50"
-                  >
-                    {action}
-                  </IndonesianCTA>
-                ))}
-              </div>
-            </Card>
-          </motion.div>
-        )}
 
         {/* Bottom padding for navigation */}
         <div className="h-6"></div>

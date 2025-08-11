@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Settings, Volume2, VolumeX, Heart, Timer, TrendingUp } from 'lucide-react';
+import { ArrowLeft, Settings, Heart, Timer, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BreathingVisualization3D from '../components/meditation/BreathingVisualization3D';
-import VoiceUIIndicator from '../components/ui/VoiceUIIndicator';
+// VoiceUIIndicator removed for visual-only experience
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
+import { 
+  BreathingVisualization, 
+  ImmersiveBackgrounds, 
+  ProgressAnimation 
+} from '../components/visual';
 import { useSmartBack } from '../hooks/useNavigationHistory';
 
 // 2025 Enhanced Breathing Session with 3D Visualization
@@ -22,8 +27,7 @@ export const BreathingSession: React.FC = () => {
   const { goBack } = useSmartBack('/explore');
   const [sessionStarted, setSessionStarted] = useState(false);
   const [sessionComplete, setSessionComplete] = useState(false);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
-  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  // Audio features removed for visual-only experience
   const [sessionData, setSessionData] = useState<BreathingSessionData | null>(null);
   const [showSettings, setShowSettings] = useState(false);
 
@@ -42,15 +46,7 @@ export const BreathingSession: React.FC = () => {
     setSessionStarted(false);
   };
 
-  // Voice interaction handlers
-  const handleVoiceToggle = () => {
-    setIsVoiceEnabled(!isVoiceEnabled);
-    if (!isVoiceEnabled) {
-      setIsVoiceListening(true);
-    } else {
-      setIsVoiceListening(false);
-    }
-  };
+  // Audio features removed for visual-only experience
 
   const handleBackPress = () => {
     if (sessionStarted) {
@@ -73,9 +69,17 @@ export const BreathingSession: React.FC = () => {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* Background with breathing animation */}
+      {/* Enhanced Immersive Background */}
+      <ImmersiveBackgrounds 
+        variant="breathing_gradients"
+        intensity={sessionStarted ? "immersive" : "subtle"}
+        speed={sessionStarted ? "slow" : "very_slow"}
+        colorScheme="breathing"
+      />
+      
+      {/* Additional Background Animation for Session */}
       <motion.div
-        className="absolute inset-0 bg-gradient-to-br from-meditation-focus-50 via-meditation-zen-50 to-meditation-calm-50"
+        className="absolute inset-0 bg-gradient-to-br from-meditation-focus-50 via-meditation-zen-50 to-meditation-calm-50 opacity-50"
         animate={sessionStarted ? {
           background: [
             'linear-gradient(135deg, #eff8ff 0%, #f0f9f2 50%, #f7f8fa 100%)',
@@ -117,38 +121,13 @@ export const BreathingSession: React.FC = () => {
                 <Settings className="w-6 h-6" />
               </Button>
               
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={handleVoiceToggle}
-                className="backdrop-blur-md"
-              >
-                {isVoiceEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
-              </Button>
+              {/* Audio controls removed for visual-only experience */}
             </div>
           </motion.header>
         )}
       </AnimatePresence>
 
-      {/* Voice UI Indicator */}
-      <AnimatePresence>
-        {isVoiceEnabled && (!sessionStarted || showUI) && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            className="absolute top-24 left-1/2 transform -translate-x-1/2 z-10"
-          >
-            <VoiceUIIndicator
-              isListening={isVoiceListening}
-              isGuiding={sessionStarted}
-              volume={0.4}
-              onToggleListening={() => setIsVoiceListening(!isVoiceListening)}
-              onToggleGuiding={handleVoiceToggle}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Audio features removed for visual-only meditation experience */}
 
       {/* Main Content */}
       <div className="relative z-10 flex-1 flex items-center justify-center min-h-screen">
@@ -199,11 +178,30 @@ export const BreathingSession: React.FC = () => {
                 </motion.div>
               )}
 
-              {/* 3D Breathing Visualization */}
-              <BreathingVisualization3D
-                autoStart={sessionStarted}
-                onSessionComplete={handleSessionComplete}
-              />
+              {/* Enhanced Immersive Breathing Visualization */}
+              <div className="relative flex items-center justify-center">
+                {/* New Enhanced Breathing Visualization */}
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <BreathingVisualization
+                    theme="ocean"
+                    size="large"
+                    isActive={sessionStarted}
+                    breathingPattern="coherent"
+                    showInstructions={false}
+                    showProgress={true}
+                    enableRipples={true}
+                    particleCount={12}
+                  />
+                </div>
+                
+                {/* Original 3D Visualization as overlay */}
+                <div className="relative z-10 opacity-80">
+                  <BreathingVisualization3D
+                    autoStart={sessionStarted}
+                    onSessionComplete={handleSessionComplete}
+                  />
+                </div>
+              </div>
 
               {/* Session Controls - Shown briefly during session */}
               {sessionStarted && (
@@ -331,19 +329,15 @@ export const BreathingSession: React.FC = () => {
                 <h3 className="text-xl font-bold mb-6">Session Settings</h3>
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <span>Voice Guidance</span>
-                    <Button
-                      variant={isVoiceEnabled ? "meditation" : "ghost"}
-                      size="sm"
-                      onClick={handleVoiceToggle}
-                    >
-                      {isVoiceEnabled ? "On" : "Off"}
+                    <span>Visual Effects</span>
+                    <Button variant="meditation" size="sm">
+                      Enhanced
                     </Button>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span>Background Sounds</span>
+                    <span>Animation Speed</span>
                     <Button variant="ghost" size="sm">
-                      Nature
+                      Normal
                     </Button>
                   </div>
                   <div className="flex items-center justify-between">

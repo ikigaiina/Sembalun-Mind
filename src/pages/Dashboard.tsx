@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Calendar, Clock, Settings, BarChart3, TrendingUp } from 'lucide-react';
 import { DashboardLayout } from '../components/ui';
 import { PersonalizedDashboard } from '../components/ui/PersonalizedDashboard';
+import { FirstTimeExperience } from '../components/ui/FirstTimeExperience';
 import { OnboardingModal } from '../components/onboarding/OnboardingModal';
 import { useOnboarding } from '../hooks/useOnboarding';
 import { useAuth } from '../hooks/useAuth';
@@ -46,6 +47,19 @@ export const Dashboard: React.FC = () => {
   } = useProgressScaling();
   
   const stats = scaledProgress;
+
+  // Show first-time experience only for new registered users with 0 sessions
+  if (!isGuest && stats && stats.totalSessions === 0 && !isLoading) {
+    return (
+      <FirstTimeExperience
+        onStartFirstSession={() => navigate('/meditation')}
+        onExploreApp={() => navigate('/explore')}
+        isGuest={false}
+      />
+    );
+  }
+
+  // Guest users get full dashboard access with welcome banner
 
   return (
     <DashboardLayout>
@@ -199,6 +213,35 @@ export const Dashboard: React.FC = () => {
               </motion.div>
             )}
           </motion.div>
+
+          {/* Guest Welcome Banner */}
+          {isGuest && (
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6"
+            >
+              <Card className="p-6 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                      🌟 Selamat Datang di Sembalun!
+                    </h3>
+                    <p className="text-gray-600 text-sm">
+                      Anda sedang menjelajah sebagai guest. Daftar untuk menyimpan progress meditasi Anda.
+                    </p>
+                  </div>
+                  <Button
+                    variant="primary"
+                    size="sm"
+                    onClick={() => navigate('/auth')}
+                  >
+                    Daftar Sekarang
+                  </Button>
+                </div>
+              </Card>
+            </motion.div>
+          )}
 
           {/* Main Dashboard Content */}
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">

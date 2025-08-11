@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ArrowLeft, Play, Pause, Volume2, VolumeX, Settings, Heart, Clock, Star, Wind, Globe, Mountain } from 'lucide-react';
+import { ArrowLeft, Play, Pause, Settings, Heart, Clock, Star, Wind, Globe, Mountain } from 'lucide-react';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { useAuth } from '../hooks/useAuth';
@@ -14,16 +14,19 @@ const BreathingVisualization3D = React.lazy(() =>
   }))
 );
 
-const VoiceUIIndicator = React.lazy(() => 
-  import('../components/ui/VoiceUIIndicator').catch(() => ({
-    default: () => <div className="p-2 text-center text-gray-500">Voice UI loading...</div>
-  }))
-);
+// VoiceUIIndicator removed - visual-only experience
 
-// Import other components directly for now
+// Import visual meditation components
 import { AdvancedMeditationTimer } from '../components/ui/AdvancedMeditationTimer';
 import { IndonesianGuidedMeditation } from '../components/meditation/IndonesianGuidedMeditation';
 import { EnhancedIndonesianMeditation } from '../components/meditation/EnhancedIndonesianMeditation';
+import { VisualMeditationGuide } from '../components/meditation/VisualMeditationGuide';
+import { 
+  BreathingVisualization, 
+  ImmersiveBackgrounds, 
+  ProgressAnimation, 
+  VisualMeditationEffects 
+} from '../components/visual';
 
 // 2025 Enhanced Meditation Session Interface
 interface MeditationSession {
@@ -35,11 +38,7 @@ interface MeditationSession {
   difficulty: 'beginner' | 'intermediate' | 'advanced';
   instructor?: string;
   tags?: string[];
-  audioSettings?: {
-    backgroundSound: string;
-    volume: number;
-    guidanceVolume: number;
-  };
+  // Audio settings removed for visual-only experience
 }
 
 type MeditationState = 'setup' | 'active' | 'paused' | 'completed';
@@ -140,8 +139,7 @@ export const Meditation: React.FC = () => {
   const [session, setSession] = useState<MeditationSession>(initialSession);
   const [meditationState, setMeditationState] = useState<MeditationState>('setup');
   const [selectedDuration, setSelectedDuration] = useState(session.duration);
-  const [isVoiceEnabled, setIsVoiceEnabled] = useState(false);
-  const [isVoiceListening, setIsVoiceListening] = useState(false);
+  // Audio features removed for visual-only experience
   const [showSettings, setShowSettings] = useState(false);
   const [showBreathingViz, setShowBreathingViz] = useState(false);
   const [sessionData, setSessionData] = useState<any>(null);
@@ -243,12 +241,7 @@ export const Meditation: React.FC = () => {
     }
   };
 
-  const handleVoiceToggle = () => {
-    setIsVoiceEnabled(!isVoiceEnabled);
-    if (!isVoiceEnabled) {
-      setIsVoiceListening(true);
-    }
-  };
+  // Audio functionality removed for visual-only experience
 
   // Enhanced Session Complete Screen with 2025 Design
   if (meditationState === 'completed') {
@@ -358,9 +351,25 @@ export const Meditation: React.FC = () => {
     if (meditationMode === 'indonesian') {
       return (
         <div className="min-h-screen relative overflow-hidden">
-          {/* Animated Background */}
+          {/* Enhanced Indonesian Cultural Background */}
+          <ImmersiveBackgrounds 
+            variant="zen_particles"
+            intensity="immersive"
+            speed="slow"
+            colorScheme="cultural"
+          />
+          
+          {/* Cultural Visual Effects */}
+          <VisualMeditationEffects
+            effect="mandala"
+            isActive={meditationState === 'active'}
+            intensity="medium"
+            syncWithBreathing={true}
+          />
+          
+          {/* Traditional Indonesian Background Overlay */}
           <motion.div
-            className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50"
+            className="absolute inset-0 bg-gradient-to-br from-orange-50 via-amber-50 to-yellow-50 opacity-70"
             animate={{
               background: [
                 'linear-gradient(135deg, #fff7ed 0%, #fef3c7 50%, #fffbeb 100%)',
@@ -421,9 +430,25 @@ export const Meditation: React.FC = () => {
 
     return (
       <div className="min-h-screen relative overflow-hidden">
-        {/* Animated Background */}
+        {/* Enhanced Immersive Background */}
+        <ImmersiveBackgrounds 
+          variant="flowing_waves"
+          intensity="medium"
+          speed="slow"
+          colorScheme="zen"
+        />
+        
+        {/* Visual Meditation Effects */}
+        <VisualMeditationEffects
+          effect="zen_garden"
+          isActive={meditationState === 'active'}
+          intensity="medium"
+          syncWithBreathing={true}
+        />
+        
+        {/* Animated Background Overlay */}
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-meditation-zen-50 via-white to-meditation-calm-50"
+          className="absolute inset-0 bg-gradient-to-br from-meditation-zen-50 via-white to-meditation-calm-50 opacity-60"
           animate={{
             background: [
               'linear-gradient(135deg, #f0f9f2 0%, #ffffff 50%, #f7f8fa 100%)',
@@ -733,30 +758,62 @@ export const Meditation: React.FC = () => {
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center min-h-screen px-6">
         
         {/* Enhanced Meditation Timer */}
+        {/* Enhanced Meditation Timer with Progress Animation */}
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.3 }}
-          className="mb-12"
+          className="mb-12 relative"
         >
-          <AdvancedMeditationTimer
-            duration={session.duration * 60}
-            onComplete={handleSessionComplete}
-            variant={session.category}
-          />
+          {/* Background Progress Animation */}
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ProgressAnimation
+              progress={Math.floor((Date.now() % (session.duration * 60 * 1000)) / (session.duration * 60 * 10))}
+              variant="breathing_ring"
+              size="large"
+              showMilestones={true}
+              theme="zen"
+            />
+          </div>
+          
+          {/* Main Timer */}
+          <div className="relative z-10">
+            <AdvancedMeditationTimer
+              duration={session.duration * 60}
+              onComplete={handleSessionComplete}
+              variant={session.category}
+            />
+          </div>
         </motion.div>
 
-        {/* 3D Breathing Visualization for breathing sessions */}
+        {/* Enhanced Breathing Visualization for breathing sessions */}
         {showBreathingViz && session.category === 'breathing' && (
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9 }}
-            className="mb-8"
+            className="mb-8 relative"
           >
-            <React.Suspense fallback={<div className="p-4 text-center text-gray-500">Loading breathing visualization...</div>}>
-              <BreathingVisualization3D autoStart={true} />
-            </React.Suspense>
+            {/* New Enhanced Breathing Visualization */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <BreathingVisualization
+                theme="forest"
+                size="large"
+                isActive={true}
+                breathingPattern="box"
+                showInstructions={true}
+                showProgress={true}
+                enableRipples={true}
+                particleCount={8}
+              />
+            </div>
+            
+            {/* Original 3D Visualization as Overlay */}
+            <div className="relative z-10 opacity-70">
+              <React.Suspense fallback={<div className="p-4 text-center text-gray-500">Loading breathing visualization...</div>}>
+                <BreathingVisualization3D autoStart={true} />
+              </React.Suspense>
+            </div>
           </motion.div>
         )}
 

@@ -67,61 +67,60 @@ export const Profile: React.FC = () => {
     favoriteTime: userPreferences?.schedulePreferences?.[0] ?? 'morning'
   };
 
-  const achievements = [
-    { 
-      id: '1', 
-      name: 'First Steps', 
-      description: 'Completed your first session', 
-      earned: stats.totalSessions > 0, 
-      date: stats.totalSessions > 0 ? userProfile?.createdAt?.toISOString().split('T')[0] : undefined, 
-      icon: '👣' 
-    },
-    { 
-      id: '2', 
-      name: '3 Day Streak', 
-      description: 'Completed 3 consecutive days', 
-      earned: stats.currentStreak >= 3, 
-      date: stats.currentStreak >= 3 ? new Date().toISOString().split('T')[0] : undefined, 
-      icon: '🔥',
-      progress: stats.currentStreak < 3 ? Math.round((stats.currentStreak / 3) * 100) : undefined
-    },
-    { 
-      id: '3', 
-      name: '7 Day Streak', 
-      description: 'Completed 7 consecutive days', 
-      earned: stats.currentStreak >= 7, 
-      date: stats.currentStreak >= 7 ? new Date().toISOString().split('T')[0] : undefined, 
-      icon: '🔥',
-      progress: stats.currentStreak < 7 ? Math.round((stats.currentStreak / 7) * 100) : undefined
-    },
-    { 
-      id: '4', 
-      name: 'Mindful Minutes', 
-      description: 'Accumulated 60 minutes of practice', 
-      earned: stats.totalMinutes >= 60, 
-      date: stats.totalMinutes >= 60 ? new Date().toISOString().split('T')[0] : undefined, 
-      icon: '⏱️',
-      progress: stats.totalMinutes < 60 ? Math.round((stats.totalMinutes / 60) * 100) : undefined
-    },
-    { 
-      id: '5', 
-      name: 'Dedicated Practitioner', 
-      description: 'Completed 10 sessions', 
-      earned: stats.totalSessions >= 10, 
-      date: stats.totalSessions >= 10 ? new Date().toISOString().split('T')[0] : undefined, 
-      icon: '🧘‍♀️',
-      progress: stats.totalSessions < 10 ? Math.round((stats.totalSessions / 10) * 100) : undefined
-    },
-    { 
-      id: '6', 
-      name: '30 Day Challenge', 
-      description: 'Practice for 30 consecutive days', 
-      earned: stats.currentStreak >= 30, 
-      date: stats.currentStreak >= 30 ? new Date().toISOString().split('T')[0] : undefined, 
-      icon: '🏆',
-      progress: stats.currentStreak < 30 ? Math.round((stats.currentStreak / 30) * 100) : undefined
-    }
-  ];
+  // Real achievements based on actual user progress
+  const achievements = React.useMemo(() => {
+    if (!stats) return [];
+    
+    return [
+      {
+        id: 'first_session',
+        name: 'Langkah Pertama',
+        description: 'Menyelesaikan sesi meditasi pertama',
+        earned: stats.totalSessions >= 1,
+        earnedDate: stats.totalSessions >= 1 ? userProfile?.createdAt?.toISOString().split('T')[0] : undefined,
+        icon: '🌱',
+        rarity: 'common'
+      },
+      {
+        id: 'three_day_streak',
+        name: 'Konsisten 3 Hari',
+        description: 'Bermeditasi selama 3 hari berturut-turut',
+        earned: stats.currentStreak >= 3,
+        progress: stats.currentStreak < 3 ? Math.round((stats.currentStreak / 3) * 100) : undefined,
+        icon: '🔥',
+        rarity: 'common'
+      },
+      {
+        id: 'week_streak',
+        name: 'Seminggu Penuh',
+        description: 'Bermeditasi selama 7 hari berturut-turut',
+        earned: stats.currentStreak >= 7,
+        progress: stats.currentStreak < 7 ? Math.round((stats.currentStreak / 7) * 100) : undefined,
+        icon: '⭐',
+        rarity: 'rare'
+      },
+      {
+        id: 'hour_total',
+        name: 'Satu Jam Perjalanan',
+        description: 'Total 60 menit waktu meditasi',
+        earned: stats.totalMinutes >= 60,
+        progress: stats.totalMinutes < 60 ? Math.round((stats.totalMinutes / 60) * 100) : undefined,
+        icon: '⏰',
+        rarity: 'common'
+      },
+      {
+        id: 'ten_sessions',
+        name: 'Dedikasi Konsisten',
+        description: 'Menyelesaikan 10 sesi meditasi',
+        earned: stats.totalSessions >= 10,
+        progress: stats.totalSessions < 10 ? Math.round((stats.totalSessions / 10) * 100) : undefined,
+        icon: '💯',
+        rarity: 'rare'
+      }
+    ].filter(achievement => 
+      achievement.earned || (achievement.progress && achievement.progress > 0)
+    );
+  }, [stats, userProfile?.createdAt]);
 
   const quickActions = [
     {
