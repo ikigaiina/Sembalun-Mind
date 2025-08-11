@@ -353,10 +353,10 @@ export const Meditation: React.FC = () => {
         <div className="min-h-screen relative overflow-hidden">
           {/* Enhanced Indonesian Cultural Background */}
           <ImmersiveBackgrounds 
-            variant="zen_particles"
+            variant="zen-particles"
             intensity="immersive"
             speed="slow"
-            colorScheme="cultural"
+            colorScheme="sunset"
           />
           
           {/* Cultural Visual Effects */}
@@ -432,10 +432,10 @@ export const Meditation: React.FC = () => {
       <div className="min-h-screen relative overflow-hidden">
         {/* Enhanced Immersive Background */}
         <ImmersiveBackgrounds 
-          variant="flowing_waves"
+          variant="flowing-waves"
           intensity="medium"
           speed="slow"
-          colorScheme="zen"
+          colorScheme="moonlight"
         />
         
         {/* Visual Meditation Effects */}

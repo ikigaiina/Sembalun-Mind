@@ -274,10 +274,15 @@ export const ImmersiveBackgrounds: React.FC<ImmersiveBackgroundsProps> = ({
   isActive = true,
   className = ''
 }) => {
-  const colors = colorSchemes[colorScheme];
-  const speedMultiplier = speedConfig[speed];
+  const colors = colorSchemes[colorScheme] || colorSchemes.neutral;
+  const speedMultiplier = speedConfig[speed] || speedConfig.normal;
 
   const backgroundComponent = useMemo(() => {
+    // Ensure colors is defined
+    if (!colors) {
+      return null;
+    }
+    
     const props = { colors, speed: speedMultiplier, intensity, isActive };
     
     switch (variant) {
@@ -301,7 +306,7 @@ export const ImmersiveBackgrounds: React.FC<ImmersiveBackgroundsProps> = ({
       {/* Base gradient background */}
       <div 
         className="absolute inset-0"
-        style={{ background: colors.background }}
+        style={{ background: colors?.background || 'transparent' }}
       />
       
       {/* Animated background component */}
