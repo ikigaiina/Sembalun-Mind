@@ -345,8 +345,8 @@ export const ProgressAnimation: React.FC<ProgressAnimationProps> = ({
   const [currentProgress, setCurrentProgress] = useState(0);
   const [milestones, setMilestones] = useState<number[]>([]);
   
-  const currentTheme = themes[theme];
-  const currentSize = sizeConfig[size];
+  const currentTheme = themes[theme] || themes.ocean;
+  const currentSize = sizeConfig[size] || sizeConfig.medium;
 
   // Animate progress changes
   useEffect(() => {

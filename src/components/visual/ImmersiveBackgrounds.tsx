@@ -2,7 +2,7 @@ import React, { useEffect, useMemo } from 'react';
 import { motion, useAnimation } from 'framer-motion';
 
 export interface ImmersiveBackgroundsProps {
-  variant?: 'flowing-waves' | 'floating-orbs' | 'gentle-aurora' | 'breathing-gradients' | 'zen-particles';
+  variant?: 'flowing-waves' | 'floating-orbs' | 'gentle-aurora' | 'breathing-gradients';
   intensity?: 'subtle' | 'medium' | 'immersive';
   colorScheme?: 'ocean' | 'forest' | 'sunset' | 'moonlight' | 'neutral';
   speed?: 'slow' | 'normal' | 'fast';
@@ -218,53 +218,6 @@ const BreathingGradients: React.FC<{ colors: ColorScheme; speed: number; intensi
   );
 };
 
-// Zen Particles Background
-const ZenParticles: React.FC<{ colors: ColorScheme; speed: number; intensity: string }> = ({ colors, speed, intensity }) => {
-  const particleCount = intensity === 'subtle' ? 8 : intensity === 'medium' ? 15 : 25;
-  
-  const particles = useMemo(() => 
-    [...Array(particleCount)].map((_, i) => ({
-      id: i,
-      size: 2 + Math.random() * 4,
-      initialX: Math.random() * 100,
-      initialY: Math.random() * 100,
-      color: [colors.primary, colors.secondary, colors.accent][i % 3] + '60'
-    })), [particleCount, colors]
-  );
-
-  return (
-    <div className="absolute inset-0 overflow-hidden">
-      {particles.map((particle) => (
-        <motion.div
-          key={particle.id}
-          className="absolute rounded-full"
-          style={{
-            width: particle.size,
-            height: particle.size,
-            backgroundColor: particle.color,
-            left: particle.initialX + '%',
-            top: particle.initialY + '%',
-            filter: 'blur(1px)'
-          }}
-          animate={{
-            y: [-window.innerHeight, window.innerHeight],
-            x: [
-              -20 + Math.sin(particle.id) * 40,
-              20 + Math.sin(particle.id + Math.PI) * 40
-            ],
-            opacity: [0, 0.6, 0.6, 0]
-          }}
-          transition={{
-            duration: (15 + Math.random() * 10) / speed,
-            repeat: Infinity,
-            ease: 'linear',
-            delay: Math.random() * 10
-          }}
-        />
-      ))}
-    </div>
-  );
-};
 
 export const ImmersiveBackgrounds: React.FC<ImmersiveBackgroundsProps> = ({
   variant = 'gentle-aurora',
@@ -294,26 +247,24 @@ export const ImmersiveBackgrounds: React.FC<ImmersiveBackgroundsProps> = ({
         return <GentleAurora {...props} />;
       case 'breathing-gradients':
         return <BreathingGradients {...props} />;
-      case 'zen-particles':
-        return <ZenParticles {...props} />;
       default:
         return <GentleAurora {...props} />;
     }
   }, [variant, colors, speedMultiplier, intensity, isActive]);
 
   return (
-    <div className={`absolute inset-0 pointer-events-none ${className}`}>
+    <div className={`fixed inset-0 pointer-events-none ${className}`} style={{ zIndex: -50 }}>
       {/* Base gradient background */}
       <div 
-        className="absolute inset-0"
-        style={{ background: colors?.background || 'transparent' }}
+        className="fixed inset-0"
+        style={{ background: colors?.background || 'transparent', zIndex: -60 }}
       />
       
       {/* Animated background component */}
       {backgroundComponent}
       
       {/* Optional overlay for depth */}
-      <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5" />
+      <div className="fixed inset-0 bg-gradient-to-b from-transparent via-transparent to-black/5" style={{ zIndex: -40 }} />
     </div>
   );
 };

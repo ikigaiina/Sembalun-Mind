@@ -31,7 +31,7 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
 }) => {
   const [isRunning, setIsRunning] = useState(autoStart);
   const [currentPhaseIndex, setCurrentPhaseIndex] = useState(0);
-  const [timeRemaining, setTimeRemaining] = useState(phases[0]?.duration || 0);
+  const [timeRemaining, setTimeRemaining] = useState(phases?.[0]?.duration || 0);
   const [totalElapsed, setTotalElapsed] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [showPhaseTransition, setShowPhaseTransition] = useState(false);
@@ -39,8 +39,19 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const currentPhase = phases[currentPhaseIndex];
-  const totalDuration = phases.reduce((sum, phase) => sum + phase.duration, 0);
+  // Check if no phases provided
+  if (!phases || phases.length === 0) {
+    return (
+      <Card variant="default" size="lg">
+        <div className="text-center py-8">
+          <p className="text-gray-500">No meditation phases configured</p>
+        </div>
+      </Card>
+    );
+  }
+
+  const currentPhase = phases?.[currentPhaseIndex];
+  const totalDuration = phases?.reduce((sum, phase) => sum + phase.duration, 0) || 0;
   const overallProgress = (totalElapsed / totalDuration) * 100;
   const phaseProgress = currentPhase ? ((currentPhase.duration - timeRemaining) / currentPhase.duration) * 100 : 0;
 
@@ -80,14 +91,14 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
             // Phase completed
             const nextPhaseIndex = currentPhaseIndex + 1;
             
-            if (nextPhaseIndex < phases.length) {
+            if (nextPhaseIndex < (phases?.length || 0)) {
               // Move to next phase
               setCurrentPhaseIndex(nextPhaseIndex);
               setShowPhaseTransition(true);
               
               setTimeout(() => setShowPhaseTransition(false), 2000);
               
-              const nextPhase = phases[nextPhaseIndex];
+              const nextPhase = phases?.[nextPhaseIndex];
               playSound('phase');
               
               if (onPhaseChange) {
@@ -134,7 +145,7 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
   const handleStop = () => {
     setIsRunning(false);
     setCurrentPhaseIndex(0);
-    setTimeRemaining(phases[0]?.duration || 0);
+    setTimeRemaining(phases?.[0]?.duration || 0);
     setTotalElapsed(0);
     playSound('pause');
   };
@@ -142,19 +153,19 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
   const handleReset = () => {
     setIsRunning(false);
     setCurrentPhaseIndex(0);
-    setTimeRemaining(phases[0]?.duration || 0);
+    setTimeRemaining(phases?.[0]?.duration || 0);
     setTotalElapsed(0);
   };
 
   const handleSkipPhase = () => {
-    if (currentPhaseIndex < phases.length - 1) {
+    if (currentPhaseIndex < (phases?.length || 0) - 1) {
       const nextPhaseIndex = currentPhaseIndex + 1;
       setCurrentPhaseIndex(nextPhaseIndex);
-      setTimeRemaining(phases[nextPhaseIndex].duration);
+      setTimeRemaining(phases?.[nextPhaseIndex]?.duration || 0);
       playSound('phase');
       
       if (onPhaseChange) {
-        onPhaseChange(phases[nextPhaseIndex], nextPhaseIndex);
+        onPhaseChange(phases?.[nextPhaseIndex], nextPhaseIndex);
       }
     }
   };
@@ -230,7 +241,7 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
               {currentPhase.name}
             </h2>
             <p className="text-gray-600 font-body text-sm">
-              Phase {currentPhaseIndex + 1} of {phases.length}
+              Phase {currentPhaseIndex + 1} of {phases?.length || 0}
             </p>
           </div>
 
@@ -327,7 +338,7 @@ export const AdvancedMeditationTimer: React.FC<AdvancedMeditationTimerProps> = (
 
           {/* Secondary Controls */}
           <div className="flex justify-center space-x-4 mt-4">
-            {currentPhaseIndex < phases.length - 1 && (
+            {currentPhaseIndex < (phases?.length || 0) - 1 && (
               <Button
                 onClick={handleSkipPhase}
                 variant="control"
