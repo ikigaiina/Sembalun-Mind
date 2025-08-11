@@ -486,38 +486,11 @@ export const Meditation: React.FC = () => {
               <Settings className="w-6 h-6" />
             </Button>
             
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={handleVoiceToggle}
-              className="backdrop-blur-md"
-            >
-              {isVoiceEnabled ? <Volume2 className="w-6 h-6" /> : <VolumeX className="w-6 h-6" />}
-            </Button>
+            {/* Audio functionality removed for visual-only experience */}
           </div>
         </motion.header>
 
-        {/* Voice UI Indicator */}
-        <AnimatePresence>
-          {isVoiceEnabled && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              className="relative z-10 flex justify-center mb-6"
-            >
-              <React.Suspense fallback={<div className="p-2 text-center text-gray-500">Loading voice UI...</div>}>
-                <VoiceUIIndicator
-                  isListening={isVoiceListening}
-                  isGuiding={false}
-                  volume={0.4}
-                  onToggleListening={() => setIsVoiceListening(!isVoiceListening)}
-                  onToggleGuiding={handleVoiceToggle}
-                />
-              </React.Suspense>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Voice UI removed for visual-only meditation experience */}
 
         {/* Main Setup Content */}
         <div className="relative z-10 px-6 py-6 max-w-4xl mx-auto">
